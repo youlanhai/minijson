@@ -1,13 +1,14 @@
 //
-//  json.cpp
+//  node.hpp
 //  minijson
 //
 //  Created by youlanhai on 15/12/19.
 //  Copyright © 2015年 youlanhai. All rights reserved.
 //
 
-#include "json.hpp"
+#ifndef node_hpp
+#define node_hpp
 
-#if !JSON_CODE_INLINE
-#include "json.ipp"
-#endif
+#include <stdio.h>
+
+#endif /* node_hpp */
