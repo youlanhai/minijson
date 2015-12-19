@@ -15,6 +15,7 @@
 		DFD74F991C25A81D000B3938 /* allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74F971C25A81D000B3938 /* allocator.cpp */; };
 		DFD74F9C1C25A838000B3938 /* node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74F9A1C25A838000B3938 /* node.cpp */; };
 		DFD74F9F1C25A844000B3938 /* reference.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74F9D1C25A844000B3938 /* reference.cpp */; };
+		DFD74FA31C25A96D000B3938 /* object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74FA11C25A96D000B3938 /* object.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -48,6 +49,9 @@
 		DFD74F9B1C25A838000B3938 /* node.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = node.hpp; sourceTree = "<group>"; };
 		DFD74F9D1C25A844000B3938 /* reference.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reference.cpp; sourceTree = "<group>"; };
 		DFD74F9E1C25A844000B3938 /* reference.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = reference.hpp; sourceTree = "<group>"; };
+		DFD74FA01C25A87F000B3938 /* types.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
+		DFD74FA11C25A96D000B3938 /* object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = object.cpp; sourceTree = "<group>"; };
+		DFD74FA21C25A96D000B3938 /* object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = object.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,22 +85,25 @@
 		DFD74F851C258755000B3938 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				DFD74F971C25A81D000B3938 /* allocator.cpp */,
+				DFD74F981C25A81D000B3938 /* allocator.hpp */,
+				DFD74F8E1C25A7E2000B3938 /* array.cpp */,
+				DFD74F8F1C25A7E2000B3938 /* array.hpp */,
 				DFD74F8C1C259030000B3938 /* config.hpp */,
+				DFD74F941C25A7F9000B3938 /* dict.cpp */,
+				DFD74F951C25A7F9000B3938 /* dict.hpp */,
 				DFD74F891C25878B000B3938 /* json.cpp */,
 				DFD74F8A1C25878B000B3938 /* json.hpp */,
 				DFD74F8D1C259675000B3938 /* json.ipp */,
-				DFD74F8E1C25A7E2000B3938 /* array.cpp */,
-				DFD74F8F1C25A7E2000B3938 /* array.hpp */,
-				DFD74F911C25A7EF000B3938 /* string.cpp */,
-				DFD74F921C25A7EF000B3938 /* string.hpp */,
-				DFD74F941C25A7F9000B3938 /* dict.cpp */,
-				DFD74F951C25A7F9000B3938 /* dict.hpp */,
-				DFD74F971C25A81D000B3938 /* allocator.cpp */,
-				DFD74F981C25A81D000B3938 /* allocator.hpp */,
 				DFD74F9A1C25A838000B3938 /* node.cpp */,
 				DFD74F9B1C25A838000B3938 /* node.hpp */,
+				DFD74FA11C25A96D000B3938 /* object.cpp */,
+				DFD74FA21C25A96D000B3938 /* object.hpp */,
 				DFD74F9D1C25A844000B3938 /* reference.cpp */,
 				DFD74F9E1C25A844000B3938 /* reference.hpp */,
+				DFD74F911C25A7EF000B3938 /* string.cpp */,
+				DFD74F921C25A7EF000B3938 /* string.hpp */,
+				DFD74FA01C25A87F000B3938 /* types.hpp */,
 			);
 			name = src;
 			path = ../src;
@@ -168,6 +175,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DFD74F881C258755000B3938 /* main.cpp in Sources */,
+				DFD74FA31C25A96D000B3938 /* object.cpp in Sources */,
 				DFD74F901C25A7E2000B3938 /* array.cpp in Sources */,
 				DFD74F931C25A7EF000B3938 /* string.cpp in Sources */,
 				DFD74F991C25A81D000B3938 /* allocator.cpp in Sources */,

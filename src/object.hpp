@@ -1,0 +1,33 @@
+//
+//  object.hpp
+//  minijson
+//
+//  Created by youlanhai on 15/12/19.
+//  Copyright © 2015年 youlanhai. All rights reserved.
+//
+
+#ifndef object_hpp
+#define object_hpp
+
+#include "reference.hpp"
+#include "types.hpp"
+
+namespace mjson
+{
+    class IAllocator;
+    
+    class Object : public Reference
+    {
+    public:
+        Object(IAllocator *allocator);
+        ~Object();
+        
+        virtual void release();
+        virtual Type type() const = 0;
+        
+    protected:
+        IAllocator*     allocator_;
+    };
+}
+
+#endif /* object_hpp */

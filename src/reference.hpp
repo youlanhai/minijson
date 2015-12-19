@@ -9,6 +9,22 @@
 #ifndef reference_hpp
 #define reference_hpp
 
-#include <stdio.h>
+#include <cstdint>
+
+namespace mjson
+{
+    class Reference
+    {
+    public:
+        Reference();
+        virtual ~Reference();
+        
+        virtual void retain();
+        virtual void release();
+        
+    protected:
+        long        counter_;
+    };
+}
 
 #endif /* reference_hpp */
