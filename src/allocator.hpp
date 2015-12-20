@@ -13,6 +13,10 @@
 
 namespace mjson
 {
+    class Object;
+    class String;
+    class Array;
+    class Dict;
     
     class IAllocator : public Reference
     {
@@ -24,7 +28,7 @@ namespace mjson
         virtual void*   realloc(void *p, size_t newSize) = 0;
         virtual void    free(void *p) = 0;
         
-        virtual String* createString() = 0;
+        virtual String* createString(const char *str, size_t size) = 0;
         virtual Array*  createArray() = 0;
         virtual Dict*   createDict() = 0;
         
@@ -41,7 +45,7 @@ namespace mjson
         virtual void*   realloc(void *p, size_t newSize);
         virtual void    free(void *p);
         
-        virtual String* createString();
+        virtual String* createString(const char *str, size_t size);
         virtual Array*  createArray();
         virtual Dict*   createDict();
         

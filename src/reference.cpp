@@ -7,3 +7,7 @@
 //
 
 #include "reference.hpp"
+
+#if !JSON_CODE_INLINE
+#include "reference.ipp"
+#endif

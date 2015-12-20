@@ -21,7 +21,7 @@ namespace mjson
     public:
         typedef NodePair            value_type;
         typedef value_type*         iterator;
-        typedef const value_type    const_iterator;
+        typedef const value_type*   const_iterator;
         
         Dict(IAllocator *allocator);
         ~Dict();
@@ -46,8 +46,12 @@ namespace mjson
         size_t capacity() const;
         
         void reserve(size_t size);
+        void clear();
+        
+        bool equal(const Dict *p) const;
         
         virtual Type type() const { return T_DICT; }
+        virtual Object* clone() const;
         
     private:
         value_type*     begin_;
@@ -55,5 +59,9 @@ namespace mjson
         size_t          capacity_;
     };
 }
+
+#if JSON_CODE_INLINE
+#include "dict.ipp"
+#endif
 
 #endif /* dict_hpp */

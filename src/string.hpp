@@ -16,28 +16,27 @@ namespace mjson
     class String : public Object
     {
     public:
-        String(IAllocator *allocator);
-        String(const char *str, size_t length, IAllocator *allocator);
-        String(const String &str);
+        String(const char *str, size_t size, IAllocator *allocator);
         ~String();
         
-        void assign(const char *str, size_t length);
+        int compare(const char *str) const;
+        int compare(const String *p) const;
         
-        const String& operator = (const char *str);
-        const String& operator = (const String &str);
+        size_t size() const;
+        const char* data() const;
         
-        bool operator == (const char *str) const;
-        bool operator == (const String &str) const;
+        virtual Type type() const;
         
-        size_t size() const { return size_; }
-        const char* data() const{ return str_; }
-        
-        virtual Type type() const { return T_STRING; }
+        virtual Object* clone() const;
         
     private:
-        const char*     str_;
+        char*           str_;
         size_t          size_;
     };
 }
+
+#if JSON_CODE_INLINE
+#include "string.ipp"
+#endif
 
 #endif /* string_hpp */

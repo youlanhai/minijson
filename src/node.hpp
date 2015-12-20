@@ -33,7 +33,7 @@ namespace mjson
         Node(Integer value);
         Node(Float value);
         Node(Object *p);
-        Node(const char *str, IAllocator *allocator);
+        Node(const char *str, size_t size = 0, IAllocator *allocator = nullptr);
         Node(const Node &other);
         ~Node();
         
@@ -55,13 +55,9 @@ namespace mjson
         Dict*       asDict()    const;
         
         void setNull();
-        void setBool(bool value);
-        void setInteger(Integer value);
-        void setFloat(Float value);
-        void setString(const char *str, IAllocator *allocator = 0);
-        void setString(const char *str, size_t length, IAllocator *allocator = 0);
-        void setArray();
-        void setDict();
+        void setString(const char *str, size_t size = 0, IAllocator *allocator = 0);
+        void setArray(IAllocator *allocator = 0);
+        void setDict(IAllocator *allocator = 0);
         
         const Node& operator = (bool value);
         const Node& operator = (Integer value);
@@ -70,7 +66,8 @@ namespace mjson
         const Node& operator = (const Object *value);
         const Node& operator = (const Node &value);
         
-        bool operator == (const Node &value);
+        bool operator == (const Node &value) const;
+        bool operator != (const Node &value) const;
         
         size_t size() const;
         Node clone() const;
@@ -90,6 +87,10 @@ namespace mjson
 #endif
         
     private:
+        String* rawString() const;
+        Array* rawArray() const;
+        Dict* rawDict() const;
+        
         struct Value
         {
             union
@@ -108,9 +109,13 @@ namespace mjson
     
     struct NodePair
     {
-        String*     key;
+        Node        key;
         Node        value;
     };
 }
+
+#if JSON_CODE_INLINE
+#include "node.ipp"
+#endif
 
 #endif /* node_hpp */

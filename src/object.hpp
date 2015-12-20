@@ -18,12 +18,16 @@ namespace mjson
     
     class Object : public Reference
     {
+        JSON_DISABLE_COPY_ASSIGN(Object);
     public:
         Object(IAllocator *allocator);
         ~Object();
         
-        virtual void release();
-        virtual Type type() const = 0;
+        virtual void    release();
+        virtual Type    type() const = 0;
+        virtual Object* clone() const = 0;
+        
+        IAllocator* getAllocator(){ return allocator_; }
         
     protected:
         IAllocator*     allocator_;

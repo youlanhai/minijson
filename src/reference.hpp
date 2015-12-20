@@ -9,7 +9,12 @@
 #ifndef reference_hpp
 #define reference_hpp
 
+#include "config.hpp"
 #include <cstdint>
+
+#define JSON_DISABLE_COPY_ASSIGN(CLASS) \
+    CLASS(const CLASS&); \
+    const CLASS& operator=(const CLASS&)
 
 namespace mjson
 {
@@ -26,5 +31,10 @@ namespace mjson
         long        counter_;
     };
 }
+
+
+#if JSON_CODE_INLINE
+#include "reference.ipp"
+#endif
 
 #endif /* reference_hpp */

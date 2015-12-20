@@ -15,5 +15,10 @@
 
 #define JSON_SUPPORT_STL_STRING 1
 
+#if JSON_CODE_INLINE
+#define JSON_INLINE inline
+#else
+#define JSON_INLINE
+#endif
 
 #endif /* config_h */

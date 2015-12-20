@@ -17,6 +17,7 @@ namespace mjson
     
     class Array : public Object
     {
+        JSON_DISABLE_COPY_ASSIGN(Array);
     public:
         typedef Node            value_type;
         typedef Node*           iterator;
@@ -49,7 +50,10 @@ namespace mjson
         
         void clear();
         
+        bool equal(const Array *p) const;
+        
         virtual Type type() const { return T_ARRAY; }
+        virtual Object* clone() const;
         
     private:
         value_type*     begin_;

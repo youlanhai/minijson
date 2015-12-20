@@ -31,6 +31,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DFB36F581C26785000DCE895 /* reference.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reference.ipp; sourceTree = "<group>"; };
+		DFB36F591C2678BF00DCE895 /* array.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = array.ipp; sourceTree = "<group>"; };
 		DFD74F7B1C2586E8000B3938 /* minijson */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = minijson; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD74F871C258755000B3938 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		DFD74F891C25878B000B3938 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = json.cpp; sourceTree = "<group>"; };
@@ -52,6 +54,9 @@
 		DFD74FA01C25A87F000B3938 /* types.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
 		DFD74FA11C25A96D000B3938 /* object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = object.cpp; sourceTree = "<group>"; };
 		DFD74FA21C25A96D000B3938 /* object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = object.hpp; sourceTree = "<group>"; };
+		DFD74FA41C25ABED000B3938 /* node.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = node.ipp; sourceTree = "<group>"; };
+		DFD74FA51C25ADB4000B3938 /* string.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = string.ipp; sourceTree = "<group>"; };
+		DFD74FA61C25B690000B3938 /* dict.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dict.ipp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,20 +94,25 @@
 				DFD74F981C25A81D000B3938 /* allocator.hpp */,
 				DFD74F8E1C25A7E2000B3938 /* array.cpp */,
 				DFD74F8F1C25A7E2000B3938 /* array.hpp */,
+				DFB36F591C2678BF00DCE895 /* array.ipp */,
 				DFD74F8C1C259030000B3938 /* config.hpp */,
 				DFD74F941C25A7F9000B3938 /* dict.cpp */,
 				DFD74F951C25A7F9000B3938 /* dict.hpp */,
+				DFD74FA61C25B690000B3938 /* dict.ipp */,
 				DFD74F891C25878B000B3938 /* json.cpp */,
 				DFD74F8A1C25878B000B3938 /* json.hpp */,
 				DFD74F8D1C259675000B3938 /* json.ipp */,
 				DFD74F9A1C25A838000B3938 /* node.cpp */,
 				DFD74F9B1C25A838000B3938 /* node.hpp */,
+				DFD74FA41C25ABED000B3938 /* node.ipp */,
 				DFD74FA11C25A96D000B3938 /* object.cpp */,
 				DFD74FA21C25A96D000B3938 /* object.hpp */,
 				DFD74F9D1C25A844000B3938 /* reference.cpp */,
 				DFD74F9E1C25A844000B3938 /* reference.hpp */,
+				DFB36F581C26785000DCE895 /* reference.ipp */,
 				DFD74F911C25A7EF000B3938 /* string.cpp */,
 				DFD74F921C25A7EF000B3938 /* string.hpp */,
+				DFD74FA51C25ADB4000B3938 /* string.ipp */,
 				DFD74FA01C25A87F000B3938 /* types.hpp */,
 			);
 			name = src;
