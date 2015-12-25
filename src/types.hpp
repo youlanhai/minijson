@@ -9,6 +9,7 @@
 #ifndef types_h
 #define types_h
 
+#include "config.hpp"
 #include <cstdint>
 
 namespace mjson
@@ -16,7 +17,7 @@ namespace mjson
     typedef unsigned int SizeType;
     
 #if JSON_USE_LARGE_NUMBER
-    typedef long long   Integer;
+    typedef int64_t     Integer;
     typedef double      Float;
 #else
     typedef int         Integer;

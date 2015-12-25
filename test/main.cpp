@@ -10,6 +10,7 @@
 #include "string.hpp"
 #include "array.hpp"
 #include "dict.hpp"
+#include "node.hpp"
 #include "allocator.hpp"
 
 #include <string>
@@ -26,6 +27,8 @@ void testEqual(bool ret, const char *exp, int line)
 
 void testString()
 {
+    std::cout << "test string..." << std::endl;
+    
     mjson::IAllocator *allocator = new mjson::RawAllocator();
     allocator->retain();
     
@@ -43,9 +46,44 @@ void testString()
     TEST_EQUAL(p->compare(p2) == 0);
     p2->release();
     
+    mjson::String *p3 = (mjson::String*)p->deepClone();
+    p3->retain();
+    TEST_EQUAL(p->compare(p3) == 0);
+    p3->release();
+    
     p->release();
     
     allocator->release();
+}
+
+void testArray()
+{
+    std::cout << "test array..." << std::endl;
+    
+    
+    mjson::RawAllocator allocator;
+    mjson::Array *p = allocator.createArray();
+    p->retain();
+    
+    TEST_EQUAL(p->size() == 0);
+    TEST_EQUAL(p->capacity() == 0);
+    TEST_EQUAL(p->begin() == p->end());
+    TEST_EQUAL(p->begin() == nullptr);
+    
+    p->append(mjson::Node(1));
+    p->append(mjson::Node("Hello World"));
+    
+    p->release();
+}
+
+void testDict()
+{
+    
+}
+
+void testNode()
+{
+    
 }
 
 int main(int argc, const char * argv[]) {
@@ -53,5 +91,8 @@ int main(int argc, const char * argv[]) {
     std::cout << "Hello, World!\n";
     
     testString();
+    testArray();
+    testDict();
+    testNode();
     return 0;
 }
