@@ -19,6 +19,36 @@
 namespace mjson
 {
     
+    const char* Node::asCString() const
+    {
+        return isString() ? rawString()->data() : "";
+    }
+    
+    Array* Node::asArray() const
+    {
+        return (Array*)(isArray() ? value_.p : 0);
+    }
+    
+    Dict* Node::asDict() const
+    {
+        return (Dict*)(isDict() ? value_.p : 0);
+    }
+    
+    String* Node::rawString() const
+    {
+        return const_cast<String*>((String*)value_.p);
+    }
+    
+    Array* Node::rawArray() const
+    {
+        return const_cast<Array*>((Array*)value_.p);
+    }
+    
+    Dict* Node::rawDict() const
+    {
+        return const_cast<Dict*>((Dict*)value_.p);
+    }
+    
     void Node::setString(const char *str, size_t size, IAllocator *allocator)
     {
         setNull();
@@ -115,4 +145,63 @@ namespace mjson
             return false;
         }
     }
+    
+    size_t Node::size() const
+    {
+        if(isArray())
+        {
+            return rawArray()->size();
+        }
+        else if(isDict())
+        {
+            return rawDict()->size();
+        }
+        else if(isString())
+        {
+            return rawString()->size();
+        }
+        return 0;
+    }
+    
+    
+    Node& Node::operator[] (SizeType index)
+    {
+        if(isArray() && index < rawArray()->size())
+        {
+            return (*rawArray())[index];
+        }
+        static Node null;
+        return null;
+    }
+    
+    Node& Node::operator[] (const char *key)
+    {
+        if(isDict())
+        {
+            return (*rawDict())[key];
+        }
+        static Node null;
+        return null;
+    }
+    
+#if JSON_SUPPORT_STL_STRING
+    
+    void Node::asStdString(std::string &out) const
+    {
+        if(isString())
+        {
+            out.assign(rawString()->data(), rawString()->size());
+        }
+    }
+    
+    std::string Node::asStdString() const
+    {
+        if(isString())
+        {
+            return std::string(rawString()->data(), rawString()->size());
+        }
+        return "";
+    }
+    
+#endif
 }

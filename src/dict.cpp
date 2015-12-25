@@ -23,14 +23,6 @@ namespace mjson
         return maxSize(maxSize(oldSize << 1, 8), newSize);
     }
     
-    Dict::Dict(IAllocator *allocator)
-    : Object(allocator)
-    , begin_(nullptr)
-    , end_(nullptr)
-    , capacity_(0)
-    {
-        
-    }
     
     Dict::~Dict()
     {
@@ -103,9 +95,10 @@ namespace mjson
         }
     }
     
-    void Dict::remove(const char *key)
+    
+    size_t Dict::size() const
     {
-        erase(find(key));
+        return end_ - begin_;
     }
     
     void Dict::erase(iterator it)

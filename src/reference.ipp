@@ -11,19 +11,19 @@
 
 namespace mjson
 {
-    Reference::Reference()
+    JSON_INLINE Reference::Reference()
     : counter_(0)
     {}
     
-    Reference::~Reference()
+    JSON_INLINE Reference::~Reference()
     {}
     
-    void Reference::retain()
+    JSON_INLINE void Reference::retain()
     {
         ++counter_;
     }
     
-    void Reference::release()
+    JSON_INLINE void Reference::release()
     {
         if(--counter_ <= 0)
         {

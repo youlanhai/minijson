@@ -7,11 +7,6 @@
 //
 
 #include "object.hpp"
-
-#include "string.hpp"
-#include "array.hpp"
-#include "dict.hpp"
-
 #include <cassert>
 
 namespace mjson
@@ -217,57 +212,11 @@ namespace mjson
         return (String*)(isString() ? value_.p : 0);
     }
     
-    JSON_INLINE const char* Node::asCString() const
-    {
-        return isString() ? rawString()->data() : "";
-    }
-
-    JSON_INLINE Array* Node::asArray() const
-    {
-        return (Array*)(isArray() ? value_.p : 0);
-    }
-    
-    JSON_INLINE Dict* Node::asDict() const
-    {
-        return (Dict*)(isDict() ? value_.p : 0);
-    }
-    
-    JSON_INLINE String* Node::rawString() const
-    {
-        return const_cast<String*>((String*)value_.p);
-    }
-    
-    JSON_INLINE Array* Node::rawArray() const
-    {
-        return const_cast<Array*>((Array*)value_.p);
-    }
-    
-    JSON_INLINE Dict* Node::rawDict() const
-    {
-        return const_cast<Dict*>((Dict*)value_.p);
-    }
-    
     JSON_INLINE bool Node::operator != (const Node &value) const
     {
         return !(*this == value);
     }
-        
-    JSON_INLINE size_t Node::size() const
-    {
-        if(isArray())
-        {
-            return rawArray()->size();
-        }
-        else if(isDict())
-        {
-            return rawDict()->size();
-        }
-        else if(isString())
-        {
-            return rawString()->size();
-        }
-        return 0;
-    }
+       
     
     JSON_INLINE Node Node::clone() const
     {
@@ -282,27 +231,6 @@ namespace mjson
         }
         return ret;
     }
-    
-    JSON_INLINE Node& Node::operator[] (SizeType index)
-    {
-        if(isArray() && index < rawArray()->size())
-        {
-            return (*rawArray())[index];
-        }
-        static Node null;
-        return null;
-    }
-    
-    JSON_INLINE Node& Node::operator[] (const char *key)
-    {
-        if(isDict())
-        {
-            return (*rawDict())[key];
-        }
-        static Node null;
-        return null;
-    }
-    
     
 #if JSON_SUPPORT_STL_STRING
     JSON_INLINE Node::Node(const std::string &value, IAllocator *allocator)
@@ -326,23 +254,7 @@ namespace mjson
     {
         return setString(value.c_str(), value.size(), allocator);
     }
-    
-    JSON_INLINE void Node::asStdString(std::string &out) const
-    {
-        if(isString())
-        {
-            out.assign(rawString()->data(), rawString()->size());
-        }
-    }
-    
-    JSON_INLINE std::string Node::asStdString() const
-    {
-        if(isString())
-        {
-            return std::string(rawString()->data(), rawString()->size());
-        }
-        return "";
-    }
+   
 #endif
     
 }

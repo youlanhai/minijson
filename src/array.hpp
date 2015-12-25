@@ -41,18 +41,24 @@ namespace mjson
         const_iterator begin() const;
         const_iterator end() const;
         
-        Node& operator[](size_t index);
-        const Node& operator[](size_t index) const;
+        value_type& front();
+        const value_type& front() const;
+        
+        value_type& back();
+        const value_type& back() const;
+        
+        value_type& operator[](size_t index);
+        const value_type& operator[](size_t index) const;
         
         bool empty() const;
         size_t size() const;
-        size_t capacity() const { return capacity_; }
+        size_t capacity() const;
         
         void clear();
         
         bool equal(const Array *p) const;
         
-        virtual Type type() const { return T_ARRAY; }
+        virtual Type type() const;
         virtual Object* clone() const;
         
     private:
@@ -61,5 +67,9 @@ namespace mjson
         size_t          capacity_;
     };
 }
+
+#if JSON_CODE_INLINE
+#include "array.ipp"
+#endif
 
 #endif /* array_hpp */

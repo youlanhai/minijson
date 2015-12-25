@@ -10,19 +10,14 @@
 #include "node.hpp"
 #include "allocator.hpp"
 
+#if !JSON_CODE_INLINE
+#include "array.ipp"
+#endif
+
 namespace mjson
 {
     extern size_t growCapacity(size_t oldSize, size_t newSize);
-    
-    Array::Array(IAllocator *allocator)
-    : Object(allocator)
-    , begin_(0)
-    , end_(0)
-    , capacity_(0)
-    {
-        
-    }
-    
+ 
     Array::~Array()
     {
         clear();
@@ -101,13 +96,10 @@ namespace mjson
         }
     }
     
-    void Array::clear()
+    void Array::pop()
     {
-        for(iterator it = begin(); it != end(); ++it)
-        {
-            it->~value_type();
-        }
-        end_ = begin_;
+        assert(!empty());
+        erase(end_ - 1);
     }
     
     Object* Array::clone() const
@@ -139,5 +131,30 @@ namespace mjson
                 return false;
             }
         }
+        return true;
     }
+    
+    Array::value_type& Array::operator[](size_t index)
+    {
+        assert(index < size());
+        return  begin_[index];
+    }
+    
+    size_t Array::size() const
+    {
+        return end_ - begin_;
+    }
+    
+    Array::value_type& Array::front()
+    {
+        assert(!empty());
+        return *begin_;
+    }
+    
+    Array::value_type& Array::back()
+    {
+        assert(!empty());
+        return *(end_ - 1);
+    }
+    
 }

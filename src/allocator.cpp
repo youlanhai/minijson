@@ -16,6 +16,16 @@
 
 namespace mjson
 {
+    IAllocator::IAllocator()
+    {
+        
+    }
+    
+    IAllocator::~IAllocator()
+    {
+        
+    }
+    
     
     RawAllocator::RawAllocator()
     {

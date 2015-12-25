@@ -50,7 +50,7 @@ namespace mjson
         
         bool equal(const Dict *p) const;
         
-        virtual Type type() const { return T_DICT; }
+        virtual Type type() const;
         virtual Object* clone() const;
         
     private:
