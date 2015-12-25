@@ -117,6 +117,22 @@ namespace mjson
         return p;
     }
     
+    Object* Array::deepClone() const
+    {
+        Array *p = allocator_->createArray();
+        p->reserve(this->size());
+        
+        iterator out = p->begin();
+        for(const_iterator it = begin(); it != end(); ++it)
+        {
+            Node tmp = it->deepClone();
+            new (out) value_type(tmp);
+        }
+        
+        p->end_ = out;
+        return p;
+    }
+    
     bool Array::equal(const Array *p) const
     {
         if(this->size() != p->size())

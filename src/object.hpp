@@ -26,6 +26,7 @@ namespace mjson
         virtual void    release();
         virtual Type    type() const = 0;
         virtual Object* clone() const = 0;
+        virtual Object* deepClone() const = 0;
         
         IAllocator* getAllocator(){ return allocator_; }
         

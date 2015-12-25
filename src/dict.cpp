@@ -132,6 +132,26 @@ namespace mjson
         return p;
     }
     
+    Object* Dict::deepClone() const
+    {
+        Dict *p = allocator_->createDict();
+        p->reserve(this->size());
+        
+        iterator out = p->begin();
+        for(const_iterator it = begin(); it != end(); ++it)
+        {
+            value_type tmp;
+            tmp.key = it->key.deepClone();
+            tmp.value = it->value.deepClone();
+            
+            new (out) value_type(tmp);
+            ++out;
+        }
+        
+        p->end_ = out;
+        return p;
+    }
+    
     bool Dict::equal(const Dict *p) const
     {
         if(this->size() != p->size())

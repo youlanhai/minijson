@@ -60,6 +60,7 @@ namespace mjson
         
         virtual Type type() const;
         virtual Object* clone() const;
+        virtual Object* deepClone() const;
         
     private:
         value_type*     begin_;

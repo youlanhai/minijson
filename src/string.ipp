@@ -40,4 +40,9 @@ namespace mjson
     {
         return T_STRING;
     }
+    
+    JSON_INLINE Object* String::deepClone() const
+    {
+        return clone();
+    }
 }

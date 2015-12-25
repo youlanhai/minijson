@@ -71,6 +71,7 @@ namespace mjson
         
         size_t size() const;
         Node clone() const;
+        Node deepClone() const;
         
         Node& operator[] (SizeType index);
         Node& operator[] (const char *key);

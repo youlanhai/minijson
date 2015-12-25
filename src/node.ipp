@@ -232,6 +232,20 @@ namespace mjson
         return ret;
     }
     
+    JSON_INLINE Node Node::deepClone() const
+    {
+        Node ret;
+        
+        ret.type_ = type_;
+        ret.value_ = value_;
+        if(isPointer())
+        {
+            ret.value_.p = value_.p->deepClone();
+            ret.value_.p->retain();
+        }
+        return  ret;
+    }
+    
 #if JSON_SUPPORT_STL_STRING
     JSON_INLINE Node::Node(const std::string &value, IAllocator *allocator)
     : type_(T_NULL)

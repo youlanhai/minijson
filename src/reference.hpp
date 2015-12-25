@@ -27,6 +27,8 @@ namespace mjson
         virtual void retain();
         virtual void release();
         
+        long getRefCount() const;
+        
     protected:
         long        counter_;
     };

@@ -30,6 +30,11 @@ namespace mjson
             delete this;
         }
     }
+    
+    JSON_INLINE long Reference::getRefCount() const
+    {
+        return counter_;
+    }
 }
 
 #endif /* reference_h */
