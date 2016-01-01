@@ -44,6 +44,8 @@ namespace mjson
         Node& operator[] (const char *key);
         const Node& operator[] (const char *key) const;
         
+        iterator insert(const Node &key, const Node &value);
+        
         bool empty() const;
         size_t size() const;
         size_t capacity() const;

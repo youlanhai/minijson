@@ -29,7 +29,14 @@ namespace mjson
             str_[size] = 0;
         }
     }
-
+    
+    String::String(char *str, size_t size, bool placeHolder, IAllocator *allocator)
+    : Object(allocator)
+    , str_(str)
+    , size_(size)
+    {
+    }
+    
     String::~String()
     {
         if(size_ > 0)

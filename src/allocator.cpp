@@ -69,6 +69,13 @@ namespace mjson
         return new (p) Dict(this);
     }
     
+    
+    String* RawAllocator::createRawString(char *str, size_t size)
+    {
+        void *p = this->malloc(sizeof(String));
+        return new (p) String(str, size, true, this);
+    }
+    
     void RawAllocator::freeObject(Object *p)
     {
         p->~Object();

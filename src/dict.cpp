@@ -75,10 +75,17 @@ namespace mjson
     
     Node& Dict::at(const char *key)
     {
-        iterator it = find(key);
+        Node jkey(key, strlen(key), allocator_);
+        return insert(jkey, Node())->value;
+    }
+    
+    Dict::iterator Dict::insert(const Node &key, const Node &value)
+    {
+        iterator it = find(key.asCString());
         if(it != end())
         {
-            return it->value;
+            it->value = value;
+            return it;
         }
         else
         {
@@ -90,11 +97,11 @@ namespace mjson
             }
             
             new (end_) value_type();
-            end_->key = allocator_->createString(key, strlen(key));
-            return (end_++)->value;
+            end_->key = key;
+            end_->value = value;
+            return end_++;
         }
     }
-    
     
     size_t Dict::size() const
     {

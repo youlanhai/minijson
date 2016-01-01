@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DF9D491E1C3678A4003F62A9 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DF9D491C1C3678A4003F62A9 /* parser.cpp */; };
 		DFD74F881C258755000B3938 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74F871C258755000B3938 /* main.cpp */; };
 		DFD74F8B1C25878B000B3938 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74F891C25878B000B3938 /* json.cpp */; };
 		DFD74F901C25A7E2000B3938 /* array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DFD74F8E1C25A7E2000B3938 /* array.cpp */; };
@@ -31,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DF9D491C1C3678A4003F62A9 /* parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
+		DF9D491D1C3678A4003F62A9 /* parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
 		DFB36F581C26785000DCE895 /* reference.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reference.ipp; sourceTree = "<group>"; };
 		DFB36F591C2678BF00DCE895 /* array.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = array.ipp; sourceTree = "<group>"; };
 		DFD74F7B1C2586E8000B3938 /* minijson */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = minijson; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -114,6 +117,8 @@
 				DFD74F921C25A7EF000B3938 /* string.hpp */,
 				DFD74FA51C25ADB4000B3938 /* string.ipp */,
 				DFD74FA01C25A87F000B3938 /* types.hpp */,
+				DF9D491C1C3678A4003F62A9 /* parser.cpp */,
+				DF9D491D1C3678A4003F62A9 /* parser.hpp */,
 			);
 			name = src;
 			path = ../src;
@@ -184,6 +189,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DF9D491E1C3678A4003F62A9 /* parser.cpp in Sources */,
 				DFD74F881C258755000B3938 /* main.cpp in Sources */,
 				DFD74FA31C25A96D000B3938 /* object.cpp in Sources */,
 				DFD74F901C25A7E2000B3938 /* array.cpp in Sources */,

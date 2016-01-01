@@ -198,6 +198,7 @@ void testNode()
     
     mjson::Node n7;
     n7.setArray();
+    TEST_EQUAL(n7.isArray());
     n7.asArray()->append(n0);
     n7.asArray()->append(n1);
     n7.asArray()->append(n2);
@@ -220,6 +221,7 @@ void testNode()
     
     mjson::Node n8;
     n8.setDict();
+    TEST_EQUAL(n8.isArray());
     n8["0"] = n0;
     n8["1"] = n1;
     n8["2"] = n2;
