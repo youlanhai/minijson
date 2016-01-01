@@ -256,7 +256,8 @@ void testParser()
     "\"f2\"     : 3.14e-2,\n"
     "\"f3\"     : -0.3140e10,\n"
     "\"f4\"     : -0.314e-10,\n"
-    "\"array\"  : [0, true, false, null, 123, -456, 3.14, \"hello\\n world!\"]\n"
+    "\"array\"  : [0, true, false, null, 123, -456, 3.14, \"hello\\n world!\"],\n"
+    "\"pos\"    : {\"x\" : 100.55, \"y\" : 200.22}\n"
     "}";
     
     mjson::Parser parser;
@@ -286,6 +287,11 @@ void testParser()
     TEST_EQUAL(array[5] == -456);
     TEST_EQUAL(array[6] == 3.14);
     TEST_EQUAL(array[7] == "hello\n world!");
+    
+    mjson::Node pos = root["pos"];
+    TEST_EQUAL(pos.isDict());
+    TEST_EQUAL(pos["x"] == 100.55);
+    TEST_EQUAL(pos["y"] == 200.22);
 }
 
 int main(int argc, const char * argv[]) {
