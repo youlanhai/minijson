@@ -107,10 +107,31 @@ namespace mjson
     
     bool Node::operator == (const Node &other) const
     {
+        if(this->isNumber() && other.isNumber())
+        {
+            if(this->isFloat() && other.isFloat())
+            {
+                return value_.f == other.value_.f;
+            }
+            else if(this->isFloat())
+            {
+                return value_.f == (Float)other.value_.i;
+            }
+            else if(other.isFloat())
+            {
+                return (Float)value_.i == other.value_.f;
+            }
+            else
+            {
+                return value_.i == other.value_.i;
+            }
+        }
+        
         if(type_ != other.type_)
         {
             return false;
         }
+        
         if(type_ == T_NULL)
         {
             return true;
@@ -118,14 +139,6 @@ namespace mjson
         else if(type_ == T_BOOL)
         {
             return value_.b == other.value_.b;
-        }
-        else if(type_ == T_INT)
-        {
-            return value_.i == other.value_.i;
-        }
-        else if(type_ == T_FLOAT)
-        {
-            return value_.f == other.value_.f;
         }
         else if(type_ == T_STRING)
         {

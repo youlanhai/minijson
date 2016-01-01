@@ -29,16 +29,34 @@ namespace mjson
         value_.b = value;
     }
     
-    JSON_INLINE Node::Node(Integer value)
+    JSON_INLINE Node::Node(short value)
     : type_(T_NUMBER | T_INT)
     {
-        value_.i = value;
+        value_.i = (Integer)value;
     }
     
-    JSON_INLINE Node::Node(Float value)
+    JSON_INLINE Node::Node(int value)
+    : type_(T_NUMBER | T_INT)
+    {
+        value_.i = (Integer)value;
+    }
+    
+    JSON_INLINE Node::Node(int64_t value)
+    : type_(T_NUMBER | T_INT)
+    {
+        value_.i = (Integer)value;
+    }
+    
+    JSON_INLINE Node::Node(float value)
     : type_(T_NUMBER | T_FLOAT)
     {
-        value_.f = value;
+        value_.i = (Float)value;
+    }
+    
+    JSON_INLINE Node::Node(double value)
+    : type_(T_NUMBER | T_FLOAT)
+    {
+        value_.f = (Float)value;
     }
     
     JSON_INLINE Node::Node(Object *p)
@@ -83,12 +101,12 @@ namespace mjson
     
     JSON_INLINE bool Node::isInt() const
     {
-        return type_ == T_INT;
+        return (type_ & T_INT) != 0;
     }
     
     JSON_INLINE bool Node::isFloat() const
     {
-        return type_ == T_FLOAT;
+        return (type_ & T_FLOAT) != 0;
     }
     
     JSON_INLINE bool Node::isString() const
@@ -104,6 +122,11 @@ namespace mjson
     JSON_INLINE bool Node::isDict() const
     {
         return type_ == T_DICT;
+    }
+    
+    JSON_INLINE bool Node::isNumber() const
+    {
+        return (type_ & T_NUMBER) != 0;
     }
 
     JSON_INLINE bool Node::isPointer() const
@@ -131,25 +154,49 @@ namespace mjson
         return *this;
     }
     
-    JSON_INLINE const Node& Node::operator = (Integer value)
+    JSON_INLINE const Node& Node::operator = (short value)
     {
         setNull();
-        type_ = T_INT;
-        value_.i = value;
+        type_ = T_NUMBER | T_INT;
+        value_.i = (Integer)value;
         return *this;
     }
     
-    JSON_INLINE const Node& Node::operator = (Float value)
+    JSON_INLINE const Node& Node::operator = (int value)
     {
         setNull();
-        type_ = T_FLOAT;
+        type_ = T_NUMBER | T_INT;
+        value_.i = (Integer)value;
+        return *this;
+    }
+    
+    JSON_INLINE const Node& Node::operator = (int64_t value)
+    {
+        setNull();
+        type_ = T_NUMBER | T_INT;
+        value_.i = (Integer)value;
+        return *this;
+    }
+    
+    JSON_INLINE const Node& Node::operator = (float value)
+    {
+        setNull();
+        type_ = T_NUMBER | T_FLOAT;
+        value_.i = (Float)value;
+        return *this;
+    }
+    
+    JSON_INLINE const Node& Node::operator = (double value)
+    {
+        setNull();
+        type_ = T_NUMBER | T_FLOAT;
         value_.f = value;
         return *this;
     }
     
     JSON_INLINE const Node& Node::operator = (const char *value)
     {
-        if(isPointer())
+        if(isPointer() && value_.p)
         {
             setString(value, 0, value_.p->getAllocator());
         }

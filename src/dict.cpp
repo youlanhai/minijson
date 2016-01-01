@@ -20,7 +20,7 @@ namespace mjson
     
     size_t growCapacity(size_t oldSize, size_t newSize)
     {
-        return maxSize(maxSize(oldSize << 1, 8), newSize);
+        return maxSize(maxSize(oldSize << 1, 4), newSize);
     }
     
     

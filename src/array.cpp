@@ -44,6 +44,7 @@ namespace mjson
             }
             
             end_ = begin_ + size;
+            capacity_ = capacity;
         }
     }
     
@@ -56,14 +57,14 @@ namespace mjson
         }
         
         iterator newEnd = begin() + size;
-        if(newEnd < end())
+        if(newEnd > end())
         {
             for(iterator it = end(); it != newEnd; ++it)
             {
                 new (it) value_type;
             }
         }
-        else if(newEnd > end())
+        else if(newEnd < end())
         {
             for(iterator it = newEnd; it != end(); ++it)
             {
@@ -76,14 +77,15 @@ namespace mjson
     
     void Array::insert(iterator it, const value_type &value)
     {
-        reserve(size() + 1);
+        ptrdiff_t index = it - begin();
+        resize(size() + 1);
+        it = begin() + index;
         
-        for(iterator i = end(); i > it; --i)
+        for(iterator i = end() - 1; i > it; --i)
         {
             memcpy(i, i - 1, sizeof(value_type));
         }
         new (it) value_type(value);
-        ++end_;
     }
     
     void Array::erase(iterator it)
@@ -107,13 +109,10 @@ namespace mjson
         Array *p = allocator_->createArray();
         p->reserve(this->size());
         
-        iterator out = p->begin();
         for(const_iterator it = begin(); it != end(); ++it)
         {
-            new (out) value_type(*it);
+            new (p->end_++) value_type(*it);
         }
-        
-        p->end_ = out;
         return p;
     }
     
@@ -122,14 +121,11 @@ namespace mjson
         Array *p = allocator_->createArray();
         p->reserve(this->size());
         
-        iterator out = p->begin();
         for(const_iterator it = begin(); it != end(); ++it)
         {
             Node tmp = it->deepClone();
-            new (out) value_type(tmp);
+            new (p->end_++) value_type(tmp);
         }
-        
-        p->end_ = out;
         return p;
     }
     

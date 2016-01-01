@@ -30,8 +30,11 @@ namespace mjson
         
         Node();
         Node(bool value);
-        Node(Integer value);
-        Node(Float value);
+        Node(short value);
+        Node(int value);
+        Node(int64_t value);
+        Node(float value);
+        Node(double value);
         Node(Object *p);
         Node(const char *str, size_t size = 0, IAllocator *allocator = nullptr);
         Node(const Node &other);
@@ -44,6 +47,7 @@ namespace mjson
         bool isString() const;
         bool isArray() const;
         bool isDict() const;
+        bool isNumber() const;
         bool isPointer() const;
         
         bool        asBool()    const;
@@ -60,8 +64,11 @@ namespace mjson
         void setDict(IAllocator *allocator = 0);
         
         const Node& operator = (bool value);
-        const Node& operator = (Integer value);
-        const Node& operator = (Float value);
+        const Node& operator = (short value);
+        const Node& operator = (int value);
+        const Node& operator = (int64_t value);
+        const Node& operator = (float value);
+        const Node& operator = (double value);
         const Node& operator = (const char *value);
         const Node& operator = (const Object *value);
         const Node& operator = (const Node &value);

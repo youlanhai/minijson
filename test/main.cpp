@@ -22,6 +22,7 @@ void testEqual(bool ret, const char *exp, int line)
     if(!ret)
     {
         std::cout << "TestFailed: (" << exp << "), line: " << line << std::endl;
+        abort();
     }
 }
 
@@ -62,6 +63,8 @@ void testArray()
     
     
     mjson::RawAllocator allocator;
+    allocator.retain();
+    
     mjson::Array *p = allocator.createArray();
     p->retain();
     
@@ -70,9 +73,33 @@ void testArray()
     TEST_EQUAL(p->begin() == p->end());
     TEST_EQUAL(p->begin() == nullptr);
     
-    p->append(mjson::Node(1));
-    p->append(mjson::Node("Hello World"));
+    p->append(true);
+    p->append(1234567890);
+    p->append(3.14);
+    p->append("Hello World");
+    TEST_EQUAL(p->size() == 4);
+    TEST_EQUAL((*p)[0] == true);
+    TEST_EQUAL((*p)[1] == 1234567890);
+    TEST_EQUAL((*p)[2] == 3.14);
+    TEST_EQUAL(strcmp((*p)[3].asCString(), "Hello World") == 0);
     
+    TEST_EQUAL(p->capacity() == 4);
+    p->append(mjson::Node());
+    TEST_EQUAL(p->capacity() == 8);
+    (*p)[4] = 1314;
+    TEST_EQUAL((*p)[4] == 1314);
+    
+    mjson::Array *copy = (mjson::Array*)p->clone();
+    copy->retain();
+    
+    TEST_EQUAL(copy->size() == p->size());
+    TEST_EQUAL(copy->capacity() == p->size());
+    for(int i = 0; i < p->size(); ++i)
+    {
+        TEST_EQUAL((*copy)[i] == (*p)[i]);
+    }
+    
+    copy->release();
     p->release();
 }
 
