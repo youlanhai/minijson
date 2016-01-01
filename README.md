@@ -1,4 +1,4 @@
-# minijson
-a simple json parser like rapidjson, but much easy to use.
+# smartjson
+a simple json library like rapidjson, but easy and safe to use.
 
-home: https://github.com/youlanhai/minijson
+home: https://github.com/youlanhai/smartjson

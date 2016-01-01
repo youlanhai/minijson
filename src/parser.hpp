@@ -1,6 +1,6 @@
 //
 //  parser.hpp
-//  minijson
+//  smartjson
 //
 //  Created by youlanhai on 16/1/1.
 //  Copyright © 2016年 youlanhai. All rights reserved.

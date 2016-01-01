@@ -36,7 +36,7 @@
 		DF9D491D1C3678A4003F62A9 /* parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = parser.hpp; sourceTree = "<group>"; };
 		DFB36F581C26785000DCE895 /* reference.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = reference.ipp; sourceTree = "<group>"; };
 		DFB36F591C2678BF00DCE895 /* array.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = array.ipp; sourceTree = "<group>"; };
-		DFD74F7B1C2586E8000B3938 /* minijson */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = minijson; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFD74F7B1C2586E8000B3938 /* smartjson */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = smartjson; sourceTree = BUILT_PRODUCTS_DIR; };
 		DFD74F871C258755000B3938 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		DFD74F891C25878B000B3938 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = json.cpp; sourceTree = "<group>"; };
 		DFD74F8A1C25878B000B3938 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
@@ -85,7 +85,7 @@
 		DFD74F7C1C2586E8000B3938 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				DFD74F7B1C2586E8000B3938 /* minijson */,
+				DFD74F7B1C2586E8000B3938 /* smartjson */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -136,9 +136,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		DFD74F7A1C2586E8000B3938 /* minijson */ = {
+		DFD74F7A1C2586E8000B3938 /* smartjson */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = DFD74F821C2586E8000B3938 /* Build configuration list for PBXNativeTarget "minijson" */;
+			buildConfigurationList = DFD74F821C2586E8000B3938 /* Build configuration list for PBXNativeTarget "smartjson" */;
 			buildPhases = (
 				DFD74F771C2586E8000B3938 /* Sources */,
 				DFD74F781C2586E8000B3938 /* Frameworks */,
@@ -148,9 +148,9 @@
 			);
 			dependencies = (
 			);
-			name = minijson;
-			productName = minijson;
-			productReference = DFD74F7B1C2586E8000B3938 /* minijson */;
+			name = smartjson;
+			productName = smartjson;
+			productReference = DFD74F7B1C2586E8000B3938 /* smartjson */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -167,7 +167,7 @@
 					};
 				};
 			};
-			buildConfigurationList = DFD74F761C2586E8000B3938 /* Build configuration list for PBXProject "minijson" */;
+			buildConfigurationList = DFD74F761C2586E8000B3938 /* Build configuration list for PBXProject "smartjson" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -179,7 +179,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				DFD74F7A1C2586E8000B3938 /* minijson */,
+				DFD74F7A1C2586E8000B3938 /* smartjson */,
 			);
 		};
 /* End PBXProject section */
@@ -301,7 +301,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		DFD74F761C2586E8000B3938 /* Build configuration list for PBXProject "minijson" */ = {
+		DFD74F761C2586E8000B3938 /* Build configuration list for PBXProject "smartjson" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DFD74F801C2586E8000B3938 /* Debug */,
@@ -310,7 +310,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		DFD74F821C2586E8000B3938 /* Build configuration list for PBXNativeTarget "minijson" */ = {
+		DFD74F821C2586E8000B3938 /* Build configuration list for PBXNativeTarget "smartjson" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DFD74F831C2586E8000B3938 /* Debug */,
