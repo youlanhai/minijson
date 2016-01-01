@@ -146,7 +146,7 @@ namespace mjson
         return true;
     }
     
-    Array::value_type& Array::operator[](size_t index)
+    Array::value_type& Array::at(size_t index)
     {
         assert(index < size());
         return  begin_[index];

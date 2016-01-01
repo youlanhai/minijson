@@ -51,19 +51,19 @@ namespace mjson
     
     void Node::setString(const char *str, size_t size, IAllocator *allocator)
     {
-        setNull();
-        type_ = T_STRING;
+        if(0 == allocator)
+        {
+            allocator = new RawAllocator();
+        }
+        allocator->retain();
         
         if(0 == size)
         {
             size = strlen(str);
         }
         
-        if(0 == allocator)
-        {
-            allocator = new RawAllocator();
-        }
-        allocator->retain();
+        setNull();
+        type_ = T_STRING;
         
         value_.p = allocator->createString(str, size);
         value_.p->retain();
@@ -183,7 +183,9 @@ namespace mjson
         {
             return (*rawArray())[index];
         }
+        
         static Node null;
+        null.setNull();
         return null;
     }
     
@@ -193,7 +195,9 @@ namespace mjson
         {
             return (*rawDict())[key];
         }
+        
         static Node null;
+        null.setNull();
         return null;
     }
     

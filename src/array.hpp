@@ -50,6 +50,9 @@ namespace mjson
         value_type& operator[](size_t index);
         const value_type& operator[](size_t index) const;
         
+        value_type& at(size_t index);
+        const value_type& at(size_t index) const;
+        
         bool empty() const;
         size_t size() const;
         size_t capacity() const;

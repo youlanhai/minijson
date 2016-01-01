@@ -58,6 +58,10 @@ namespace mjson
         Array*      asArray()   const;
         Dict*       asDict()    const;
         
+        String* rawString() const;
+        Array*  rawArray() const;
+        Dict*   rawDict() const;
+        
         void setNull();
         void setString(const char *str, size_t size = 0, IAllocator *allocator = 0);
         void setArray(IAllocator *allocator = 0);
@@ -95,9 +99,7 @@ namespace mjson
 #endif
         
     private:
-        String* rawString() const;
-        Array* rawArray() const;
-        Dict* rawDict() const;
+        
         
         struct Value
         {

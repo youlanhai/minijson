@@ -38,6 +38,9 @@ namespace mjson
         iterator find(const char *key);
         const_iterator find(const char *key) const;
         
+        Node& at(const char *key);
+        const Node& at(const char *key) const;
+        
         Node& operator[] (const char *key);
         const Node& operator[] (const char *key) const;
         

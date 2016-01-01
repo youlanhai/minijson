@@ -52,9 +52,19 @@ namespace mjson
         return const_cast<Array*>(this)->back();
     }
     
+    JSON_INLINE Array::value_type& Array::operator[](size_t index)
+    {
+        return this->at(index);
+    }
+    
     JSON_INLINE const Array::value_type& Array::operator[](size_t index) const
     {
-        return const_cast<Array*>(this)->operator[](index);
+        return this->at(index);
+    }
+    
+    JSON_INLINE const Array::value_type& Array::at(size_t index) const
+    {
+        return const_cast<Array*>(this)->at(index);
     }
     
     JSON_INLINE bool Array::empty() const

@@ -50,7 +50,7 @@ namespace mjson
     JSON_INLINE Node::Node(float value)
     : type_(T_NUMBER | T_FLOAT)
     {
-        value_.i = (Float)value;
+        value_.f = (Float)value;
     }
     
     JSON_INLINE Node::Node(double value)
@@ -182,7 +182,7 @@ namespace mjson
     {
         setNull();
         type_ = T_NUMBER | T_FLOAT;
-        value_.i = (Float)value;
+        value_.f = (Float)value;
         return *this;
     }
     
@@ -190,7 +190,7 @@ namespace mjson
     {
         setNull();
         type_ = T_NUMBER | T_FLOAT;
-        value_.f = value;
+        value_.f = (Float)value;
         return *this;
     }
     
@@ -209,26 +209,33 @@ namespace mjson
     
     JSON_INLINE const Node& Node::operator = (const Object *value)
     {
-        setNull();
-        if(value != 0)
+        if(!isPointer() || value_.p != value)
         {
-            value_.p = const_cast<Object*>(value);
-            value_.p->retain();
+            setNull();
+            if(value != 0)
+            {
+                type_ = value->type();
+                value_.p = const_cast<Object*>(value);
+                value_.p->retain();
+            }
         }
         return *this;
     }
     
     JSON_INLINE const Node& Node::operator = (const Node &value)
     {
-        setNull();
-        
-        type_ = value.type_;
-        value_ = value.value_;
-        if(isPointer())
+        if(value.isPointer())
         {
-            value_.p->retain();
+            return *this = value.value_.p;
         }
-        return *this;
+        else
+        {
+            setNull();
+            
+            type_ = value.type_;
+            value_ = value.value_;
+            return *this;
+        }
     }
     
     /////////////////////////////////////////////////////////////

@@ -73,7 +73,7 @@ namespace mjson
         return it;
     }
     
-    Node& Dict::operator[] (const char *key)
+    Node& Dict::at(const char *key)
     {
         iterator it = find(key);
         if(it != end())

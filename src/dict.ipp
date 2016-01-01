@@ -37,9 +37,19 @@ namespace mjson
         return end_;
     }
     
+    JSON_INLINE const Node& Dict::at(const char *key) const
+    {
+        return const_cast<Dict*>(this)->at(key);
+    }
+    
+    JSON_INLINE Node& Dict::operator[] (const char *key)
+    {
+        return at(key);
+    }
+    
     JSON_INLINE const Node& Dict::operator[] (const char *key) const
     {
-        return const_cast<Dict*>(this)->operator[](key);
+        return at(key);
     }
     
     JSON_INLINE void Dict::remove(const char *key)

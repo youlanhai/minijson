@@ -86,7 +86,10 @@ void testArray()
     TEST_EQUAL(p->capacity() == 4);
     p->append(mjson::Node());
     TEST_EQUAL(p->capacity() == 8);
+    
+    (*p)[3] = 1234;
     (*p)[4] = 1314;
+    TEST_EQUAL((*p)[3] == 1234);
     TEST_EQUAL((*p)[4] == 1314);
     
     mjson::Array *copy = (mjson::Array*)p->clone();
@@ -105,12 +108,128 @@ void testArray()
 
 void testDict()
 {
+    std::cout << "test dict..." << std::endl;
     
+    mjson::RawAllocator allocator;
+    allocator.retain();
+    
+    mjson::Dict *p = allocator.createDict();
+    p->retain();
+    
+    (*p)["name"] = "json";
+    (*p)["age"] = 20;
+    (*p)["weight"] = 60.5;
+    TEST_EQUAL(p->size() == 3);
+    TEST_EQUAL(p->capacity() == 4);
+    
+    TEST_EQUAL((*p)["name"] == "json");
+    TEST_EQUAL((*p)["age"] == 20);
+    TEST_EQUAL((*p)["weight"] == 60.5);
+    
+    (*p)["name"] = "smart json";
+    TEST_EQUAL((*p)["name"] == "smart json");
+    
+    mjson::Dict::iterator it = p->find("address");
+    TEST_EQUAL(it == p->end());
+    
+    it = p->find("name");
+    TEST_EQUAL(it != p->end());
+    
+    p->release();
 }
 
 void testNode()
 {
+    std::cout << "test node..." << std::endl;
     
+    mjson::Node n0;
+    TEST_EQUAL(n0.isNull());
+    TEST_EQUAL(n0 == mjson::Node());
+    
+    mjson::Node n1(true);
+    TEST_EQUAL(n1.isBool());
+    TEST_EQUAL(n1.asBool() == true);
+    
+    mjson::Node n2(1234567890);
+    TEST_EQUAL(n2.isInt());
+    TEST_EQUAL(n2.isNumber());
+    TEST_EQUAL(n2.asInteger() == 1234567890);
+    
+    mjson::Node n3(1234.5f);
+    TEST_EQUAL(n3.isFloat());
+    TEST_EQUAL(n3.isNumber());
+    TEST_EQUAL(n3.asFloat() == 1234.5);
+    
+    mjson::Node n4(1234.5);
+    TEST_EQUAL(n4.isFloat());
+    TEST_EQUAL(n4.isNumber());
+    TEST_EQUAL(n4.asFloat() == 1234.5);
+    TEST_EQUAL(n4 == n3);
+    TEST_EQUAL(n4 != n2);
+    TEST_EQUAL(n4 != n1);
+    TEST_EQUAL(n4 != n0);
+    
+    mjson::Node n5("Hello World");
+    TEST_EQUAL(n5.isString());
+    TEST_EQUAL(n5.isPointer());
+    TEST_EQUAL(n5.asString() != 0);
+    TEST_EQUAL(strcmp(n5.asCString(), "Hello World") == 0);
+    TEST_EQUAL(n5 != n0);
+    TEST_EQUAL(n5 != n1);
+    TEST_EQUAL(n5 != n2);
+    TEST_EQUAL(n5 != n3);
+    TEST_EQUAL(n5 != n4);
+    TEST_EQUAL(n5 == n5);
+    TEST_EQUAL(n5.size() == n5.asString()->size());
+    
+    n5 = n5;
+    TEST_EQUAL(n5.asString()->getRefCount() == 1);
+    
+    mjson::Node n6(n5);
+    TEST_EQUAL(n6.isString());
+    TEST_EQUAL(n6 == n5);
+    TEST_EQUAL(n6.asString() == n5.asString());
+    TEST_EQUAL(n6.asString()->getRefCount() == 2);
+    
+    n6 = n5;
+    TEST_EQUAL(n6.isString());
+    TEST_EQUAL(n6.asString()->getRefCount() == 2);
+    TEST_EQUAL(n6.asString() == n5.asString());
+    
+    mjson::Node n7;
+    n7.setArray();
+    n7.asArray()->append(n0);
+    n7.asArray()->append(n1);
+    n7.asArray()->append(n2);
+    n7.asArray()->append(n3);
+    n7.asArray()->append(n4);
+    n7.asArray()->append(n5);
+    n7.asArray()->append(n6);
+    TEST_EQUAL(n7.asArray()->size() == n7.size());
+    TEST_EQUAL(n7.size() == 7);
+    TEST_EQUAL(n7[0u] == n0);
+    for(mjson::Array::const_iterator it = n7.asArray()->begin();
+        it != n7.asArray()->end(); ++it)
+    {
+        TEST_EQUAL(*it != n7);
+    }
+    for(mjson::SizeType i = 0; i < n7.size(); ++i)
+    {
+        TEST_EQUAL(n7[i] == n7.asArray()->at(i));
+    }
+    
+    mjson::Node n8;
+    n8.setDict();
+    n8["0"] = n0;
+    n8["1"] = n1;
+    n8["2"] = n2;
+    n8["3"] = n3;
+    n8["4"] = n4;
+    n8["5"] = n5;
+    n8["6"] = n6;
+    n8["7"] = n7;
+    TEST_EQUAL(n8.size() == 8);
+    TEST_EQUAL(n8.size() == n8.rawDict()->size());
 }
 
 int main(int argc, const char * argv[]) {
@@ -121,5 +240,7 @@ int main(int argc, const char * argv[]) {
     testArray();
     testDict();
     testNode();
+    
+    std::cout << "test finished." << std::endl;
     return 0;
 }
