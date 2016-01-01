@@ -26,14 +26,12 @@ namespace mjson
     
     enum Type
     {
-        T_NULL      = 0,
-        T_BOOL      = 1 << 0,
-        T_INT       = 1 << 1,
-        T_FLOAT     = 1 << 2,
+        T_NULL,
+        T_BOOL,
+        T_INT,
+        T_FLOAT,
         
-        T_NUMBER    = 1 << 3,
-        T_POINTER   = 1 << 4,
-        
+        T_POINTER,
         T_STRING,
         T_ARRAY,
         T_DICT,

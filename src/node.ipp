@@ -30,31 +30,31 @@ namespace mjson
     }
     
     JSON_INLINE Node::Node(short value)
-    : type_(T_NUMBER | T_INT)
+    : type_(T_INT)
     {
         value_.i = (Integer)value;
     }
     
     JSON_INLINE Node::Node(int value)
-    : type_(T_NUMBER | T_INT)
+    : type_(T_INT)
     {
         value_.i = (Integer)value;
     }
     
     JSON_INLINE Node::Node(int64_t value)
-    : type_(T_NUMBER | T_INT)
+    : type_(T_INT)
     {
         value_.i = (Integer)value;
     }
     
     JSON_INLINE Node::Node(float value)
-    : type_(T_NUMBER | T_FLOAT)
+    : type_(T_FLOAT)
     {
         value_.f = (Float)value;
     }
     
     JSON_INLINE Node::Node(double value)
-    : type_(T_NUMBER | T_FLOAT)
+    : type_(T_FLOAT)
     {
         value_.f = (Float)value;
     }
@@ -101,12 +101,12 @@ namespace mjson
     
     JSON_INLINE bool Node::isInt() const
     {
-        return (type_ & T_INT) != 0;
+        return type_ == T_INT;
     }
     
     JSON_INLINE bool Node::isFloat() const
     {
-        return (type_ & T_FLOAT) != 0;
+        return type_ == T_FLOAT;
     }
     
     JSON_INLINE bool Node::isString() const
@@ -126,7 +126,7 @@ namespace mjson
     
     JSON_INLINE bool Node::isNumber() const
     {
-        return (type_ & T_NUMBER) != 0;
+        return type_ == T_INT || type_ == T_FLOAT;
     }
 
     JSON_INLINE bool Node::isPointer() const
@@ -157,7 +157,7 @@ namespace mjson
     JSON_INLINE const Node& Node::operator = (short value)
     {
         setNull();
-        type_ = T_NUMBER | T_INT;
+        type_ = T_INT;
         value_.i = (Integer)value;
         return *this;
     }
@@ -165,7 +165,7 @@ namespace mjson
     JSON_INLINE const Node& Node::operator = (int value)
     {
         setNull();
-        type_ = T_NUMBER | T_INT;
+        type_ = T_INT;
         value_.i = (Integer)value;
         return *this;
     }
@@ -173,7 +173,7 @@ namespace mjson
     JSON_INLINE const Node& Node::operator = (int64_t value)
     {
         setNull();
-        type_ = T_NUMBER | T_INT;
+        type_ = T_INT;
         value_.i = (Integer)value;
         return *this;
     }
@@ -181,7 +181,7 @@ namespace mjson
     JSON_INLINE const Node& Node::operator = (float value)
     {
         setNull();
-        type_ = T_NUMBER | T_FLOAT;
+        type_ = T_FLOAT;
         value_.f = (Float)value;
         return *this;
     }
@@ -189,7 +189,7 @@ namespace mjson
     JSON_INLINE const Node& Node::operator = (double value)
     {
         setNull();
-        type_ = T_NUMBER | T_FLOAT;
+        type_ = T_FLOAT;
         value_.f = (Float)value;
         return *this;
     }
@@ -270,7 +270,16 @@ namespace mjson
     {
         return !(*this == value);
     }
-       
+    
+    JSON_INLINE const Node& Node::operator[] (SizeType index) const
+    {
+        return const_cast<Node*>(this)->operator[](index);
+    }
+    
+    JSON_INLINE const Node& Node::operator[] (const char *key) const
+    {
+        return const_cast<Node*>(this)->operator[](key);
+    }
     
     JSON_INLINE Node Node::clone() const
     {

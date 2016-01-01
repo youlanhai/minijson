@@ -13,6 +13,7 @@
 #include "node.hpp"
 #include "allocator.hpp"
 #include "parser.hpp"
+#include "writer.hpp"
 
 #include <string>
 #include <cassert>
@@ -292,6 +293,10 @@ void testParser()
     TEST_EQUAL(pos.isDict());
     TEST_EQUAL(pos["x"] == 100.55);
     TEST_EQUAL(pos["y"] == 200.22);
+    
+    std::cout << "print json:" << std::endl;
+    mjson::Writer writer;
+    writer.write(root, std::cout);
 }
 
 int main(int argc, const char * argv[]) {

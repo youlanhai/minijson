@@ -87,6 +87,8 @@ namespace mjson
         Node& operator[] (SizeType index);
         Node& operator[] (const char *key);
         
+        const Node& operator[] (SizeType index) const;
+        const Node& operator[] (const char *key) const;
         
 #if JSON_SUPPORT_STL_STRING
         Node(const std::string &value, IAllocator *allocator = 0);
