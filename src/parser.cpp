@@ -14,6 +14,7 @@
 #include "allocator.hpp"
 
 #include <cmath>
+#include <iostream>
 
 namespace mjson
 {
@@ -54,21 +55,7 @@ namespace mjson
         const char*     begin_;
         const char*     end_;
     };
-    
-    enum ResultCode
-    {
-        RC_OK,
-        RC_END_OF_FILE,
-        RC_INVALID_JSON,
-        RC_INVALID_DICT,
-        RC_INVALID_KEY,
-        RC_INVALID_ARRAY,
-        RC_INVALID_STRING,
-        RC_INVALID_NUMBER,
-        RC_INVALID_NULL,
-        RC_INVALID_TRUE,
-        RC_INVALID_FALSE,
-    };
+
     
     bool isWhiteSpace(char ch)
     {
@@ -98,7 +85,16 @@ namespace mjson
     Parser::Parser(IAllocator *allocator)
     : allocator_(allocator)
     {
+        if(allocator_ == 0)
+        {
+            allocator_ = new RawAllocator();
+        }
         allocator_->retain();
+    }
+    
+    Parser::~Parser()
+    {
+        allocator_->release();
     }
     
     int Parser::parse(const char *str, size_t length)
@@ -107,68 +103,93 @@ namespace mjson
         
         Reader reader(str, str + length);
         
-        char firstChar = skipWhiteSpace(reader);
-        if(firstChar != '{' && firstChar != '[')
+        int ret = RC_OK;
+        do
         {
-            return RC_INVALID_JSON;
-        }
+            char firstChar = skipWhiteSpace(reader);
+            if(firstChar != '{' && firstChar != '[')
+            {
+                ret = RC_INVALID_JSON;
+                break;
+            }
+            
+            reader.unget();
+            ret = parseValue(root_, reader);
+            if(ret != RC_OK)
+            {
+                break;
+            }
+            
+            char endChar = skipWhiteSpace(reader);
+            if(endChar != 0)
+            {
+                ret = RC_INVALID_JSON;
+            }
+        }while(0);
         
-        int ret = parseValue(root_, reader);
         if(ret != RC_OK)
         {
-            return ret;
+            int line = 1;
+            int col = 1;
+            for(const char *p = str; p != reader.current(); ++p)
+            {
+                if(*p == '\n')
+                {
+                    ++line;
+                    col = 1;
+                }
+                else
+                {
+                    ++col;
+                }
+            }
+            std::cout << "parse error: " << ret
+            << " line: " << line
+            << " col: " << col
+            << std::endl;
         }
-        
-        char endChar = skipWhiteSpace(reader);
-        if(endChar != 0)
-        {
-            return RC_INVALID_JSON;
-        }
-        return RC_OK;
+        return ret;
     }
     
     int Parser::parseValue(Node &node, Reader &reader)
     {
         int ret = RC_OK;
-        do
+        char ch = skipWhiteSpace(reader);
+        switch (ch)
         {
-            char ch = skipWhiteSpace(reader);
-            switch (ch)
-            {
-                case '\0':
-                    ret = RC_END_OF_FILE;
-                    break;
-                    
-                case '{':
-                    ret = parseDict(node, reader);
-                    break;
-                    
-                case '[':
-                    ret = parseArray(node, reader);
-                    break;
-                    
-                case '\"':
-                    ret = parseString(node, reader);
-                    break;
-                    
-                case 'n':
-                    ret = parseNull(node, reader);
-                    break;
-                    
-                case 't':
-                    ret = parseTrue(node, reader);
-                    break;
-                    
-                case 'f':
-                    ret = parseFalse(node, reader);
-                    break;
-                    
-                default:
-                    reader.unget();
-                    ret = parseNumber(node, reader);
-                    break;
-            }
-        }while(ret == 0);
+            case '\0':
+                ret = RC_END_OF_FILE;
+                break;
+                
+            case '{':
+                ret = parseDict(node, reader);
+                break;
+                
+            case '[':
+                ret = parseArray(node, reader);
+                break;
+                
+            case '\"':
+                ret = parseString(node, reader);
+                break;
+                
+            case 'n':
+                ret = parseNull(node, reader);
+                break;
+                
+            case 't':
+                ret = parseTrue(node, reader);
+                break;
+                
+            case 'f':
+                ret = parseFalse(node, reader);
+                break;
+                
+            default:
+                reader.unget();
+                ret = parseNumber(node, reader);
+                break;
+        }
         return ret;
     }
     
@@ -252,7 +273,7 @@ namespace mjson
             node.rawArray()->append(child);
             
             char ch = skipWhiteSpace(reader);
-            if(ch == '}')
+            if(ch == ']')
             {
                 break;
             }
@@ -337,11 +358,15 @@ namespace mjson
         {
             return RC_INVALID_NUMBER;
         }
+        reader.unget();
         
         if(useFloat)
         {
             real = (double)value + real;
-            real = pow(real, exponent);
+            if(exponent != 0)
+            {
+                real *= pow(10.0, exponent);
+            }
             real *= sign;
             node = real;
         }
@@ -366,11 +391,12 @@ namespace mjson
         {
             return RC_INVALID_STRING;
         }
+        const char *end = reader.current() - 1; // *end = '"'
     
         int ret = RC_OK;
-        char* buffer = (char*)allocator_->malloc(reader.current() - begin + 1);
+        char* buffer = (char*)allocator_->malloc(end - begin + 1);
         char *p = buffer;
-        for(; begin != reader.current() && ret == RC_OK; ++p, ++begin)
+        for(; begin != end && ret == RC_OK; ++p, ++begin)
         {
             if(*begin == '\\')
             {

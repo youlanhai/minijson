@@ -54,6 +54,16 @@ namespace mjson
         }
     }
     
+    void Dict::ensure(size_t n)
+    {
+        size_t newSize = size() + n;
+        if(newSize > capacity_)
+        {
+            size_t newCapacity = growCapacity(capacity_, newSize);
+            reserve(newCapacity);
+        }
+    }
+    
     void Dict::clear()
     {
         for(iterator it = begin(); it != end(); ++it)
@@ -75,8 +85,19 @@ namespace mjson
     
     Node& Dict::at(const char *key)
     {
-        Node jkey(key, strlen(key), allocator_);
-        return insert(jkey, Node())->value;
+        iterator it = find(key);
+        if(it != end())
+        {
+            return it->value;
+        }
+        else
+        {
+            ensure(1);
+            
+            new (end_) value_type();
+            end_->key = key;
+            return (end_++)->value;
+        }
     }
     
     Dict::iterator Dict::insert(const Node &key, const Node &value)
@@ -89,12 +110,7 @@ namespace mjson
         }
         else
         {
-            size_t newSize = size() + 1;
-            if(newSize > capacity_)
-            {
-                size_t newCapacity = growCapacity(capacity_, newSize);
-                reserve(newCapacity);
-            }
+            ensure(1);
             
             new (end_) value_type();
             end_->key = key;

@@ -12,9 +12,11 @@
 #include "dict.hpp"
 #include "node.hpp"
 #include "allocator.hpp"
+#include "parser.hpp"
 
 #include <string>
 #include <cassert>
+#include <cmath>
 
 #define TEST_EQUAL(EXP) testEqual(EXP, #EXP, __LINE__)
 void testEqual(bool ret, const char *exp, int line)
@@ -24,6 +26,11 @@ void testEqual(bool ret, const char *exp, int line)
         std::cout << "TestFailed: (" << exp << "), line: " << line << std::endl;
         abort();
     }
+}
+
+bool almoseEqual(double a, double b, double epsilon = 0.00001)
+{
+    return std::abs(a - b) < epsilon;
 }
 
 void testString()
@@ -221,7 +228,7 @@ void testNode()
     
     mjson::Node n8;
     n8.setDict();
-    TEST_EQUAL(n8.isArray());
+    TEST_EQUAL(n8.isDict());
     n8["0"] = n0;
     n8["1"] = n1;
     n8["2"] = n2;
@@ -234,6 +241,53 @@ void testNode()
     TEST_EQUAL(n8.size() == n8.rawDict()->size());
 }
 
+void testParser()
+{
+    std::cout << "test parser..." << std::endl;
+    
+    const char *json = "{\n"
+    "\"name\"   : \"json\",\n"
+    "\"age\"    : 20,\n"
+    "\"weight\" : 60.5,\n"
+    "\"i1\"     : 1234567890,\n"
+    "\"i2\"     : -123456789,\n"
+    "\"i3\"     : 0,\n"
+    "\"f1\"     : 3.14e2,\n"
+    "\"f2\"     : 3.14e-2,\n"
+    "\"f3\"     : -0.3140e10,\n"
+    "\"f4\"     : -0.314e-10,\n"
+    "\"array\"  : [0, true, false, null, 123, -456, 3.14, \"hello\\n world!\"]\n"
+    "}";
+    
+    mjson::Parser parser;
+    int ret = parser.parse(json, strlen(json));
+    std::cout << "parse result:" << ret << std::endl;
+    TEST_EQUAL(ret == mjson::RC_OK);
+    
+    mjson::Node root = parser.getRoot();
+    TEST_EQUAL(root["name"] == "json");
+    TEST_EQUAL(root["age"] == 20);
+    TEST_EQUAL(root["weight"] == 60.5);
+    TEST_EQUAL(root["i1"] == 1234567890);
+    TEST_EQUAL(root["i2"] == -123456789);
+    TEST_EQUAL(root["i3"] == 0);
+    TEST_EQUAL(root["f1"] == 3.14e2);
+    TEST_EQUAL(almoseEqual(root["f2"].asFloat(), 3.14e-2));
+    TEST_EQUAL(almoseEqual(root["f3"].asFloat(), -0.314e10));
+    TEST_EQUAL(almoseEqual(root["f4"].asFloat(), -0.314e-10));
+    
+    mjson::Node array = root["array"];
+    TEST_EQUAL(array.isArray());
+    TEST_EQUAL(array[0u] == 0);
+    TEST_EQUAL(array[1] == true);
+    TEST_EQUAL(array[2] == false);
+    TEST_EQUAL(array[3].isNull());
+    TEST_EQUAL(array[4] == 123);
+    TEST_EQUAL(array[5] == -456);
+    TEST_EQUAL(array[6] == 3.14);
+    TEST_EQUAL(array[7] == "hello\n world!");
+}
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
@@ -242,6 +296,7 @@ int main(int argc, const char * argv[]) {
     testArray();
     testDict();
     testNode();
+    testParser();
     
     std::cout << "test finished." << std::endl;
     return 0;

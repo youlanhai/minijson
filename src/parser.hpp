@@ -15,15 +15,31 @@ namespace mjson
 {
     class Reader;
     
+    enum ResultCode
+    {
+        RC_OK,
+        RC_END_OF_FILE,
+        RC_INVALID_JSON,
+        RC_INVALID_DICT,
+        RC_INVALID_KEY,
+        RC_INVALID_ARRAY,
+        RC_INVALID_STRING,
+        RC_INVALID_NUMBER,
+        RC_INVALID_NULL,
+        RC_INVALID_TRUE,
+        RC_INVALID_FALSE,
+    };
+    
     //bnf: http://www.json.org/json-zh.html
     class Parser
     {
     public:
-        explicit Parser(IAllocator *allocator);
+        explicit Parser(IAllocator *allocator = 0);
+        ~Parser();
         
         int parse(const char *str, size_t length);
         
-        Node getRoot() const;
+        Node getRoot() const{ return root_; }
         
     private:
         
