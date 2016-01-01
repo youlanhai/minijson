@@ -13,6 +13,8 @@
 #include "dict.hpp"
 #include "allocator.hpp"
 
+#include <cmath>
+
 namespace mjson
 {
     class Reader
@@ -67,14 +69,19 @@ namespace mjson
         RC_INVALID_TRUE,
         RC_INVALID_FALSE,
     };
-
+    
+    bool isWhiteSpace(char ch)
+    {
+        return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
+    }
+    
     char skipWhiteSpace(Reader &reader)
     {
         char ch;
         do
         {
             ch = reader.read();
-        }while(ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r');
+        }while(isWhiteSpace(ch));
         return ch;
     }
     
@@ -260,7 +267,90 @@ namespace mjson
     
     int Parser::parseNumber(Node &node, Reader &reader)
     {
-        return false;
+        Integer value = 0;
+        double real = 0;
+        int exponent = 0;
+        int sign = 1;
+        bool useFloat = false;
+        
+        char ch = reader.read();
+        if(ch == '-')
+        {
+            sign = -1;
+            ch = reader.read();
+        }
+        
+        if(ch < '0' || ch > '9')
+            return RC_INVALID_NUMBER;
+        
+        if(ch != '0')
+        {
+            while(ch >= '0' && ch <= '9')
+            {
+                value = value * 10 + ch - '0';
+                ch = reader.read();
+            }
+        }
+        else
+        {
+            ch = reader.read();
+        }
+        
+        if(ch == '.')
+        {
+            useFloat = true;
+            double pos = 0.1;
+            
+            ch = reader.read();
+            while(ch >= '0' && ch <= '9')
+            {
+                real += pos * (ch - '0');
+                pos *= 0.1;
+                ch = reader.read();
+            }
+            
+            int expSign = 1;
+            if(ch == 'e' || ch == 'E')
+            {
+                ch = reader.read();
+                if(ch == '-')
+                {
+                    expSign = -1;
+                    ch = reader.read();
+                }
+                else if(ch == '+')
+                {
+                    expSign = 1;
+                    ch = reader.read();
+                }
+                
+                while(ch >= '0' && ch <= '9')
+                {
+                    exponent = exponent * 10 + ch - '0';
+                    ch = reader.read();
+                }
+            }
+            exponent *= expSign;
+        }
+        
+        if(isWhiteSpace(ch) && ch != ',' && ch != ']' && ch != '}')
+        {
+            return RC_INVALID_NUMBER;
+        }
+        
+        if(useFloat)
+        {
+            real = (double)value + real;
+            real = pow(real, exponent);
+            real *= sign;
+            node = real;
+        }
+        else
+        {
+            value *= sign;
+            node = value;
+        }
+        return RC_OK;
     }
     
     int Parser::parseString(Node &node, Reader &reader)

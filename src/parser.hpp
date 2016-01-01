@@ -15,6 +15,7 @@ namespace mjson
 {
     class Reader;
     
+    //bnf: http://www.json.org/json-zh.html
     class Parser
     {
     public:
