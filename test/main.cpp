@@ -47,8 +47,9 @@ int main(int argc, char** argv)
     while(true)
     {
         buffer.resize(offset + blockSize);
-        size_t bytes = fs.readsome(&buffer[offset], blockSize);
-    
+        fs.read(&buffer[offset], blockSize);
+        size_t bytes = fs.gcount();
+        
         offset += bytes;
         if(bytes < blockSize)
         {

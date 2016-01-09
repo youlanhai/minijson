@@ -12,18 +12,23 @@ namespace mjson
 {
     JSON_INLINE int String::compare(const char *str) const
     {
-        return strncmp(str_, str, size_);
+        return compare(str, strlen(str));
+    }
+    
+    JSON_INLINE int String::compare(const char *str, size_t length) const
+    {
+        size_t minSize = size_ < length ? size_ : length;
+        int ret = memcmp(str_, str, minSize);
+        if(ret == 0)
+        {
+            return (int)size_ - (int)length;
+        }
+        return ret;
     }
     
     JSON_INLINE int String::compare(const String *p) const
     {
-        size_t minSize = size_ < p->size_ ? size_ : p->size_;
-        int ret = memcmp(str_, p->str_, minSize);
-        if(ret == 0)
-        {
-            return (int)size_ - (int)p->size_;
-        }
-        return ret;
+        return compare(p->str_, p->size_);
     }
     
     JSON_INLINE size_t String::size() const

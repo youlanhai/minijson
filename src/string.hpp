@@ -21,6 +21,7 @@ namespace mjson
         ~String();
         
         int compare(const char *str) const;
+        int compare(const char *str, size_t length) const;
         int compare(const String *p) const;
         
         size_t size() const;

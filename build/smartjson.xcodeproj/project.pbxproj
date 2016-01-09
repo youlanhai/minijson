@@ -82,8 +82,8 @@
 		DFD74FA01C25A87F000B3938 /* types.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
 		DFD74FA11C25A96D000B3938 /* object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = object.cpp; sourceTree = "<group>"; };
 		DFD74FA21C25A96D000B3938 /* object.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = object.hpp; sourceTree = "<group>"; };
-		DFD74FA41C25ABED000B3938 /* node.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = node.ipp; sourceTree = "<group>"; };
-		DFD74FA51C25ADB4000B3938 /* string.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = string.ipp; sourceTree = "<group>"; };
+		DFD74FA41C25ABED000B3938 /* node.ipp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; path = node.ipp; sourceTree = "<group>"; };
+		DFD74FA51C25ADB4000B3938 /* string.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = string.ipp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		DFD74FA61C25B690000B3938 /* dict.ipp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dict.ipp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 

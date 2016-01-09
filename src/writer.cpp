@@ -159,7 +159,7 @@ namespace mjson
         {
             out << Tab(depth + 1, tab_);
             writeNode(it->key, out, depth + 1);
-            out << " : ";
+            out << ": ";
             writeNode(it->value, out, depth + 1);
             
             if(it + 1 != dict->end())

@@ -354,7 +354,7 @@ namespace mjson
             exponent *= expSign;
         }
         
-        if(isWhiteSpace(ch) && ch != ',' && ch != ']' && ch != '}')
+        if(!isWhiteSpace(ch) && ch != ',' && ch != ']' && ch != '}')
         {
             return RC_INVALID_NUMBER;
         }
