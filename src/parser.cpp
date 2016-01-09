@@ -72,15 +72,24 @@ namespace mjson
         return ch;
     }
     
-#define ZERO16 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-    static const char ESCAPE[256] = {
-        ZERO16, ZERO16, 0, 0,'\"', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'/',
-        ZERO16, ZERO16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,'\\', 0, 0, 0,
-        0, 0,'\b', 0, 0, 0,'\f', 0, 0, 0, 0, 0, 0, 0,'\n', 0,
-        0, 0,'\r', 0,'\t', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        ZERO16, ZERO16, ZERO16, ZERO16, ZERO16, ZERO16, ZERO16, ZERO16
-    };
-#undef ZERO16
+    char translateChar(char ch)
+    {
+        switch (ch)
+        {
+            case 'b': return '\b';
+            case 'f': return '\f';
+            case 'n': return '\n';
+            case 't': return '\t';
+            case 'r': return '\r';
+            case '"': return '"';
+            case '\\': return '\\';
+            case '/': return '/';
+                
+            case 'u':// doesn't support.
+            default: return ch;
+        }
+    }
+    
     
     Parser::Parser(IAllocator *allocator)
     : allocator_(allocator)
@@ -401,7 +410,7 @@ namespace mjson
             if(*begin == '\\')
             {
                 ++begin;
-                *p = ESCAPE[*begin];
+                *p = translateChar(*begin);
             }
             else
             {

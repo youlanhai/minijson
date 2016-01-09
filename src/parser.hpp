@@ -30,7 +30,10 @@ namespace mjson
         RC_INVALID_FALSE,
     };
     
-    //bnf: http://www.json.org/json-zh.html
+    /** json parser.
+     *  bnf: http://www.json.org/json-zh.html
+     *  NOTICE: The format '\uxxxx' doesn't supported.
+     */
     class Parser
     {
     public:
