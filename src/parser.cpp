@@ -1,4 +1,4 @@
-//
+﻿//
 //  parser.cpp
 //  smartjson
 //
@@ -8,10 +8,10 @@
 
 #include "parser.hpp"
 
-#include "string.hpp"
-#include "array.hpp"
-#include "dict.hpp"
-#include "allocator.hpp"
+#include "container/string.hpp"
+#include "container/array.hpp"
+#include "container/dict.hpp"
+#include "container/allocator.hpp"
 
 #include <cmath>
 #include <iostream>

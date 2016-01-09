@@ -1,4 +1,4 @@
-//
+﻿//
 //  node.cpp
 //  smartjson
 //
@@ -7,10 +7,10 @@
 //
 
 #include "node.hpp"
-#include "string.hpp"
-#include "array.hpp"
-#include "dict.hpp"
-#include "allocator.hpp"
+#include "container/string.hpp"
+#include "container/array.hpp"
+#include "container/dict.hpp"
+#include "container/allocator.hpp"
 
 #if !JSON_CODE_INLINE
 #include "node.ipp"

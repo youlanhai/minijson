@@ -1,4 +1,4 @@
-//
+﻿//
 //  writter.cpp
 //  smartjson
 //
@@ -8,7 +8,7 @@
 
 #include "writer.hpp"
 #include "node.hpp"
-#include "dict.hpp"
+#include "container/dict.hpp"
 
 namespace mjson
 {

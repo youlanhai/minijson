@@ -1,4 +1,4 @@
-//
+﻿//
 //  dict.cpp
 //  smartjson
 //
@@ -8,7 +8,7 @@
 
 #include "dict.hpp"
 #include "allocator.hpp"
-#include "node.hpp"
+#include "../node.hpp"
 #include "string.hpp"
 
 namespace mjson
