@@ -7,11 +7,8 @@
 //
 
 #include <iostream>
-#include "string.hpp"
-#include "array.hpp"
-#include "dict.hpp"
-#include "node.hpp"
-#include "allocator.hpp"
+
+#include "json.hpp"
 #include "parser.hpp"
 #include "writer.hpp"
 

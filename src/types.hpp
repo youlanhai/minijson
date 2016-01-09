@@ -10,7 +10,9 @@
 #define types_h
 
 #include "config.hpp"
+
 #include <cstdint>
+#include <cstdlib>
 
 namespace mjson
 {

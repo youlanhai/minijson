@@ -9,22 +9,12 @@
 #ifndef json_hpp
 #define json_hpp
 
-#include <cstdlib>
-#include <cstring>
-
 #include "config.hpp"
+#include "node.hpp"
 
-#if JSON_SUPPORT_STL_STRING
-#include <string>
-#endif
-
-namespace mjson
-{
- 
-}
-
-#if JSON_CODE_INLINE
-#include "json.ipp"
-#endif
+#include "container/allocator.hpp"
+#include "container/string.hpp"
+#include "container/array.hpp"
+#include "container/dict.hpp"
 
 #endif /* json_hpp */

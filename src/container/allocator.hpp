@@ -10,6 +10,7 @@
 #define allocator_hpp
 
 #include "reference.hpp"
+#include <cstdlib>
 
 namespace mjson
 {
