@@ -10,7 +10,9 @@
 #define reference_hpp
 
 #include "config.hpp"
+
 #include <cstdint>
+#include <cstdlib>
 
 #define JSON_DISABLE_COPY_ASSIGN(CLASS) \
     CLASS(const CLASS&); \
