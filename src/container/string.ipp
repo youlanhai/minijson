@@ -1,4 +1,4 @@
-//
+﻿//
 //  string.ipp
 //  smartjson
 //
@@ -31,6 +31,13 @@ namespace mjson
         return compare(p->str_, p->size_);
     }
     
+#if JSON_SUPPORT_STL_STRING
+    JSON_INLINE int String::compare(const std::string &str) const
+    {
+        return compare(str.c_str(), str.size());
+    }
+#endif
+
     JSON_INLINE size_t String::size() const
     {
         return size_;

@@ -1,4 +1,4 @@
-//
+﻿//
 //  types.hpp
 //  smartjson
 //
@@ -38,6 +38,8 @@ namespace mjson
         T_ARRAY,
         T_DICT,
     };
+
+    const Float DefaultEpsilon = 0.0000001;
 }
 
 #endif /* types_h */

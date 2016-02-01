@@ -1,4 +1,4 @@
-//
+﻿//
 //  parser.hpp
 //  smartjson
 //
@@ -43,7 +43,9 @@ namespace mjson
         int parse(const char *str, size_t length);
         
         Node getRoot() const{ return root_; }
-        
+        int getErrorCode() const { return errorCode_; }
+        int getErrorOffset() const { return errorOffset_; }
+
     private:
         
         int parseDict(Node &node, Reader &reader);
@@ -57,6 +59,8 @@ namespace mjson
         
         Node            root_;
         IAllocator*     allocator_;
+        int 			errorCode_;
+        int 			errorOffset_;
     };
 }
 

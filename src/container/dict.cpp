@@ -145,10 +145,9 @@ namespace mjson
         p->reserve(this->size());
         
         iterator out = p->begin();
-        for(const_iterator it = begin(); it != end(); ++it)
+        for(const_iterator it = begin(); it != end(); ++it, ++out)
         {
             new (out) value_type(*it);
-            ++out;
         }
         
         p->end_ = out;
@@ -161,14 +160,13 @@ namespace mjson
         p->reserve(this->size());
         
         iterator out = p->begin();
-        for(const_iterator it = begin(); it != end(); ++it)
+        for(const_iterator it = begin(); it != end(); ++it, ++out)
         {
             value_type tmp;
             tmp.key = it->key.deepClone();
             tmp.value = it->value.deepClone();
             
             new (out) value_type(tmp);
-            ++out;
         }
         
         p->end_ = out;
@@ -182,7 +180,7 @@ namespace mjson
             return false;
         }
         const_iterator it2 = p->begin();
-        for(const_iterator it = this->begin(); it != this->end(); ++it)
+        for(const_iterator it = this->begin(); it != this->end(); ++it, ++it2)
         {
             if(it->key != it2->key || it->value != it2->value)
             {

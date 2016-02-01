@@ -1,4 +1,4 @@
-//
+﻿//
 //  node.hpp
 //  smartjson
 //
@@ -10,7 +10,6 @@
 #define node_hpp
 
 #include "types.hpp"
-#include "config.hpp"
 
 #if JSON_SUPPORT_STL_STRING
 #include <string>
@@ -51,6 +50,8 @@ namespace mjson
         bool isPointer() const;
         
         bool        asBool()    const;
+        int         asInt()     const;
+        int64_t     asInt64()   const;
         Integer     asInteger() const;
         Float       asFloat()   const;
         String*     asString()  const;
@@ -58,14 +59,21 @@ namespace mjson
         Array*      asArray()   const;
         Dict*       asDict()    const;
         
-        String* rawString() const;
-        Array*  rawArray() const;
-        Dict*   rawDict() const;
+        // NOTICE the `raw*` method was not safe.
+        bool        rawBool() const;
+        int         rawInt() const;
+        int64_t     rawInt64() const;
+        Integer     rawInteger() const;
+        Float       rawFloat() const;
+        const char* rawCString() const;
+        String*     rawString() const;
+        Array*      rawArray() const;
+        Dict*       rawDict() const;
         
         void setNull();
         void setString(const char *str, size_t size = 0, IAllocator *allocator = 0);
-        void setArray(IAllocator *allocator = 0);
-        void setDict(IAllocator *allocator = 0);
+        Array* setArray(IAllocator *allocator = 0);
+        Dict* setDict(IAllocator *allocator = 0);
         
         const Node& operator = (bool value);
         const Node& operator = (short value);
@@ -85,15 +93,23 @@ namespace mjson
         Node deepClone() const;
         
         Node& operator[] (SizeType index);
-        Node& operator[] (const char *key);
-        
         const Node& operator[] (SizeType index) const;
+
+        // when the key was not found, the key will be insert.
+        Node& operator[] (const char *key);
+        Node& operator[] (const Node &key);
+
+        // when the key was not found, null value will be returned.
         const Node& operator[] (const char *key) const;
+        const Node& operator[] (const Node &key) const;
+
+        const Node& find(const char *key) const;
         
 #if JSON_SUPPORT_STL_STRING
         Node(const std::string &value, IAllocator *allocator = 0);
         const Node& operator = (const std::string &value);
         Node& operator[] (const std::string &key);
+        const Node& operator[] (const std::string &key) const;
         
         void setStdString(const std::string &value, IAllocator *allocator = 0);
         void asStdString(std::string &out) const;
@@ -101,8 +117,6 @@ namespace mjson
 #endif
         
     private:
-        
-        
         struct Value
         {
             union
@@ -111,6 +125,9 @@ namespace mjson
                 Integer     i;
                 Float       f;
                 Object*     p;
+                String*     ps;
+                Array*      pa;
+                Dict*       pd;
             };
         };
         

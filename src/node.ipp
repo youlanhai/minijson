@@ -15,7 +15,7 @@ namespace mjson
     JSON_INLINE Node::Node()
     : type_(T_NULL)
     {
-        
+        value_.p = nullptr;
     }
     
     JSON_INLINE Node::~Node()
@@ -76,10 +76,10 @@ namespace mjson
     }
     
     JSON_INLINE Node::Node(const Node &other)
-    : type_(other.type_)
-    , value_(other.value_)
+    : value_(other.value_)
+    , type_(other.type_)
     {
-        if(isPointer() && value_.p)
+        if(isPointer())
         {
             value_.p->retain();
         }
@@ -144,6 +144,7 @@ namespace mjson
             value_.p->release();
         }
         type_ = T_NULL;
+        value_.p = nullptr;
     }
     
     JSON_INLINE const Node& Node::operator = (bool value)
@@ -239,7 +240,7 @@ namespace mjson
     }
     
     /////////////////////////////////////////////////////////////
-    /// convert json to value
+    /// convert json to value safely
     /////////////////////////////////////////////////////////////
     
     JSON_INLINE bool Node::asBool() const
@@ -253,7 +254,17 @@ namespace mjson
         if(isFloat()) return (Integer)value_.f;
         return 0;
     }
-    
+
+    JSON_INLINE int Node::asInt() const
+    {
+        return (int)asInteger();
+    }
+
+    JSON_INLINE int64_t Node::asInt64() 	const
+    {
+        return (int64_t)asInteger();
+    }
+
     JSON_INLINE Float Node::asFloat() const
     {
         if(isFloat()) return value_.f;
@@ -263,9 +274,65 @@ namespace mjson
     
     JSON_INLINE String* Node::asString() const
     {
-        return (String*)(isString() ? value_.p : 0);
+        return isString() ? value_.ps : nullptr;
     }
-    
+
+    JSON_INLINE Array* Node::asArray() const
+    {
+        return isArray() ? value_.pa : nullptr;
+    }
+
+    JSON_INLINE Dict* Node::asDict() const
+    {
+        return isDict() ? value_.pd : nullptr;
+    }
+
+    /////////////////////////////////////////////////////////////
+    /// convert json to value unsafe
+    /////////////////////////////////////////////////////////////
+    JSON_INLINE bool Node::rawBool() const
+    {
+        return value_.b;
+    }
+
+    JSON_INLINE int Node::rawInt() const
+    {
+        return (int)value_.i;
+    }
+
+    JSON_INLINE int64_t Node::rawInt64() const
+    {
+        return (int64_t)value_.i;
+    }
+
+    JSON_INLINE Integer Node::rawInteger() const
+    {
+        return value_.i;
+    }
+
+    JSON_INLINE Float Node::rawFloat() const
+    {
+        return value_.f;
+    }
+
+    JSON_INLINE String* Node::rawString() const
+    {
+        return value_.ps;
+    }
+
+    JSON_INLINE Array* Node::rawArray() const
+    {
+        return value_.pa;
+    }
+
+    JSON_INLINE Dict* Node::rawDict() const
+    {
+        return value_.pd;
+    }
+
+    /////////////////////////////////////////////////////////////
+    /// convert json to value
+    /////////////////////////////////////////////////////////////
     JSON_INLINE bool Node::operator != (const Node &value) const
     {
         return !(*this == value);
@@ -278,9 +345,14 @@ namespace mjson
     
     JSON_INLINE const Node& Node::operator[] (const char *key) const
     {
-        return const_cast<Node*>(this)->operator[](key);
+        return find(key);
     }
-    
+
+    JSON_INLINE const Node& Node::operator[] (const Node &key) const
+    {
+        return find(key.asCString());
+    }
+
     JSON_INLINE Node Node::clone() const
     {
         Node ret;
@@ -325,6 +397,11 @@ namespace mjson
     JSON_INLINE Node& Node::operator[] (const std::string &key)
     {
         return (*this)[key.c_str()];
+    }
+
+    JSON_INLINE const Node& Node::operator[] (const std::string &key) const
+    {
+        return find(key.c_str());
     }
     
     JSON_INLINE void Node::setStdString(const std::string &value, IAllocator *allocator)

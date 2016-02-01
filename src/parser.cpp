@@ -22,7 +22,8 @@ namespace mjson
     {
     public:
         Reader(const char *begin, const char *end)
-        : p_(begin)
+        : begin_(begin)
+        , p_(begin)
         , end_(end)
         {}
         
@@ -93,6 +94,8 @@ namespace mjson
     
     Parser::Parser(IAllocator *allocator)
     : allocator_(allocator)
+    , errorCode_(RC_OK)
+    , errorOffset_(0)
     {
         if(allocator_ == 0)
         {
@@ -109,6 +112,8 @@ namespace mjson
     int Parser::parse(const char *str, size_t length)
     {
         root_.setNull();
+        errorCode_ = RC_OK;
+        errorOffset_ = 0;
         
         Reader reader(str, str + length);
         
@@ -138,6 +143,10 @@ namespace mjson
         
         if(ret != RC_OK)
         {
+            errorCode_ = ret;
+            errorOffset_ = reader.current() - str;
+
+#if 0
             int line = 1;
             int col = 1;
             for(const char *p = str; p != reader.current(); ++p)
@@ -156,6 +165,7 @@ namespace mjson
             << " line: " << line
             << " col: " << col
             << std::endl;
+#endif
         }
         return ret;
     }
@@ -390,11 +400,25 @@ namespace mjson
     int Parser::parseString(Node &node, Reader &reader)
     {
         const char *begin = reader.current();
+
         char ch;
-        do
+        while(1)
         {
             ch = reader.read();
-        }while(ch != 0 && ch != '\"' && ch != '\n');
+            if(ch == '\\')
+            {
+                ch = reader.read();
+                if(ch != 0)
+                {
+                    continue;
+                }
+            }
+
+            if(ch == 0 || ch == '\"' || ch == '\n')
+            {
+                break;
+            }
+        }
         
         if(ch != '\"')
         {
@@ -405,7 +429,7 @@ namespace mjson
         int ret = RC_OK;
         char* buffer = (char*)allocator_->malloc(end - begin + 1);
         char *p = buffer;
-        for(; begin != end && ret == RC_OK; ++p, ++begin)
+        for(; begin < end && ret == RC_OK; ++p, ++begin)
         {
             if(*begin == '\\')
             {

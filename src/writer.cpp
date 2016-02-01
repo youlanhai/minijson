@@ -130,6 +130,7 @@ namespace mjson
         if(node.size() == 0)
         {
             out << "[]";
+            return;
         }
         
         out << "[" << eol_;
@@ -151,6 +152,7 @@ namespace mjson
         if(node.size() == 0)
         {
             out << "{}";
+            return;
         }
         
         out << "{" << eol_;

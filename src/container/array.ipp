@@ -1,4 +1,4 @@
-//
+﻿//
 //  array.ipp
 //  smartjson
 //
@@ -86,5 +86,4 @@ namespace mjson
     {
         this->resize(0);
     }
-    
 }

@@ -1,4 +1,4 @@
-//
+﻿//
 //  string.hpp
 //  smartjson
 //
@@ -10,6 +10,10 @@
 #define string_hpp
 
 #include "object.hpp"
+
+#if JSON_SUPPORT_STL_STRING
+#include <string>
+#endif
 
 namespace mjson
 {
@@ -23,6 +27,9 @@ namespace mjson
         int compare(const char *str) const;
         int compare(const char *str, size_t length) const;
         int compare(const String *p) const;
+#if JSON_SUPPORT_STL_STRING
+        int compare(const std::string &str) const;
+#endif
         
         size_t size() const;
         const char* data() const;

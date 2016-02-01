@@ -1,4 +1,4 @@
-//
+﻿//
 //  array.hpp
 //  smartjson
 //

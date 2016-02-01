@@ -136,7 +136,7 @@ namespace mjson
             return false;
         }
         const_iterator it2 = p->begin();
-        for(const_iterator it = begin(); it != end(); ++it)
+        for(const_iterator it = begin(); it != end(); ++it, ++it2)
         {
             if(*it != *it2)
             {

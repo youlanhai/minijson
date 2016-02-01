@@ -11,6 +11,7 @@
 #include "container/array.hpp"
 #include "container/dict.hpp"
 #include "container/allocator.hpp"
+#include <cmath>
 
 #if !JSON_CODE_INLINE
 #include "node.ipp"
@@ -23,30 +24,10 @@ namespace mjson
     {
         return isString() ? rawString()->data() : "";
     }
-    
-    Array* Node::asArray() const
+
+    const char* Node::rawCString() const
     {
-        return (Array*)(isArray() ? value_.p : 0);
-    }
-    
-    Dict* Node::asDict() const
-    {
-        return (Dict*)(isDict() ? value_.p : 0);
-    }
-    
-    String* Node::rawString() const
-    {
-        return const_cast<String*>((String*)value_.p);
-    }
-    
-    Array* Node::rawArray() const
-    {
-        return const_cast<Array*>((Array*)value_.p);
-    }
-    
-    Dict* Node::rawDict() const
-    {
-        return const_cast<Dict*>((Dict*)value_.p);
+        return rawString()->data();
     }
     
     void Node::setString(const char *str, size_t size, IAllocator *allocator)
@@ -71,7 +52,7 @@ namespace mjson
         allocator->release();
     }
     
-    void Node::setArray(IAllocator *allocator)
+    Array* Node::setArray(IAllocator *allocator)
     {
         setNull();
         type_ = T_ARRAY;
@@ -86,9 +67,10 @@ namespace mjson
         value_.p->retain();
         
         allocator->release();
+        return (Array*)value_.p;
     }
     
-    void Node::setDict(IAllocator *allocator)
+    Dict* Node::setDict(IAllocator *allocator)
     {
         setNull();
         type_ = T_DICT;
@@ -103,6 +85,7 @@ namespace mjson
         value_.p->retain();
         
         allocator->release();
+        return (Dict*)value_.p;
     }
     
     bool Node::operator == (const Node &other) const
@@ -111,15 +94,15 @@ namespace mjson
         {
             if(this->isFloat() && other.isFloat())
             {
-                return value_.f == other.value_.f;
+                return fabs(value_.f - other.value_.f) < DefaultEpsilon;
             }
             else if(this->isFloat())
             {
-                return value_.f == (Float)other.value_.i;
+                return fabs(value_.f - (Float)other.value_.i) < DefaultEpsilon;
             }
             else if(other.isFloat())
             {
-                return (Float)value_.i == other.value_.f;
+                return fabs((Float)value_.i - other.value_.f) < DefaultEpsilon;
             }
             else
             {
@@ -200,7 +183,35 @@ namespace mjson
         null.setNull();
         return null;
     }
-    
+
+    Node& Node::operator[] (const Node &key)
+    {
+        if(isDict())
+        {
+            return (*rawDict())[key.asCString()];
+        }
+
+        static Node null;
+        null.setNull();
+        return null;
+    }
+
+    const Node& Node::find(const char *key) const
+    {
+        if(isDict())
+        {
+            Dict::const_iterator it = rawDict()->find(key);
+            if(it != rawDict()->end())
+            {
+                return it->value;
+            }
+        }
+
+        static Node null;
+        null.setNull();
+        return null;
+    }
+
 #if JSON_SUPPORT_STL_STRING
     
     void Node::asStdString(std::string &out) const
