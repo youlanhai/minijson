@@ -252,7 +252,7 @@ namespace mjson
                 break;
             }
         
-            node.rawDict()->insert(key, value);
+            node.rawDict()->append(key, value);
             
             ch = skipWhiteSpace(reader);
             if(ch == '}')

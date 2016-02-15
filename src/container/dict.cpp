@@ -63,10 +63,10 @@ namespace mjson
             reserve(newCapacity);
         }
     }
-    
+
     void Dict::clear()
     {
-        for(iterator it = begin(); it != end(); ++it)
+        for(iterator it = begin_; it != end_; ++it)
         {
             it->~value_type();
         }
@@ -75,9 +75,9 @@ namespace mjson
     
     Dict::iterator Dict::find(const char *key)
     {
-        iterator it = begin();
+        iterator it = begin_;
         
-        for(; it != end() && it->key.asString()->compare(key) != 0; ++it)
+        for(; it != end_ && it->key.asString()->compare(key) != 0; ++it)
         {}
         
         return it;
@@ -86,39 +86,42 @@ namespace mjson
     Node& Dict::at(const char *key)
     {
         iterator it = find(key);
-        if(it != end())
+        if(it != end_)
         {
             return it->value;
         }
         else
         {
-            ensure(1);
-            
-            new (end_) value_type();
-            end_->key = key;
-            return (end_++)->value;
+            append(key, Node());
+            return (end_ - 1)->value;
         }
     }
     
-    Dict::iterator Dict::insert(const Node &key, const Node &value)
+    Dict::iterator Dict::insert(const char *key, const Node &value)
     {
-        iterator it = find(key.asCString());
-        if(it != end())
+        iterator it = find(key);
+        if(it != end_)
         {
             it->value = value;
             return it;
         }
         else
         {
-            ensure(1);
-            
-            new (end_) value_type();
-            end_->key = key;
-            end_->value = value;
-            return end_++;
+            append(key, value);
+            return end_ - 1;
         }
     }
-    
+
+    void Dict::append(const Node &key, const Node &value)
+    {
+        ensure(1);
+
+        new (end_) value_type();
+        end_->key = key;
+        end_->value = value;
+        ++end_;
+    }
+
     size_t Dict::size() const
     {
         return end_ - begin_;
@@ -126,13 +129,14 @@ namespace mjson
     
     void Dict::erase(iterator it)
     {
-        if(it >= begin() && it < end())
+        if(it >= begin_ && it < end_)
         {
             it->~value_type();
             
-            if(it + 1 < end())
+            iterator next = it + 1;
+            if(next < end_)
             {
-                memmove(it, it + 1, end() - it);
+                memmove(it, next, (end_ - next) * sizeof(value_type));
             }
             
             --end_;
@@ -144,10 +148,10 @@ namespace mjson
         Dict *p = allocator_->createDict();
         p->reserve(this->size());
         
-        iterator out = p->begin();
-        for(const_iterator it = begin(); it != end(); ++it, ++out)
+        iterator out = p->begin_;
+        for(const_iterator it = begin_; it != end_; ++it, ++out)
         {
-            new (out) value_type(*it);
+            new (p->end_) value_type(*it);
         }
         
         p->end_ = out;
@@ -159,8 +163,8 @@ namespace mjson
         Dict *p = allocator_->createDict();
         p->reserve(this->size());
         
-        iterator out = p->begin();
-        for(const_iterator it = begin(); it != end(); ++it, ++out)
+        iterator out = p->begin_;
+        for(const_iterator it = begin_; it != end_; ++it, ++out)
         {
             value_type tmp;
             tmp.key = it->key.deepClone();
@@ -179,8 +183,8 @@ namespace mjson
         {
             return false;
         }
-        const_iterator it2 = p->begin();
-        for(const_iterator it = this->begin(); it != this->end(); ++it, ++it2)
+        const_iterator it2 = p->begin_;
+        for(const_iterator it = this->begin_; it != this->end_; ++it, ++it2)
         {
             if(it->key != it2->key || it->value != it2->value)
             {

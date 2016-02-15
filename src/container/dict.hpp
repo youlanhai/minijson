@@ -1,4 +1,4 @@
-//
+﻿//
 //  dict.hpp
 //  smartjson
 //
@@ -44,7 +44,8 @@ namespace mjson
         Node& operator[] (const char *key);
         const Node& operator[] (const char *key) const;
         
-        iterator insert(const Node &key, const Node &value);
+        iterator insert(const char *key, const Node &value);
+        void append(const Node &key, const Node &value);
         
         bool empty() const;
         size_t size() const;
