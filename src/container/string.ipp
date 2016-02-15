@@ -53,6 +53,11 @@ namespace mjson
         return T_STRING;
     }
     
+    JSON_INLINE Object* String::clone() const
+    {
+        return const_cast<String*>(this); //string is constant, deosn't need clone.
+    }
+
     JSON_INLINE Object* String::deepClone() const
     {
         return clone();

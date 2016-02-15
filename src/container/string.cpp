@@ -1,4 +1,4 @@
-//
+﻿//
 //  string.cpp
 //  smartjson
 //
@@ -43,10 +43,5 @@ namespace mjson
         {
             allocator_->free(str_);
         }
-    }
-
-    Object* String::clone() const
-    {
-        return allocator_->createString(str_, size_);
     }
 }
