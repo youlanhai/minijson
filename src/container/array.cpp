@@ -77,27 +77,50 @@ namespace mjson
     
     void Array::insert(iterator it, const value_type &value)
     {
-        ptrdiff_t index = it - begin();
+        assert(it >= begin_ && it <= end_);
+        ptrdiff_t index = it - begin(); // the iterator may be invalid after resize.
         resize(size() + 1);
-        it = begin() + index;
+        it = begin() + index; // recaculate the iterator after resize.
         
-        for(iterator i = end() - 1; i > it; --i)
+        iterator next = it + 1;
+        if(next != end_)
         {
-            memcpy(i, i - 1, sizeof(value_type));
+            memmove(next, it, (end_ - it) * sizeof(value_type));
         }
+        
         new (it) value_type(value);
     }
     
     void Array::erase(iterator it)
     {
+        //NOTICE erase the end is valid.
+        assert(it >= begin_ && it <= end_);
         if(it != end_)
         {
             it->~value_type();
-            memmove(it, it + 1, (end_ - it) * sizeof(value_type));
+            
+            iterator next = it + 1;
+            if(next != end_)
+            {
+                memmove(it, next, (end_ - next) * sizeof(value_type));
+            }
             --end_;
         }
     }
     
+    Array::iterator Array::find(const value_type &value)
+    {
+        iterator it = begin_;
+        for(; it != end_ && *it != value; ++it)
+        {}
+        return it;
+    }
+    
+    void Array::remove(const value_type &value)
+    {
+        erase(find(value));
+    }
+
     void Array::pop()
     {
         assert(!empty());

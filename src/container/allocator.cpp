@@ -78,8 +78,12 @@ namespace mjson
     
     void RawAllocator::freeObject(Object *p)
     {
+        this->retain();
+        
         p->~Object();
         this->free(p);
+        
+        this->release();
     }
 
 }
