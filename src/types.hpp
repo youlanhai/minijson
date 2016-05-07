@@ -11,8 +11,9 @@
 
 #include "config.hpp"
 
-#include <cstdint>
-#include <cstdlib>
+#include <float.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 namespace mjson
 {
@@ -20,12 +21,16 @@ namespace mjson
     
 #if JSON_USE_LARGE_NUMBER
     typedef int64_t     Integer;
+    typedef uint64_t    UInteger;
     typedef double      Float;
+    const Float DefaultEpsilon = DBL_EPSILON;
 #else
-    typedef int         Integer;
+    typedef int32_t     Integer;
+    typedef int32_t     UInteger;
     typedef float       Float;
+    const Float DefaultEpsilon = FLT_EPSILON;
 #endif
-    
+
     enum Type
     {
         T_NULL,
@@ -39,7 +44,6 @@ namespace mjson
         T_DICT,
     };
 
-    const Float DefaultEpsilon = 0.0000001;
-}
+} // end namespace mjson
 
 #endif /* types_h */

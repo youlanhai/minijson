@@ -46,10 +46,8 @@ namespace mjson
             return p_ >= end_;
         }
         
-        const char* current() const
-        {
-            return p_;
-        }
+        const char* begin() const { return begin_; }
+        const char* current() const { return p_; }
         
     private:
         const char*     p_;
@@ -99,7 +97,7 @@ namespace mjson
     {
         if(allocator_ == 0)
         {
-            allocator_ = new RawAllocator();
+            allocator_ = RawAllocator::defaultAllocator();
         }
         allocator_->retain();
     }

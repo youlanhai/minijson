@@ -55,6 +55,18 @@ namespace mjson
         virtual String* createRawString(char *str, size_t size);
         
         virtual void    freeObject(Object *p);
+        
+        static RawAllocator* defaultAllocator()
+        {
+            if(s_pDefault == NULL)
+            {
+                s_pDefault = new RawAllocator();
+                s_pDefault->retain();
+            }
+            return s_pDefault;
+        }
+    private:
+        static RawAllocator *s_pDefault;
     };
 }
 

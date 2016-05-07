@@ -39,7 +39,7 @@ namespace mjson
     
     String::~String()
     {
-        if(size_ > 0)
+        if(str_ != buffer)
         {
             allocator_->free(str_);
         }

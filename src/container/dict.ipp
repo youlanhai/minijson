@@ -6,12 +6,14 @@
 //  Copyright © 2015年 youlanhai. All rights reserved.
 //
 
+#include "node.hpp"
+
 namespace mjson
 {
     JSON_INLINE Dict::Dict(IAllocator *allocator)
     : Object(allocator)
-    , begin_(nullptr)
-    , end_(nullptr)
+    , begin_(0)
+    , end_(0)
     , capacity_(0)
     {
         
@@ -19,22 +21,33 @@ namespace mjson
     
     JSON_INLINE Dict::iterator Dict::begin()
     {
-        return begin_;
+        return iterator(this, 0);
     }
     
     JSON_INLINE Dict::iterator Dict::end()
     {
-        return end_;
+        return iterator(this, end_ - begin_);
     }
     
     JSON_INLINE Dict::const_iterator Dict::begin() const
     {
-        return begin_;
+        return const_iterator(this, 0);
     }
     
     JSON_INLINE Dict::const_iterator Dict::end() const
     {
-        return end_;
+        return const_iterator(this, end_ - begin_);
+    }
+    
+    JSON_INLINE Dict::const_iterator Dict::find(const char *key) const
+    {
+        iterator it = const_cast<Dict*>(this)->find(key);
+        return const_iterator(this, it.index());
+    }
+    
+    JSON_INLINE bool Dict::exist(const char *key) const
+    {
+        return find(key) != end();
     }
     
     JSON_INLINE const Node& Dict::at(const char *key) const
@@ -70,5 +83,20 @@ namespace mjson
     JSON_INLINE Type Dict::type() const
     {
         return T_DICT;
+    }
+    
+    JSON_INLINE size_t Dict::size() const
+    {
+        return end_ - begin_;
+    }
+    
+    JSON_INLINE Dict::value_type& Dict::at(size_t index)
+    {
+        return *(begin_ + index);
+    }
+    
+    JSON_INLINE const Dict::value_type& Dict::at(size_t index) const
+    {
+        return *(begin_ + index);
     }
 }

@@ -7,7 +7,6 @@
 //
 
 #include "array.hpp"
-#include "../node.hpp"
 #include "allocator.hpp"
 
 #if !JSON_CODE_INLINE
@@ -48,27 +47,32 @@ namespace mjson
         }
     }
     
-    void Array::resize(size_t size)
+    void Array::alignedReserve(size_t capacity)
     {
-        if(size > capacity_)
+        if(capacity > capacity_)
         {
-            size_t newCapacity = growCapacity(capacity_, size);
+            size_t newCapacity = growCapacity(capacity_, capacity);
             reserve(newCapacity);
         }
+    }
+    
+    void Array::resize(size_t size)
+    {
+        alignedReserve(size);
         
-        iterator newEnd = begin() + size;
-        if(newEnd > end())
+        pointer newEnd = begin_ + size;
+        if(newEnd > end_)
         {
-            for(iterator it = end(); it != newEnd; ++it)
+            for(pointer it = end_; it != newEnd; ++it)
             {
-                new (it) value_type;
+                new (it) value_type();
             }
         }
-        else if(newEnd < end())
+        else if(newEnd < end_)
         {
-            for(iterator it = newEnd; it != end(); ++it)
+            for(pointer p = newEnd; p != end_; ++p)
             {
-                it->~value_type();
+                p->~value_type();
             }
         }
         
@@ -77,32 +81,35 @@ namespace mjson
     
     void Array::insert(iterator it, const value_type &value)
     {
-        assert(it >= begin_ && it <= end_);
-        ptrdiff_t index = it - begin(); // the iterator may be invalid after resize.
-        resize(size() + 1);
-        it = begin() + index; // recaculate the iterator after resize.
+        assert(it < end() || it == end());
         
-        iterator next = it + 1;
-        if(next != end_)
+        alignedReserve(size() + 1);
+        
+        pointer p = begin_ + it.index();
+        if(p != end_)
         {
-            memmove(next, it, (end_ - it) * sizeof(value_type));
+            //move backwards.
+            memmove(p + 1, p, (end_ - p) * sizeof(value_type));
         }
+        ++end_;
         
-        new (it) value_type(value);
+        new (p) value_type(value);
     }
     
     void Array::erase(iterator it)
     {
         //NOTICE erase the end is valid.
-        assert(it >= begin_ && it <= end_);
-        if(it != end_)
+        assert(it >= begin() && it <= end());
+        if(it != end())
         {
             it->~value_type();
             
-            iterator next = it + 1;
+            pointer p = begin_ + it.index();
+            pointer next = p + 1;
             if(next != end_)
             {
-                memmove(it, next, (end_ - next) * sizeof(value_type));
+                // move forwards.
+                memmove(p, next, (end_ - next) * sizeof(value_type));
             }
             --end_;
         }
@@ -110,29 +117,18 @@ namespace mjson
     
     Array::iterator Array::find(const value_type &value)
     {
-        iterator it = begin_;
-        for(; it != end_ && *it != value; ++it)
+        pointer p = begin_;
+        for(; p != end_ && *p != value; ++p)
         {}
-        return it;
+        return iterator(this, p - begin_);
     }
-    
-    void Array::remove(const value_type &value)
-    {
-        erase(find(value));
-    }
-
-    void Array::pop()
-    {
-        assert(!empty());
-        erase(end_ - 1);
-    }
-    
+   
     Object* Array::clone() const
     {
         Array *p = allocator_->createArray();
         p->reserve(this->size());
         
-        for(const_iterator it = begin(); it != end(); ++it)
+        for(pointer it = begin_; it != end_; ++it)
         {
             new (p->end_++) value_type(*it);
         }
@@ -144,7 +140,7 @@ namespace mjson
         Array *p = allocator_->createArray();
         p->reserve(this->size());
         
-        for(const_iterator it = begin(); it != end(); ++it)
+        for(pointer it = begin_; it != end_; ++it)
         {
             Node tmp = it->deepClone();
             new (p->end_++) value_type(tmp);
@@ -158,8 +154,7 @@ namespace mjson
         {
             return false;
         }
-        const_iterator it2 = p->begin();
-        for(const_iterator it = begin(); it != end(); ++it, ++it2)
+        for(pointer it = begin_, it2 = p->begin_; it != end_; ++it, ++it2)
         {
             if(*it != *it2)
             {
@@ -168,28 +163,4 @@ namespace mjson
         }
         return true;
     }
-    
-    Array::value_type& Array::at(size_t index)
-    {
-        assert(index < size());
-        return  begin_[index];
-    }
-    
-    size_t Array::size() const
-    {
-        return end_ - begin_;
-    }
-    
-    Array::value_type& Array::front()
-    {
-        assert(!empty());
-        return *begin_;
-    }
-    
-    Array::value_type& Array::back()
-    {
-        assert(!empty());
-        return *(end_ - 1);
-    }
-    
 }

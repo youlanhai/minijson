@@ -36,6 +36,8 @@ namespace mjson
         
     }
     
+    /*static*/RawAllocator* RawAllocator::s_pDefault = NULL;
+    
     void* RawAllocator::malloc(size_t size)
     {
         return std::malloc(size);

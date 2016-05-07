@@ -29,13 +29,14 @@ namespace mjson
         
         Node();
         Node(bool value);
-        Node(short value);
         Node(int value);
+        Node(unsigned int value);
         Node(int64_t value);
+        Node(uint64_t value);
         Node(float value);
         Node(double value);
         Node(Object *p);
-        Node(const char *str, size_t size = 0, IAllocator *allocator = nullptr);
+        Node(const char *str, size_t size = 0, IAllocator *allocator = 0);
         Node(const Node &other);
         ~Node();
         
@@ -51,7 +52,9 @@ namespace mjson
         
         bool        asBool()    const;
         int         asInt()     const;
+        unsigned int asUint()   const;
         int64_t     asInt64()   const;
+        uint64_t    asUint64()  const;
         Integer     asInteger() const;
         Float       asFloat()   const;
         String*     asString()  const;
@@ -69,6 +72,14 @@ namespace mjson
         String*     rawString() const;
         Array*      rawArray() const;
         Dict*       rawDict() const;
+
+        String&     refString();
+        Array&      refArray();
+        Dict&       refDict();
+
+        const String& refString() const;
+        const Array& refArray() const;
+        const Dict& refDict() const;
         
         void setNull();
         void setString(const char *str, size_t size = 0, IAllocator *allocator = 0);
@@ -76,9 +87,10 @@ namespace mjson
         Dict* setDict(IAllocator *allocator = 0);
         
         const Node& operator = (bool value);
-        const Node& operator = (short value);
         const Node& operator = (int value);
+        const Node& operator = (unsigned int value);
         const Node& operator = (int64_t value);
+        const Node& operator = (uint64_t value);
         const Node& operator = (float value);
         const Node& operator = (double value);
         const Node& operator = (const char *value);

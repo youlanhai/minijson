@@ -11,11 +11,14 @@
 
 namespace mjson
 {
+
+#define JSON_UINT_TO_INTEGER(V) static_cast<Integer>(static_cast<UInteger>(V))
+#define JSON_INTEGER_TO_UINT(V, T) static_cast<T>(static_cast<UInteger>(V))
     
     JSON_INLINE Node::Node()
     : type_(T_NULL)
     {
-        value_.p = nullptr;
+        value_.p = 0;
     }
     
     JSON_INLINE Node::~Node()
@@ -28,25 +31,31 @@ namespace mjson
     {
         value_.b = value;
     }
-    
-    JSON_INLINE Node::Node(short value)
-    : type_(T_INT)
-    {
-        value_.i = (Integer)value;
-    }
-    
+
     JSON_INLINE Node::Node(int value)
     : type_(T_INT)
     {
-        value_.i = (Integer)value;
+        value_.i = static_cast<Integer>(value);
     }
-    
+
+    JSON_INLINE Node::Node(unsigned int value)
+    : type_(T_INT)
+    {
+        value_.i = JSON_UINT_TO_INTEGER(value);
+    }
+
     JSON_INLINE Node::Node(int64_t value)
     : type_(T_INT)
     {
-        value_.i = (Integer)value;
+        value_.i = static_cast<Integer>(value);
     }
-    
+
+    JSON_INLINE Node::Node(uint64_t value)
+    : type_(T_INT)
+    {
+        value_.i = JSON_UINT_TO_INTEGER(value);
+    }
+
     JSON_INLINE Node::Node(float value)
     : type_(T_FLOAT)
     {
@@ -144,7 +153,7 @@ namespace mjson
             value_.p->release();
         }
         type_ = T_NULL;
-        value_.p = nullptr;
+        value_.p = 0;
     }
     
     JSON_INLINE const Node& Node::operator = (bool value)
@@ -155,30 +164,38 @@ namespace mjson
         return *this;
     }
     
-    JSON_INLINE const Node& Node::operator = (short value)
-    {
-        setNull();
-        type_ = T_INT;
-        value_.i = (Integer)value;
-        return *this;
-    }
-    
     JSON_INLINE const Node& Node::operator = (int value)
     {
         setNull();
         type_ = T_INT;
-        value_.i = (Integer)value;
+        value_.i = static_cast<Integer>(value);
         return *this;
     }
-    
+
+    JSON_INLINE const Node& Node::operator = (unsigned int value)
+    {
+        setNull();
+        type_ = T_INT;
+        value_.i = JSON_UINT_TO_INTEGER(value);
+        return *this;
+    }
+
     JSON_INLINE const Node& Node::operator = (int64_t value)
     {
         setNull();
         type_ = T_INT;
-        value_.i = (Integer)value;
+        value_.i = static_cast<Integer>(value);
         return *this;
     }
-    
+
+    JSON_INLINE const Node& Node::operator = (uint64_t value)
+    {
+        setNull();
+        type_ = T_INT;
+        value_.i = JSON_UINT_TO_INTEGER(value);
+        return *this;
+    }
+
     JSON_INLINE const Node& Node::operator = (float value)
     {
         setNull();
@@ -186,7 +203,7 @@ namespace mjson
         value_.f = (Float)value;
         return *this;
     }
-    
+
     JSON_INLINE const Node& Node::operator = (double value)
     {
         setNull();
@@ -251,18 +268,28 @@ namespace mjson
     JSON_INLINE Integer Node::asInteger() const
     {
         if(isInt()) return value_.i;
-        if(isFloat()) return (Integer)value_.f;
+        if(isFloat()) return static_cast<Integer>(value_.f);
         return 0;
     }
 
     JSON_INLINE int Node::asInt() const
     {
-        return (int)asInteger();
+        return static_cast<int>(asInteger());
     }
 
-    JSON_INLINE int64_t Node::asInt64() 	const
+    JSON_INLINE unsigned int Node::asUint() const
     {
-        return (int64_t)asInteger();
+        return JSON_INTEGER_TO_UINT(asInteger(), unsigned int);
+    }
+
+    JSON_INLINE int64_t Node::asInt64() const
+    {
+        return static_cast<int64_t>(asInteger());
+    }
+
+    JSON_INLINE uint64_t Node::asUint64() const
+    {
+        return JSON_INTEGER_TO_UINT(asInteger(), uint64_t);
     }
 
     JSON_INLINE Float Node::asFloat() const
@@ -274,17 +301,17 @@ namespace mjson
     
     JSON_INLINE String* Node::asString() const
     {
-        return isString() ? value_.ps : nullptr;
+        return isString() ? value_.ps : 0;
     }
 
     JSON_INLINE Array* Node::asArray() const
     {
-        return isArray() ? value_.pa : nullptr;
+        return isArray() ? value_.pa : 0;
     }
 
     JSON_INLINE Dict* Node::asDict() const
     {
-        return isDict() ? value_.pd : nullptr;
+        return isDict() ? value_.pd : 0;
     }
 
     /////////////////////////////////////////////////////////////

@@ -17,6 +17,4 @@
 #include "container/array.hpp"
 #include "container/dict.hpp"
 
-#include "iterator.hpp"
-
 #endif /* json_hpp */

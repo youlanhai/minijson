@@ -1,4 +1,4 @@
-﻿//
+//
 //  dict.hpp
 //  smartjson
 //
@@ -10,6 +10,7 @@
 #define dict_hpp
 
 #include "object.hpp"
+#include "iterator.h"
 
 namespace mjson
 {
@@ -19,9 +20,10 @@ namespace mjson
     class Dict : public Object
     {
     public:
-        typedef NodePair            value_type;
-        typedef value_type*         iterator;
-        typedef const value_type*   const_iterator;
+        typedef NodePair                value_type;
+        typedef NodePair*               pointer;
+        typedef Iterator<Dict, NodePair>          iterator;
+        typedef Iterator<const Dict, const NodePair>    const_iterator;
         
         Dict(IAllocator *allocator);
         ~Dict();
@@ -38,13 +40,21 @@ namespace mjson
         iterator find(const char *key);
         const_iterator find(const char *key) const;
         
+        bool exist(const char *key) const;
+        
         Node& at(const char *key);
         const Node& at(const char *key) const;
+        
+        value_type& at(size_t index);
+        const value_type& at(size_t key) const;
         
         Node& operator[] (const char *key);
         const Node& operator[] (const char *key) const;
         
+        // if the key exist, replace it's value. else insert the key-value pair to end.
         iterator insert(const char *key, const Node &value);
+        
+        // insert the key-value pair to end directly.
         void append(const Node &key, const Node &value);
         
         bool empty() const;

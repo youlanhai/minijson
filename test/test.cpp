@@ -35,7 +35,7 @@ void testString()
 {
     std::cout << "test string..." << std::endl;
     
-    mjson::IAllocator *allocator = new mjson::RawAllocator();
+    mjson::IAllocator *allocator = mjson::RawAllocator::defaultAllocator();
     allocator->retain();
     
     std::string str("Hello World");
@@ -66,17 +66,12 @@ void testArray()
 {
     std::cout << "test array..." << std::endl;
     
-    
-    mjson::RawAllocator allocator;
-    allocator.retain();
-    
-    mjson::Array *p = allocator.createArray();
+    mjson::Array *p = mjson::RawAllocator::defaultAllocator()->createArray();
     p->retain();
     
     TEST_EQUAL(p->size() == 0);
     TEST_EQUAL(p->capacity() == 0);
     TEST_EQUAL(p->begin() == p->end());
-    TEST_EQUAL(p->begin() == nullptr);
     
     p->append(true);
     p->append(1234567890);
@@ -97,6 +92,7 @@ void testArray()
     TEST_EQUAL((*p)[3] == 1234);
     TEST_EQUAL((*p)[4] == 1314);
     
+    // test clone
     mjson::Array *copy = (mjson::Array*)p->clone();
     copy->retain();
     
@@ -107,6 +103,14 @@ void testArray()
         TEST_EQUAL((*copy)[i] == (*p)[i]);
     }
     
+    // test iterator
+    for(mjson::Array::iterator it = p->begin(), it2 = copy->end();
+        it != p->end() && it2 != copy->end();
+        ++it, ++copy)
+    {
+        TEST_EQUAL(*it == *it2);
+    }
+    
     copy->release();
     p->release();
 }
@@ -115,10 +119,7 @@ void testDict()
 {
     std::cout << "test dict..." << std::endl;
     
-    mjson::RawAllocator allocator;
-    allocator.retain();
-    
-    mjson::Dict *p = allocator.createDict();
+    mjson::Dict *p = mjson::RawAllocator::defaultAllocator()->createDict();
     p->retain();
     
     (*p)["name"] = "json";
@@ -139,6 +140,18 @@ void testDict()
     
     it = p->find("name");
     TEST_EQUAL(it != p->end());
+    
+    // test clone
+    mjson::Dict *copy = dynamic_cast<mjson::Dict*>(p->deepClone());
+    TEST_EQUAL(copy->size() == p->size());
+    for(mjson::Dict::iterator it = p->begin(), it2 = copy->begin();
+        it != p->end() && it2 != copy->end();
+        ++it, ++it2)
+    {
+        TEST_EQUAL(it->key == it2->key);
+        TEST_EQUAL(it->value == it2->value);
+    }
+    
     
     p->release();
 }
@@ -214,7 +227,7 @@ void testNode()
     TEST_EQUAL(n7.asArray()->size() == n7.size());
     TEST_EQUAL(n7.size() == 7);
     TEST_EQUAL(n7[0u] == n0);
-    for(mjson::Array::const_iterator it = n7.asArray()->begin();
+    for(mjson::Array::iterator it = n7.asArray()->begin();
         it != n7.asArray()->end(); ++it)
     {
         TEST_EQUAL(*it != n7);

@@ -27,14 +27,51 @@ namespace mjson
 
     const char* Node::rawCString() const
     {
+        JSON_ASSERT(isString());
         return rawString()->data();
     }
     
+    String& Node::refString()
+    {
+        JSON_ASSERT(isString());
+        return *(value_.ps);
+    }
+
+    Array& Node::refArray()
+    {
+        JSON_ASSERT(isArray());
+        return *(value_.pa);
+    }
+
+    Dict& Node::refDict()
+    {
+        JSON_ASSERT(isDict());
+        return *(value_.pd);
+    }
+
+    const String& Node::refString() const
+    {
+        JSON_ASSERT(isString());
+        return *(value_.ps);
+    }
+
+    const Array& Node::refArray() const
+    {
+        JSON_ASSERT(isArray());
+        return *(value_.pa);
+    }
+
+    const Dict& Node::refDict() const
+    {
+        JSON_ASSERT(isDict());
+        return *(value_.pd);
+    }
+
     void Node::setString(const char *str, size_t size, IAllocator *allocator)
     {
         if(0 == allocator)
         {
-            allocator = new RawAllocator();
+            allocator = RawAllocator::defaultAllocator();
         }
         allocator->retain();
         
@@ -59,7 +96,7 @@ namespace mjson
         
         if(0 == allocator)
         {
-            allocator = new RawAllocator();
+            allocator = RawAllocator::defaultAllocator();
         }
         allocator->retain();
         
@@ -77,7 +114,7 @@ namespace mjson
         
         if(0 == allocator)
         {
-            allocator = new RawAllocator();
+            allocator = RawAllocator::defaultAllocator();
         }
         allocator->retain();
         
@@ -200,7 +237,7 @@ namespace mjson
     {
         if(isDict())
         {
-            Dict::const_iterator it = rawDict()->find(key);
+            Dict::iterator it = rawDict()->find(key);
             if(it != rawDict()->end())
             {
                 return it->value;

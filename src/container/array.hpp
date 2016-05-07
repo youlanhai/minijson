@@ -10,6 +10,7 @@
 #define array_hpp
 
 #include "object.hpp"
+#include "iterator.h"
 
 namespace mjson
 {
@@ -19,14 +20,16 @@ namespace mjson
     {
         JSON_DISABLE_COPY_ASSIGN(Array);
     public:
-        typedef Node            value_type;
-        typedef Node*           iterator;
-        typedef const Node*     const_iterator;
+        typedef Node                    value_type;
+        typedef Node*                   pointer;
+        typedef Iterator<Array, Node>         iterator;
+        typedef Iterator<const Array, const Node>   const_iterator;
         
         Array(IAllocator *allocator);
         ~Array();
         
         void reserve(size_t capacity);
+        void alignedReserve(size_t capacity);
         void resize(size_t size);
         
         void insert(iterator it, const value_type &value);
