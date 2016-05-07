@@ -6,15 +6,17 @@
 //  Copyright © 2015年 youlanhai. All rights reserved.
 //
 
-#ifndef json_hpp
-#define json_hpp
+#ifndef SMART_JSON_HPP
+#define SMART_JSON_HPP
 
 #include "config.hpp"
 #include "node.hpp"
+#include "parser.hpp"
+#include "writer.hpp"
 
 #include "container/allocator.hpp"
 #include "container/string.hpp"
 #include "container/array.hpp"
 #include "container/dict.hpp"
 
-#endif /* json_hpp */
+#endif /* SMART_JSON_HPP */
