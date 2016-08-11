@@ -80,7 +80,7 @@ namespace mjson
     {
         pointer it = begin_;
         
-        for(; it != end_ && it->key.asString()->compare(key) != 0; ++it)
+        for(; it != end_ && it->key.isString() && it->key.rawString()->compare(key) != 0; ++it)
         {}
         
         return iterator(this, it - begin_);
