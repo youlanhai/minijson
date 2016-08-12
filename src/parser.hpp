@@ -28,6 +28,7 @@ namespace mjson
         RC_INVALID_NULL,
         RC_INVALID_TRUE,
         RC_INVALID_FALSE,
+        RC_INVALID_TYPE,
     };
     
     /** json parser.

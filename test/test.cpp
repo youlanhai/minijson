@@ -11,10 +11,12 @@
 #include "json.hpp"
 #include "parser.hpp"
 #include "writer.hpp"
+#include "binary_parser.hpp"
 
 #include <string>
 #include <cassert>
 #include <cmath>
+#include <fstream>
 
 #define TEST_EQUAL(EXP) testEqual(EXP, #EXP, __LINE__)
 void testEqual(bool ret, const char *exp, int line)
@@ -309,6 +311,46 @@ void testParser()
     writer.write(root, std::cout);
 }
 
+void testBinaryParser()
+{
+    std::cout << "test binary parser ..." << std::endl;
+    
+    const char *fileName = "buff.ab";
+    FILE *fp = fopen(fileName, "rb");
+    if(fp == NULL)
+    {
+        std::cout << "Failed open file " << fileName << std::endl;
+        return;
+    }
+    fseek(fp, 0, SEEK_END);
+    long length = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    
+    char *buffer = new char[length];
+    fread(buffer, 1, length, fp);
+    
+    fclose(fp);
+    fp = NULL;
+    
+    mjson::BinaryParser parser;
+    if(parser.parse(buffer, length))
+    {
+        std::ofstream of("buff.json");
+        if(!of.bad())
+        {
+            mjson::Writer writer;
+            writer.write(parser.getRoot(), of);
+            of.close();
+        }
+    }
+    else
+    {
+        std::cerr << "Failed parse file " << fileName << ", code:" << parser.getErrorCode() << std::endl;
+    }
+    
+    delete [] buffer;
+}
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
@@ -318,6 +360,7 @@ int main(int argc, const char * argv[]) {
     testDict();
     testNode();
     testParser();
+    testBinaryParser();
     
     std::cout << "test finished." << std::endl;
     return 0;

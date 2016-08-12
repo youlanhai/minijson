@@ -84,6 +84,13 @@ namespace mjson
                 node.setNull();
                 break;
                 
+            case TP_TRUE:
+                node = true;
+                break;
+            case TP_FALSE:
+                node = false;
+                break;
+                
             case TP_ZERO:
                 node = 0;
                 break;
@@ -150,7 +157,7 @@ namespace mjson
                 break; 
                 
             default:
-                errorCode_ = RC_INVALID_STRING;
+                errorCode_ = RC_INVALID_TYPE;
                 ret = false;
         };
         return ret;
@@ -176,6 +183,7 @@ namespace mjson
                 const char *str = reader.readBytes(length);
                 if(str == 0)
                 {
+                    errorCode_ = RC_INVALID_STRING;
                     return false;
                 }
                 stringTable_->append(Node(str, length, allocator_));

@@ -231,7 +231,7 @@ namespace mjson
                 break;
             }
         
-            if(!key.isString())
+            if(!key.isString() && !key.isInt())
             {
                 ret = RC_INVALID_KEY;
                 break;
