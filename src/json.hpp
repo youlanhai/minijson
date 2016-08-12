@@ -13,6 +13,7 @@
 #include "node.hpp"
 #include "parser.hpp"
 #include "writer.hpp"
+#include "error_codes.hpp"
 
 #include "container/allocator.hpp"
 #include "container/string.hpp"

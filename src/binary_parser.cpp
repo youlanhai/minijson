@@ -1,12 +1,11 @@
 #include "binary_parser.hpp"
 #include "binary_reader.hpp"
 #include "binary_types.hpp"
+#include "error_codes.hpp"
 
 #include "container/allocator.hpp"
 #include "container/array.hpp"
 #include "container/dict.hpp"
-
-#include "parser.hpp"
 
 const char MAGIC[5] = "\0\0ab";
 const uint32_t VERSION = 0x0001;

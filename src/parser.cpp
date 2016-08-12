@@ -1,12 +1,5 @@
-﻿//
-//  parser.cpp
-//  smartjson
-//
-//  Created by youlanhai on 16/1/1.
-//  Copyright © 2016年 youlanhai. All rights reserved.
-//
-
-#include "parser.hpp"
+﻿#include "parser.hpp"
+#include "error_codes.hpp"
 
 #include "container/string.hpp"
 #include "container/array.hpp"

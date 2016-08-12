@@ -60,6 +60,7 @@
 		633069A51D5C875700D380E9 /* binary_parser.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = binary_parser.hpp; sourceTree = "<group>"; };
 		633069A61D5C875700D380E9 /* binary_reader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = binary_reader.hpp; sourceTree = "<group>"; };
 		633069A71D5C875700D380E9 /* binary_types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = binary_types.hpp; sourceTree = "<group>"; };
+		633069AA1D5D7FE100D380E9 /* error_codes.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = error_codes.hpp; sourceTree = "<group>"; };
 		6374BDA81C40C14800193F47 /* config.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = config.hpp; sourceTree = "<group>"; };
 		6374BDAA1C40C14800193F47 /* allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = allocator.cpp; sourceTree = "<group>"; };
 		6374BDAB1C40C14800193F47 /* allocator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = allocator.hpp; sourceTree = "<group>"; };
@@ -114,6 +115,7 @@
 		6374BDA71C40C14800193F47 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				633069AA1D5D7FE100D380E9 /* error_codes.hpp */,
 				633069A41D5C875700D380E9 /* binary_parser.cpp */,
 				633069A51D5C875700D380E9 /* binary_parser.hpp */,
 				633069A61D5C875700D380E9 /* binary_reader.hpp */,

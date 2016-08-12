@@ -1,35 +1,11 @@
-﻿//
-//  parser.hpp
-//  smartjson
-//
-//  Created by youlanhai on 16/1/1.
-//  Copyright © 2016年 youlanhai. All rights reserved.
-//
-
-#ifndef parser_hpp
-#define parser_hpp
+﻿#ifndef SMARTJSON_PARSER_HPP
+#define SMARTJSON_PARSER_HPP
 
 #include "node.hpp"
 
 namespace mjson
 {
     class Reader;
-    
-    enum ResultCode
-    {
-        RC_OK,
-        RC_END_OF_FILE,
-        RC_INVALID_JSON,
-        RC_INVALID_DICT,
-        RC_INVALID_KEY,
-        RC_INVALID_ARRAY,
-        RC_INVALID_STRING,
-        RC_INVALID_NUMBER,
-        RC_INVALID_NULL,
-        RC_INVALID_TRUE,
-        RC_INVALID_FALSE,
-        RC_INVALID_TYPE,
-    };
     
     /** json parser.
      *  bnf: http://www.json.org/json-zh.html
@@ -65,4 +41,4 @@ namespace mjson
     };
 }
 
-#endif /* parser_hpp */
+#endif /* SMARTJSON_PARSER_HPP */
