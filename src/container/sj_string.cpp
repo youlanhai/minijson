@@ -13,25 +13,28 @@ namespace mjson
     : Object(allocator)
     , str_(buffer)
     , size_(size)
+    , managed_(false)
     {
         if(size_ > 0)
         {
+            managed_ = true;
             str_ = (char *)allocator_->malloc(size + 1);
             memcpy(str_, str, size);
             str_[size] = 0;
         }
     }
     
-    String::String(char *str, size_t size, bool placeHolder, IAllocator *allocator)
+    String::String(char *str, size_t size, bool managed, IAllocator *allocator)
     : Object(allocator)
     , str_(str)
     , size_(size)
+    , managed_(managed)
     {
     }
     
     String::~String()
     {
-        if(str_ != buffer)
+        if(managed_)
         {
             allocator_->free(str_);
         }

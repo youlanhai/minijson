@@ -213,19 +213,7 @@ namespace mjson
         null.setNull();
         return null;
     }
-
-    Node& Node::operator[] (const Node &key)
-    {
-        if(isDict())
-        {
-            return (*rawDict())[key.asCString()];
-        }
-
-        static Node null;
-        null.setNull();
-        return null;
-    }
-
+    
     const Node& Node::find(const char *key) const
     {
         if(isDict())

@@ -25,7 +25,7 @@ namespace mjson
         virtual Array*  createArray() = 0;
         virtual Dict*   createDict() = 0;
         
-        virtual String* createRawString(char *str, size_t size) = 0;
+        virtual String* createRawString(char *str, size_t size, bool managed) = 0;
         
         virtual void    freeObject(Object *p) = 0;
     };
@@ -44,7 +44,7 @@ namespace mjson
         virtual Array*  createArray();
         virtual Dict*   createDict();
         
-        virtual String* createRawString(char *str, size_t size);
+        virtual String* createRawString(char *str, size_t size, bool managed);
         
         virtual void    freeObject(Object *p);
         

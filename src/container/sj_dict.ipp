@@ -37,14 +37,15 @@ namespace mjson
         return const_iterator(this, it.index());
     }
     
+    JSON_INLINE Dict::const_iterator Dict::find(const Node &key) const
+    {
+        iterator it = const_cast<Dict*>(this)->find(key);
+        return const_iterator(this, it.index()); 
+    }
+    
     JSON_INLINE bool Dict::exist(const char *key) const
     {
         return find(key) != end();
-    }
-    
-    JSON_INLINE const Node& Dict::at(const char *key) const
-    {
-        return const_cast<Dict*>(this)->at(key);
     }
     
     JSON_INLINE Node& Dict::operator[] (const char *key)

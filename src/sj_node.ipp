@@ -367,11 +367,6 @@ namespace mjson
         return find(key);
     }
 
-    JSON_INLINE const Node& Node::operator[] (const Node &key) const
-    {
-        return find(key.asCString());
-    }
-
     JSON_INLINE Node Node::clone() const
     {
         Node ret;

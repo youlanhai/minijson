@@ -433,7 +433,7 @@ namespace mjson
             }
         }
         *p = '\0';
-        node = allocator_->createRawString(buffer, p - buffer);
+        node = allocator_->createRawString(buffer, p - buffer, true);
         return RC_OK;
     }
     

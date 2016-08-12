@@ -101,11 +101,9 @@ namespace mjson
 
         // when the key was not found, the key will be insert.
         Node& operator[] (const char *key);
-        Node& operator[] (const Node &key);
 
         // when the key was not found, null value will be returned.
         const Node& operator[] (const char *key) const;
-        const Node& operator[] (const Node &key) const;
 
         const Node& find(const char *key) const;
         

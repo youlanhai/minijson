@@ -64,20 +64,16 @@ namespace mjson
     }
     
     
-    String* RawAllocator::createRawString(char *str, size_t size)
+    String* RawAllocator::createRawString(char *str, size_t size, bool manged)
     {
         void *p = this->malloc(sizeof(String));
-        return new (p) String(str, size, true, this);
+        return new (p) String(str, size, manged, this);
     }
     
     void RawAllocator::freeObject(Object *p)
     {
-        this->retain();
-        
         p->~Object();
         this->free(p);
-        
-        this->release();
     }
 
 }

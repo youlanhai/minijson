@@ -78,6 +78,15 @@ namespace mjson
         return iterator(this, it - begin_);
     }
     
+    Dict::iterator Dict::find(const Node &key)
+    {
+        pointer it = begin_;
+        for(; it != end_ && it->key != key; ++it)
+        {}
+        
+        return iterator(this, it - begin_);
+    }
+    
     Node& Dict::at(const char *key)
     {
         iterator it = find(key);
@@ -92,6 +101,20 @@ namespace mjson
         }
     }
     
+    JSON_INLINE const Node& Dict::at(const char *key) const
+    {
+        const_iterator it = find(key);
+        if(it != end())
+        {
+            return it->value;
+        }
+        else
+        {
+            static Node null;
+            return null;
+        }
+    }
+    
     Dict::iterator Dict::insert(const char *key, const Node &value)
     {
         iterator it = find(key);
@@ -102,7 +125,7 @@ namespace mjson
         else
         {
             it = end();
-            append(key, value);
+            append(Node(key, 0, allocator_), value);
         }
         return it;
     }
