@@ -313,7 +313,7 @@ void testBinaryParser()
 {
     std::cout << "test binary parser ..." << std::endl;
     
-    const char *fileName = "buff.ab";
+    const char *fileName = "test_sheet.ab";
     FILE *fp = fopen(fileName, "rb");
     if(fp == NULL)
     {
@@ -333,7 +333,7 @@ void testBinaryParser()
     mjson::BinaryParser parser;
     if(parser.parse(buffer, length))
     {
-        std::ofstream of("buff.json");
+        std::ofstream of("test_sheet.json");
         if(!of.bad())
         {
             mjson::Writer writer;
