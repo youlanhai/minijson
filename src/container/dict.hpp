@@ -10,7 +10,7 @@
 #define dict_hpp
 
 #include "object.hpp"
-#include "iterator.h"
+#include "iterator.hpp"
 
 namespace mjson
 {

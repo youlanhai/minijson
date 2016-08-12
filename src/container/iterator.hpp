@@ -1,13 +1,5 @@
-//
-//  iterator.h
-//  smartjson
-//
-//  Created by youlanhai on 16/5/7.
-//  Copyright © 2016年 youlanhai. All rights reserved.
-//
-
-#ifndef iterator_h
-#define iterator_h
+#ifndef SMARTJSON_ITERATOR_HPP
+#define SMARTJSON_ITERATOR_HPP
 
 #include <stddef.h>
 
@@ -131,4 +123,4 @@ namespace mjson
     };
 }
 
-#endif /* iterator_h */
+#endif /* SMARTJSON_ITERATOR_HPP */
