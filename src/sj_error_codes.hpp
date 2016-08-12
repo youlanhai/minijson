@@ -1,5 +1,5 @@
-#ifndef SMARTJSON_ERROR_CODES_H
-#define SMARTJSON_ERROR_CODES_H
+#ifndef SMARTJSON_ERROR_CODES_HPP
+#define SMARTJSON_ERROR_CODES_HPP
 
 namespace mjson
 {
@@ -20,4 +20,4 @@ namespace mjson
     };
 }
 
-#endif //SMARTJSON_ERROR_CODES_H
+#endif //SMARTJSON_ERROR_CODES_HPP

@@ -1,12 +1,4 @@
-﻿//
-//  node.ipp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
-
-#include "container/object.hpp"
+﻿#include "container/sj_object.hpp"
 #include <cassert>
 
 namespace mjson
@@ -438,4 +430,4 @@ namespace mjson
    
 #endif
     
-}
+} // end namespace mjson

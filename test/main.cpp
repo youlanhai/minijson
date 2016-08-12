@@ -10,9 +10,7 @@
 #include <fstream>
 #include <string>
 
-#include "json.hpp"
-#include "writer.hpp"
-#include "parser.hpp"
+#include "smartjson.hpp"
 
 int main(int argc, char** argv)
 {

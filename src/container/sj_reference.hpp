@@ -1,15 +1,7 @@
-//
-//  reference.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+#ifndef SMARTJSON_REFERENCE_HPP
+#define SMARTJSON_REFERENCE_HPP
 
-#ifndef reference_hpp
-#define reference_hpp
-
-#include "../config.hpp"
+#include "../sj_config.hpp"
 
 #define JSON_DISABLE_COPY_ASSIGN(CLASS) \
     CLASS(const CLASS&); \
@@ -35,7 +27,7 @@ namespace mjson
 
 
 #if JSON_CODE_INLINE
-#include "reference.ipp"
+#include "sj_reference.ipp"
 #endif
 
-#endif /* reference_hpp */
+#endif /* SMARTJSON_REFERENCE_HPP */

@@ -1,5 +1,5 @@
-#ifndef SMARTJSON_BINARY_TYPES_H
-#define SMARTJSON_BINARY_TYPES_H
+#ifndef SMARTJSON_BINARY_TYPES_HPP
+#define SMARTJSON_BINARY_TYPES_HPP
 
 namespace mjson
 {
@@ -39,4 +39,4 @@ namespace mjson
     };
 }
 
-#endif /* SMARTJSON_BINARY_TYPES_H */
+#endif /* SMARTJSON_BINARY_TYPES_HPP */

@@ -1,13 +1,3 @@
-//
-//  reference.ipp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/20.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
-
-#ifndef reference_h
-#define reference_h
 
 namespace mjson
 {
@@ -36,5 +26,3 @@ namespace mjson
         return counter_;
     }
 }
-
-#endif /* reference_h */

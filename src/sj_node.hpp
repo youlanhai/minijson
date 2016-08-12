@@ -1,15 +1,7 @@
-﻿//
-//  node.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+﻿#ifndef SMARTJSON_NODE_HPP
+#define SMARTJSON_NODE_HPP
 
-#ifndef node_hpp
-#define node_hpp
-
-#include "types.hpp"
+#include "sj_types.hpp"
 
 #if JSON_SUPPORT_STL_STRING
 #include <string>
@@ -156,7 +148,7 @@ namespace mjson
 }
 
 #if JSON_CODE_INLINE
-#include "node.ipp"
+#include "sj_node.ipp"
 #endif
 
-#endif /* node_hpp */
+#endif /* SMARTJSON_NODE_HPP */

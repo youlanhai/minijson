@@ -1,15 +1,7 @@
-//
-//  allocator.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+#ifndef SMARTJSON_ALLOCATOR_HPP
+#define SMARTJSON_ALLOCATOR_HPP
 
-#ifndef allocator_hpp
-#define allocator_hpp
-
-#include "reference.hpp"
+#include "sj_reference.hpp"
 #include <cstdlib>
 
 namespace mjson
@@ -71,4 +63,4 @@ namespace mjson
 }
 
 
-#endif /* allocator_hpp */
+#endif /* SMARTJSON_ALLOCATOR_HPP */

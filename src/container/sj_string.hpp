@@ -1,15 +1,7 @@
-﻿//
-//  string.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+﻿#ifndef SMARTJSON_STRING_HPP
+#define SMARTJSON_STRING_HPP
 
-#ifndef string_hpp
-#define string_hpp
-
-#include "object.hpp"
+#include "sj_object.hpp"
 
 #if JSON_SUPPORT_STL_STRING
 #include <string>
@@ -46,7 +38,7 @@ namespace mjson
 }
 
 #if JSON_CODE_INLINE
-#include "string.ipp"
+#include "sj_string.ipp"
 #endif
 
-#endif /* string_hpp */
+#endif /* SMARTJSON_STRING_HPP */

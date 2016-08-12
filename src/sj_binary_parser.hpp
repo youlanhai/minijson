@@ -1,7 +1,7 @@
-#ifndef SMARTJSON_BINARY_PARSER_H
-#define SMARTJSON_BINARY_PARSER_H
+#ifndef SMARTJSON_BINARY_PARSER_HPP
+#define SMARTJSON_BINARY_PARSER_HPP
 
-#include "node.hpp"
+#include "sj_node.hpp"
 
 namespace mjson
 {
@@ -35,4 +35,4 @@ namespace mjson
     };
 }
 
-#endif //SMARTJSON_BINARY_PARSER_H
+#endif //SMARTJSON_BINARY_PARSER_HPP

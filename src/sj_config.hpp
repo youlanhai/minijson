@@ -1,13 +1,5 @@
-﻿//
-//  config.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
-
-#ifndef json_config_h
-#define json_config_h
+﻿#ifndef SMARTJSON_CONFIG_HPP
+#define SMARTJSON_CONFIG_HPP
 
 #define JSON_USE_LARGE_NUMBER 1
 
@@ -29,4 +21,4 @@
 #   endif
 #endif //JSON_ASSERT
 
-#endif /* json_config_h */
+#endif /* SMARTJSON_CONFIG_HPP */

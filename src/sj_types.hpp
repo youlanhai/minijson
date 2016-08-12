@@ -1,15 +1,7 @@
-﻿//
-//  types.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+﻿#ifndef SMARTJSON_TYPES_HPP
+#define SMARTJSON_TYPES_HPP
 
-#ifndef types_h
-#define types_h
-
-#include "config.hpp"
+#include "sj_config.hpp"
 
 #include <float.h>
 #include <stdint.h>
@@ -46,4 +38,4 @@ namespace mjson
 
 } // end namespace mjson
 
-#endif /* types_h */
+#endif /* SMARTJSON_TYPES_HPP */

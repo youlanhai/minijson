@@ -1,5 +1,5 @@
-#ifndef SMARTJSON_BINARY_READER_H
-#define SMARTJSON_BINARY_READER_H
+#ifndef SMARTJSON_BINARY_READER_HPP
+#define SMARTJSON_BINARY_READER_HPP
 
 #include <cstring>
 
@@ -33,4 +33,4 @@ namespace mjson
     };
 }
 
-#endif /* SMARTJSON_BINARY_READER_H */
+#endif /* SMARTJSON_BINARY_READER_HPP */

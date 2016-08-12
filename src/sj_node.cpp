@@ -1,16 +1,9 @@
-﻿//
-//  node.cpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+﻿#include "sj_node.hpp"
+#include "container/sj_string.hpp"
+#include "container/sj_array.hpp"
+#include "container/sj_dict.hpp"
+#include "container/sj_allocator.hpp"
 
-#include "node.hpp"
-#include "container/string.hpp"
-#include "container/array.hpp"
-#include "container/dict.hpp"
-#include "container/allocator.hpp"
 #include <cmath>
 
 #if !JSON_CODE_INLINE

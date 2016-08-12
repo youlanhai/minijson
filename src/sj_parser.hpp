@@ -1,7 +1,7 @@
 ﻿#ifndef SMARTJSON_PARSER_HPP
 #define SMARTJSON_PARSER_HPP
 
-#include "node.hpp"
+#include "sj_node.hpp"
 
 namespace mjson
 {

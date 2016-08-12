@@ -1,13 +1,5 @@
-//
-//  writer.hpp
-//  smartjson
-//
-//  Created by youlanhai on 16/1/1.
-//  Copyright © 2016年 youlanhai. All rights reserved.
-//
-
-#ifndef writer_hpp
-#define writer_hpp
+#ifndef SMARTJSON_WRITER_HPP
+#define SMARTJSON_WRITER_HPP
 
 #include <iostream>
 
@@ -37,4 +29,4 @@ namespace mjson
     };
 }
 
-#endif /* writer_hpp */
+#endif /* SMARTJSON_WRITER_HPP */

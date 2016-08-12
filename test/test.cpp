@@ -8,10 +8,8 @@
 
 #include <iostream>
 
-#include "json.hpp"
-#include "parser.hpp"
-#include "writer.hpp"
-#include "binary_parser.hpp"
+#include "smartjson.hpp"
+#include "sj_binary_parser.hpp"
 
 #include <string>
 #include <cassert>

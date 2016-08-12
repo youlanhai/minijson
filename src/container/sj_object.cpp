@@ -1,13 +1,5 @@
-//
-//  object.cpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
-
-#include "object.hpp"
-#include "allocator.hpp"
+#include "sj_object.hpp"
+#include "sj_allocator.hpp"
 
 namespace mjson
 {

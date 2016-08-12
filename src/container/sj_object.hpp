@@ -1,16 +1,8 @@
-//
-//  object.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+#ifndef SMARTJSON_OBJECT_HPP
+#define SMARTJSON_OBJECT_HPP
 
-#ifndef object_hpp
-#define object_hpp
-
-#include "reference.hpp"
-#include "../types.hpp"
+#include "sj_reference.hpp"
+#include "../sj_types.hpp"
 
 namespace mjson
 {
@@ -35,4 +27,4 @@ namespace mjson
     };
 }
 
-#endif /* object_hpp */
+#endif /* SMARTJSON_OBJECT_HPP */

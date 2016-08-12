@@ -1,17 +1,9 @@
-﻿//
-//  dict.cpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
-
-#include "dict.hpp"
-#include "allocator.hpp"
-#include "string.hpp"
+﻿#include "sj_dict.hpp"
+#include "sj_allocator.hpp"
+#include "sj_string.hpp"
 
 #if !JSON_CODE_INLINE
-#include "dict.ipp"
+#include "sj_dict.ipp"
 #endif
 
 namespace mjson

@@ -1,16 +1,8 @@
-﻿//
-//  array.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+﻿#ifndef SMARTJSON_ARRAY_HPP
+#define SMARTJSON_ARRAY_HPP
 
-#ifndef array_hpp
-#define array_hpp
-
-#include "object.hpp"
-#include "iterator.hpp"
+#include "sj_object.hpp"
+#include "sj_iterator.hpp"
 
 namespace mjson
 {
@@ -79,7 +71,7 @@ namespace mjson
 }
 
 #if JSON_CODE_INLINE
-#include "array.ipp"
+#include "sj_array.ipp"
 #endif
 
-#endif /* array_hpp */
+#endif /* SMARTJSON_ARRAY_HPP */

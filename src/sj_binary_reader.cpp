@@ -1,4 +1,4 @@
-#include "binary_reader.hpp"
+#include "sj_binary_reader.hpp"
 
 namespace mjson
 {

@@ -1,14 +1,6 @@
-﻿//
-//  writter.cpp
-//  smartjson
-//
-//  Created by youlanhai on 16/1/1.
-//  Copyright © 2016年 youlanhai. All rights reserved.
-//
-
-#include "writer.hpp"
-#include "node.hpp"
-#include "container/dict.hpp"
+﻿#include "sj_writer.hpp"
+#include "sj_node.hpp"
+#include "container/sj_dict.hpp"
 
 namespace mjson
 {

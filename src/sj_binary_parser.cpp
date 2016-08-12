@@ -1,11 +1,11 @@
-#include "binary_parser.hpp"
-#include "binary_reader.hpp"
-#include "binary_types.hpp"
-#include "error_codes.hpp"
+#include "sj_binary_parser.hpp"
+#include "sj_binary_reader.hpp"
+#include "sj_binary_types.hpp"
+#include "sj_error_codes.hpp"
 
-#include "container/allocator.hpp"
-#include "container/array.hpp"
-#include "container/dict.hpp"
+#include "container/sj_allocator.hpp"
+#include "container/sj_array.hpp"
+#include "container/sj_dict.hpp"
 
 const char MAGIC[5] = "\0\0ab";
 const uint32_t VERSION = 0x0001;

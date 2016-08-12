@@ -1,16 +1,8 @@
-//
-//  dict.hpp
-//  smartjson
-//
-//  Created by youlanhai on 15/12/19.
-//  Copyright © 2015年 youlanhai. All rights reserved.
-//
+#ifndef SMARTJSON_DICT_HPP
+#define SMARTJSON_DICT_HPP
 
-#ifndef dict_hpp
-#define dict_hpp
-
-#include "object.hpp"
-#include "iterator.hpp"
+#include "sj_object.hpp"
+#include "sj_iterator.hpp"
 
 namespace mjson
 {
@@ -80,7 +72,7 @@ namespace mjson
 }
 
 #if JSON_CODE_INLINE
-#include "dict.ipp"
+#include "sj_dict.ipp"
 #endif
 
-#endif /* dict_hpp */
+#endif /* SMARTJSON_DICT_HPP */
