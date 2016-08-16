@@ -4,12 +4,19 @@ smartjson uses smart pointer to manage memory.
 
 home: https://github.com/youlanhai/smartjson
 
-# usage
-##include the header
-```c++
-#include "smartjson/src/json.hpp"
+# build
 ```
-##parse from text
+mkdir build
+cd build
+cmake -G"your_generator" ../
+```
+replace "your_generator" to one of cmake generators. use `cmake -h` to see all generators supported on your platform.
+
+# usage
+## include the header
+`#include "smartjson.hpp"`
+
+## parse from text
 ```c++
 mjson::Parser parser;
 int ret = parser.parse(text, strlen(text));
@@ -19,25 +26,25 @@ if(ret != mjson::RC_OK)
 }
 mjson::Node root = parser.getRoot();
 ```
-##write to stream
+## write to stream
 ```c++
 mjson::Writer writer;
 writer.write(root, std::cout);
 ```
-##boolean
+## boolean
 ```c++
 mjson::Node node = true;
 bool b = node.asBool(); // b is true.
 ```
 **notice:** only 'true' is true, anything else is false. 
-##number
+## number
 ```c++
 mjson::Node node = 123456.789;
 int a = node.asInt(); // a is 123456
 double b = node.asFloat(); // b is 123456.789
 ```
 convert between integer and float is safe.
-##string
+## string
 ```c++
 mjson::Node node = "hello！smart json.";
 const char *s = node.asCString();
@@ -45,7 +52,7 @@ std::string s2 = node.asStdString();
 std::string s3;
 node.asStdString(s3);
 ```
-##dict
+## dict
 ```c++
 // visit dict.
 if(root.isDict())
@@ -69,7 +76,7 @@ node["age"] = 25;
 mjson::Node node2 = node;
 assert(node.rawDict() == node2.rawDict()); // assert will not happen.
 ```
-##array
+## array
 ```c++
 // visit array.
 if(root.isArray())
