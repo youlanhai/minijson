@@ -1,4 +1,4 @@
-﻿#include "container/sj_object.hpp"
+﻿#include "sj_object.hpp"
 #include <cassert>
 
 namespace mjson

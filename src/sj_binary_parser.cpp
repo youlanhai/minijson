@@ -3,9 +3,9 @@
 #include "sj_binary_types.hpp"
 #include "sj_error_codes.hpp"
 
-#include "container/sj_allocator.hpp"
-#include "container/sj_array.hpp"
-#include "container/sj_dict.hpp"
+#include "sj_allocator.hpp"
+#include "sj_array.hpp"
+#include "sj_dict.hpp"
 
 const char MAGIC[5] = "\0\0ab";
 const uint32_t VERSION = 0x0001;

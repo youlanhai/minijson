@@ -1,6 +1,6 @@
 ﻿#include "sj_writer.hpp"
 #include "sj_node.hpp"
-#include "container/sj_dict.hpp"
+#include "sj_dict.hpp"
 
 namespace mjson
 {
