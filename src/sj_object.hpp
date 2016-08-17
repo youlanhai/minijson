@@ -2,7 +2,7 @@
 #define SMARTJSON_OBJECT_HPP
 
 #include "sj_reference.hpp"
-#include "../sj_types.hpp"
+#include "sj_types.hpp"
 
 namespace mjson
 {

@@ -1,4 +1,4 @@
-﻿#include "../sj_node.hpp"
+﻿#include "sj_node.hpp"
 
 namespace mjson
 {
