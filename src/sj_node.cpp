@@ -196,6 +196,14 @@ namespace mjson
         {
             return (*rawArray())[index];
         }
+        else if(isDict())
+        {
+            Dict::iterator it = rawDict()->find(Node(index));
+            if(it != rawDict()->end())
+            {
+                return it->value;
+            }
+        }
         
         static Node null;
         null.setNull();
