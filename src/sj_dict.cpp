@@ -49,7 +49,7 @@ namespace mjson
         }
     }
     
-    void Dict::ensure(size_t n)
+    void Dict::_ensure(size_t n)
     {
         size_t newSize = size() + n;
         if(newSize > capacity_)
@@ -132,7 +132,7 @@ namespace mjson
 
     void Dict::append(const Node &key, const Node &value)
     {
-        ensure(1);
+        _ensure(1);
 
         new (end_) value_type();
         end_->key = key;

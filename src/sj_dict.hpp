@@ -66,7 +66,7 @@ namespace mjson
         virtual Object* deepClone() const;
         
     private:
-        void ensure(size_t n);
+        void _ensure(size_t n);
         
         value_type*     begin_;
         value_type*     end_;
