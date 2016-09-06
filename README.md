@@ -22,6 +22,11 @@ replace "your_generator" to one of cmake generators. use `cmake -h` to see all g
 ```
 see `CMake/Toolchins/android.cmake` for more helpers.
 
+## cmake params for ios
+```
+-DCMAKE_TOOLCHAIN_FILE=../CMake/Toolchains/iOS.cmake
+```
+
 # usage
 ## include the header
 `#include "smartjson.hpp"`
