@@ -12,6 +12,16 @@ cmake -G"your_generator" ../
 ```
 replace "your_generator" to one of cmake generators. use `cmake -h` to see all generators supported on your platform.
 
+## cmake params for android
+```
+-G"Unix Makefiles"
+-DCMAKE_TOOLCHAIN_FILE=../CMake/Toolchains/android.cmake
+-DANDROID_NDK=${your_android_ndk}
+-DANDROID_NATIVE_API_LEVEL=android-14
+-DANDROID_ABI=armeabi
+```
+see `CMake/Toolchins/android.cmake` for more helpers.
+
 # usage
 ## include the header
 `#include "smartjson.hpp"`
