@@ -73,10 +73,10 @@ void testArray()
     TEST_EQUAL(p->capacity() == 0);
     TEST_EQUAL(p->begin() == p->end());
     
-    p->append(true);
-    p->append(1234567890);
-    p->append(3.14);
-    p->append("Hello World");
+    p->push(true);
+    p->push(1234567890);
+    p->push(3.14);
+    p->push("Hello World");
     TEST_EQUAL(p->size() == 4);
     TEST_EQUAL((*p)[0] == true);
     TEST_EQUAL((*p)[1] == 1234567890);
@@ -84,7 +84,7 @@ void testArray()
     TEST_EQUAL(strcmp((*p)[3].asCString(), "Hello World") == 0);
     
     TEST_EQUAL(p->capacity() == 4);
-    p->append(mjson::Node());
+    p->push(mjson::Node());
     TEST_EQUAL(p->capacity() == 8);
     
     (*p)[3] = 1234;
@@ -217,13 +217,13 @@ void testNode()
     mjson::Node n7;
     n7.setArray();
     TEST_EQUAL(n7.isArray());
-    n7.asArray()->append(n0);
-    n7.asArray()->append(n1);
-    n7.asArray()->append(n2);
-    n7.asArray()->append(n3);
-    n7.asArray()->append(n4);
-    n7.asArray()->append(n5);
-    n7.asArray()->append(n6);
+    n7.asArray()->push(n0);
+    n7.asArray()->push(n1);
+    n7.asArray()->push(n2);
+    n7.asArray()->push(n3);
+    n7.asArray()->push(n4);
+    n7.asArray()->push(n5);
+    n7.asArray()->push(n6);
     TEST_EQUAL(n7.asArray()->size() == n7.size());
     TEST_EQUAL(n7.size() == 7);
     TEST_EQUAL(n7[0u] == n0);
@@ -240,14 +240,14 @@ void testNode()
     mjson::Node n8;
     n8.setDict();
     TEST_EQUAL(n8.isDict());
-    n8["0"] = n0;
-    n8["1"] = n1;
-    n8["2"] = n2;
-    n8["3"] = n3;
-    n8["4"] = n4;
-    n8["5"] = n5;
-    n8["6"] = n6;
-    n8["7"] = n7;
+    n8.setMember("0", n0);
+    n8.setMember("1", n1);
+    n8.setMember("2", n2);
+    n8.setMember("3", n3);
+    n8.setMember("4", n4);
+    n8.setMember("5", n5);
+    n8.setMember("6", n6);
+    n8.setMember("7", n7);
     TEST_EQUAL(n8.size() == 8);
     TEST_EQUAL(n8.size() == n8.rawDict()->size());
 }

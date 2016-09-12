@@ -707,7 +707,7 @@ namespace mjson
 
     JSON_INLINE ConstDictIterator Node::findMember(const char *key) const
     {
-        JSON_ASSERT(isDict())
+        JSON_ASSERT(isDict());
         String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
         return ((const Dict*)value_.pd)->find(Node(s));
     }

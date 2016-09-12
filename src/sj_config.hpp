@@ -14,7 +14,8 @@
 #endif
 
 #ifndef JSON_ASSERT
-#   ifdef DEBUG
+#   if ((defined DEBUG) || defined(_DEBUG))
+#include <cassert>
 #       define JSON_ASSERT(EXP) assert(EXP)
 #   else
 #       define JSON_ASSERT(EXP)
