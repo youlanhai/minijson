@@ -15,8 +15,9 @@ namespace mjson
     class Dict;
     class Array;
     class IAllocator;
-    struct NodePair;
     
+    class Node;
+    struct NodePair;
 
     typedef Iterator<Array, Node>               ArrayIterator;
     typedef Iterator<const Array, const Node>   ConstArrayIterator;
@@ -73,21 +74,23 @@ namespace mjson
         Float       rawFloat() const;
         const char* rawCString() const;
 
-        String*     rawString();
-        Array*      rawArray();
-        Dict*       rawDict();
 
         String*     rawString() const;
         Array*      rawArray() const;
         Dict*       rawDict() const;
-
+        
+        String*     rawString();
+        Array*      rawArray();
+        Dict*       rawDict();
+        
+        const String&   refString() const;
+        const Array&    refArray() const;
+        const Dict&     refDict() const; 
+        
         String&     refString();
         Array&      refArray();
         Dict&       refDict();
 
-        const String&   refString() const;
-        const Array&    refArray() const;
-        const Dict&     refDict() const;
         //}
 
 

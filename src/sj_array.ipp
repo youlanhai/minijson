@@ -11,7 +11,7 @@ namespace mjson
         
     }
     
-    JSON_INLINE void Array::append(const value_type &value)
+    JSON_INLINE void Array::push(const value_type &value)
     {
         this->insert(this->end(), value);
     }
@@ -88,13 +88,13 @@ namespace mjson
     
     JSON_INLINE void Array::pop()
     {
-        assert(!empty());
+        JSON_ASSERT(!empty());
         erase(end() - 1);
     }
     
     JSON_INLINE Array::value_type& Array::at(size_t index)
     {
-        assert(index < size());
+        JSON_ASSERT(index < size());
         return  begin_[index];
     }
     
@@ -105,13 +105,13 @@ namespace mjson
     
     JSON_INLINE Array::value_type& Array::front()
     {
-        assert(!empty());
+        JSON_ASSERT(!empty());
         return *begin_;
     }
     
     JSON_INLINE Array::value_type& Array::back()
     {
-        assert(!empty());
+        JSON_ASSERT(!empty());
         return *(end_ - 1);
     }
 }

@@ -114,7 +114,7 @@ namespace mjson
         }
         else
         {
-            assert(false && "shouldn't reach here.");
+            JSON_ASSERT(false && "shouldn't reach here.");
             return false;
         }
     }

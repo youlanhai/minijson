@@ -91,7 +91,7 @@ namespace mjson
         }
     }
     
-    Node& operator[] (const Node &key) const
+    const Node& Dict::operator[] (const Node &key) const
     {
         const_iterator it = find(key);
         if(it != end())

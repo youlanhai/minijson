@@ -28,9 +28,11 @@ namespace mjson
         void erase(iterator it);
         
         iterator find(const value_type &value);
+        const_iterator find(const value_type &value) const;
+        
         void remove(const value_type &value);
 
-        void append(const value_type &value);
+        void push(const value_type &value);
         void pop();
         
         iterator begin();

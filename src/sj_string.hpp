@@ -13,7 +13,7 @@ namespace mjson
     {
     public:
         String(const char *str, size_t size, IAllocator *allocator);
-        String(char *str, size_t size, bool managed, IAllocator *allocator);
+        String(const char *str, size_t size, bool managed, IAllocator *allocator);
         ~String();
         
         int compare(const char *str) const;

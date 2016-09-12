@@ -15,8 +15,8 @@ namespace mjson
     {
     public:
         Reader(const char *begin, const char *end)
-        : begin_(begin)
-        , p_(begin)
+        : p_(begin)
+        , begin_(begin)
         , end_(end)
         {}
         
@@ -280,7 +280,7 @@ namespace mjson
                 break;
             }
         
-            node.rawArray()->append(child);
+            node.rawArray()->push(child);
             
             char ch = skipWhiteSpace(reader);
             if(ch == ']')

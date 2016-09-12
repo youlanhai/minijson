@@ -26,6 +26,8 @@ namespace mjson
         
         bool empty() const { return p_ >= end_; }
         
+        const char* data() const{ return data_; }
+        
     private:
         const char*     data_;
         const char*     p_;

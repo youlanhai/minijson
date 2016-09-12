@@ -181,7 +181,7 @@ namespace mjson
     {
         safeRelease();
         type_ = T_FLOAT;
-        value_.b = f;
+        value_.b = v;
     }
     
 
@@ -380,6 +380,26 @@ namespace mjson
         JSON_ASSERT(isString());
         return rawString()->data();
     }
+    
+    
+    JSON_INLINE String* Node::rawString() const
+    {
+        JSON_ASSERT(isString());
+        return value_.ps;
+    }
+    
+    JSON_INLINE Array* Node::rawArray() const
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa;
+    }
+    
+    JSON_INLINE Dict* Node::rawDict() const
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd;
+    }
+    
 
 
     JSON_INLINE String* Node::rawString()
@@ -395,25 +415,6 @@ namespace mjson
     }
 
     JSON_INLINE Dict* Node::rawDict()
-    {
-        JSON_ASSERT(isDict());
-        return value_.pd;
-    }
-
-
-    JSON_INLINE String* Node::rawString() const
-    {
-        JSON_ASSERT(isString());
-        return value_.ps;
-    }
-
-    JSON_INLINE Array* Node::rawArray() const
-    {
-        JSON_ASSERT(isArray());
-        return value_.pa;
-    }
-
-    JSON_INLINE Dict* Node::rawDict() const
     {
         JSON_ASSERT(isDict());
         return value_.pd;
@@ -539,7 +540,7 @@ namespace mjson
         if(isDict())
         {
             ConstDictIterator it = findMember(key);
-            if(it != value_.pd->end())
+            if(it != ((const Dict*)value_.pd)->end())
             {
                 return it->value;
             }
@@ -552,7 +553,7 @@ namespace mjson
         if(isDict())
         {
             ConstDictIterator it = findMember(key);
-            if(it != value_.pd->end())
+            if(it != ((const Dict*)value_.pd)->end())
             {
                 return it->value;
             }
@@ -572,7 +573,7 @@ namespace mjson
     JSON_INLINE ConstArrayIterator Node::begin() const
     {
         JSON_ASSERT(isArray());
-        return value_.pa->begin();
+        return ((const Array*)value_.pa)->begin();
     }
 
     JSON_INLINE ArrayIterator Node::end()
@@ -584,7 +585,7 @@ namespace mjson
     JSON_INLINE ConstArrayIterator Node::end() const
     {
         JSON_ASSERT(isArray());
-        return value_.pa->end();
+        return ((const Array*)value_.pa)->end();
     }
 
     JSON_INLINE void Node::resize(size_t size)
@@ -620,13 +621,13 @@ namespace mjson
     JSON_INLINE void Node::pushBack(const Node &node)
     {
         JSON_ASSERT(isArray());
-        value_.pa->pushBack(node);
+        value_.pa->push(node);
     }
 
     JSON_INLINE void Node::popBack()
     {
         JSON_ASSERT(isArray());
-        value_.pa->popBack();
+        value_.pa->pop();
     }
     
     JSON_INLINE ArrayIterator Node::find(const Node &node)
@@ -638,7 +639,7 @@ namespace mjson
     JSON_INLINE ConstArrayIterator Node::find(const Node &node) const
     {
         JSON_ASSERT(isArray());
-        return value_.pa->find(node);
+        return ((const Array*)(value_.pa))->find(node);
     }
 
     JSON_INLINE void Node::insert(ArrayIterator it, const Node &node)
@@ -676,7 +677,7 @@ namespace mjson
     JSON_INLINE ConstDictIterator Node::memberBegin() const
     {
         JSON_ASSERT(isDict());
-        return value_.pd->begin();
+        return ((const Dict*)value_.pd)->begin();
     }
 
     JSON_INLINE DictIterator Node::memberEnd()
@@ -688,7 +689,7 @@ namespace mjson
     JSON_INLINE ConstDictIterator Node::memberEnd() const
     {
         JSON_ASSERT(isDict());
-        return value_.pd->end();
+        return ((const Dict*)value_.pd)->end();
     }
 
     JSON_INLINE DictIterator Node::findMember(const char *key)
@@ -708,36 +709,36 @@ namespace mjson
     {
         JSON_ASSERT(isDict())
         String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
-        return value_.pd->find(Node(s));
+        return ((const Dict*)value_.pd)->find(Node(s));
     }
 
     JSON_INLINE ConstDictIterator Node::findMember(const Node &key) const
     {
         JSON_ASSERT(isDict());
-        return value_.pd->find(key);
+        return ((const Dict*)value_.pd)->find(key);
     }
 
     JSON_INLINE bool Node::hasMember(const char *key) const
     {
-        return findMember(key) != value_.pd->end();
+        return findMember(key) != ((const Dict*)value_.pd)->end();
     }
 
     JSON_INLINE bool Node::hasMember(const Node &key) const
     {
-        return findMember(key) != value_.pd->end();
+        return findMember(key) != ((const Dict*)value_.pd)->end();
     }
 
     JSON_INLINE void Node::setMember(const char *key, const Node &val)
     {
         JSON_ASSERT(isDict());
         String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
-        return value_.pd->insert(Node(s), val);
+        value_.pd->insert(Node(s), val);
     }
 
     JSON_INLINE void Node::setMember(const Node &key, const Node &val)
     {
         JSON_ASSERT(isDict());
-        return value_.pd->insert(key, val);
+        value_.pd->insert(key, val);
     }
 
     JSON_INLINE void Node::eraseMember(DictIterator it)
@@ -813,12 +814,12 @@ namespace mjson
     {
         JSON_ASSERT(isDict());
         String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
-        return value_.pd->find(Node(s));
+        return ((const Dict*)value_.pd)->find(Node(s));
     }
 
     JSON_INLINE bool Node::hasMember(const std::string &key) const
     {
-        return findMember(key) != value_.pd->end();
+        return findMember(key) != ((const Dict*)value_.pd)->end();
     }
 
     JSON_INLINE void Node::setMember(const std::string &key, const Node &val)
@@ -826,7 +827,7 @@ namespace mjson
         JSON_ASSERT(isDict());
         // copy string buffer
         String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), true);
-        value_.pd->setMember(Node(s), val);
+        value_.pd->insert(Node(s), val);
     }
 
     JSON_INLINE void Node::removeMember(const std::string &key)

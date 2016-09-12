@@ -73,7 +73,7 @@ namespace mjson
     
     void Array::insert(iterator it, const value_type &value)
     {
-        assert(it < end() || it == end());
+        JSON_ASSERT(it < end() || it == end());
         
         alignedReserve(size() + 1);
         
@@ -91,7 +91,7 @@ namespace mjson
     void Array::erase(iterator it)
     {
         //NOTICE erase the end is valid.
-        assert(it >= begin() && it <= end());
+        JSON_ASSERT(it >= begin() && it <= end());
         if(it != end())
         {
             it->~value_type();
@@ -115,6 +115,14 @@ namespace mjson
         return iterator(this, p - begin_);
     }
    
+    Array::const_iterator Array::find(const value_type &value) const
+    {
+        pointer p = begin_;
+        for(; p != end_ && *p != value; ++p)
+        {}
+        return const_iterator(this, p - begin_); 
+    }
+    
     Object* Array::clone() const
     {
         Array *p = allocator_->createArray();

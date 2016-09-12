@@ -24,9 +24,9 @@ namespace mjson
         }
     }
     
-    String::String(char *str, size_t size, bool managed, IAllocator *allocator)
+    String::String(const char *str, size_t size, bool managed, IAllocator *allocator)
     : Object(allocator)
-    , str_(str)
+    , str_(const_cast<char*>(str))
     , size_(size)
     , managed_(managed)
     {

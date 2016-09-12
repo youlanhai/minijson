@@ -175,7 +175,7 @@ namespace mjson
             size_t length = reader.readNumber<uint16_t>();
             if(length == 0)
             {
-                stringTable_->append(Node("", 0, allocator_));
+                stringTable_->push(Node("", 0, allocator_));
             }
             else
             {
@@ -185,7 +185,7 @@ namespace mjson
                     errorCode_ = RC_INVALID_STRING;
                     return false;
                 }
-                stringTable_->append(Node(str, length, allocator_));
+                stringTable_->push(Node(str, length, allocator_));
             }
         }
         return true;
