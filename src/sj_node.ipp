@@ -1,5 +1,8 @@
 ﻿#include "sj_object.hpp"
-#include <cassert>
+#include "sj_array.hpp"
+#include "sj_dict.hpp"
+#include "sj_string.hpp"
+#include "sj_allocator.hpp"
 
 namespace mjson
 {
@@ -7,6 +10,13 @@ namespace mjson
 #define JSON_UINT_TO_INTEGER(V) static_cast<Integer>(static_cast<UInteger>(V))
 #define JSON_INTEGER_TO_UINT(V, T) static_cast<T>(static_cast<UInteger>(V))
     
+    extern Node s_null;
+    inline Node& nullValue()
+    {
+        s_null.setNull();
+        return s_null;
+    }
+
     JSON_INLINE Node::Node()
     : type_(T_NULL)
     {
@@ -15,7 +25,7 @@ namespace mjson
     
     JSON_INLINE Node::~Node()
     {
-        setNull();
+        safeRelease();
     }
     
     JSON_INLINE Node::Node(bool value)
@@ -138,19 +148,46 @@ namespace mjson
     /////////////////////////////////////////////////////////////
     /// conver value to json
     /////////////////////////////////////////////////////////////
-    JSON_INLINE void Node::setNull()
+    JSON_INLINE void Node::safeRelease()
     {
-        if(isPointer() && value_.p)
+        if(isPointer())
         {
             value_.p->release();
         }
+    }
+
+    JSON_INLINE void Node::setNull()
+    {
+        safeRelease();
         type_ = T_NULL;
         value_.p = 0;
     }
+
+    JSON_INLINE void Node::setBool(bool v)
+    {
+        safeRelease();
+        type_ = T_BOOL;
+        value_.b = v;
+    }
+
+    JSON_INLINE void Node::setInt(Integer v)
+    {
+        safeRelease();
+        type_ = T_INT;
+        value_.i = v;
+    }
+
+    JSON_INLINE void Node::setFloat(Float v)
+    {
+        safeRelease();
+        type_ = T_FLOAT;
+        value_.b = f;
+    }
     
+
     JSON_INLINE const Node& Node::operator = (bool value)
     {
-        setNull();
+        safeRelease();
         type_ = T_BOOL;
         value_.b = value;
         return *this;
@@ -158,7 +195,7 @@ namespace mjson
     
     JSON_INLINE const Node& Node::operator = (int value)
     {
-        setNull();
+        safeRelease();
         type_ = T_INT;
         value_.i = static_cast<Integer>(value);
         return *this;
@@ -166,7 +203,7 @@ namespace mjson
 
     JSON_INLINE const Node& Node::operator = (unsigned int value)
     {
-        setNull();
+        safeRelease();
         type_ = T_INT;
         value_.i = JSON_UINT_TO_INTEGER(value);
         return *this;
@@ -174,7 +211,7 @@ namespace mjson
 
     JSON_INLINE const Node& Node::operator = (int64_t value)
     {
-        setNull();
+        safeRelease();
         type_ = T_INT;
         value_.i = static_cast<Integer>(value);
         return *this;
@@ -182,7 +219,7 @@ namespace mjson
 
     JSON_INLINE const Node& Node::operator = (uint64_t value)
     {
-        setNull();
+        safeRelease();
         type_ = T_INT;
         value_.i = JSON_UINT_TO_INTEGER(value);
         return *this;
@@ -190,7 +227,7 @@ namespace mjson
 
     JSON_INLINE const Node& Node::operator = (float value)
     {
-        setNull();
+        safeRelease();
         type_ = T_FLOAT;
         value_.f = (Float)value;
         return *this;
@@ -198,7 +235,7 @@ namespace mjson
 
     JSON_INLINE const Node& Node::operator = (double value)
     {
-        setNull();
+        safeRelease();
         type_ = T_FLOAT;
         value_.f = (Float)value;
         return *this;
@@ -240,8 +277,7 @@ namespace mjson
         }
         else
         {
-            setNull();
-            
+            safeRelease();
             type_ = value.type_;
             value_ = value.value_;
             return *this;
@@ -291,6 +327,11 @@ namespace mjson
         return (Float)0;
     }
     
+    JSON_INLINE const char* Node::asCString() const
+    {
+        return isString() ? rawString()->data() : "";
+    }
+
     JSON_INLINE String* Node::asString() const
     {
         return isString() ? value_.ps : 0;
@@ -334,39 +375,137 @@ namespace mjson
         return value_.f;
     }
 
+    JSON_INLINE const char* Node::rawCString() const
+    {
+        JSON_ASSERT(isString());
+        return rawString()->data();
+    }
+
+
+    JSON_INLINE String* Node::rawString()
+    {
+        JSON_ASSERT(isString());
+        return value_.ps;
+    }
+
+    JSON_INLINE Array* Node::rawArray()
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa;
+    }
+
+    JSON_INLINE Dict* Node::rawDict()
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd;
+    }
+
+
     JSON_INLINE String* Node::rawString() const
     {
+        JSON_ASSERT(isString());
         return value_.ps;
     }
 
     JSON_INLINE Array* Node::rawArray() const
     {
+        JSON_ASSERT(isArray());
         return value_.pa;
     }
 
     JSON_INLINE Dict* Node::rawDict() const
     {
+        JSON_ASSERT(isDict());
         return value_.pd;
     }
 
+
+    JSON_INLINE String& Node::refString()
+    {
+        JSON_ASSERT(isString());
+        return *(value_.ps);
+    }
+
+    JSON_INLINE Array& Node::refArray()
+    {
+        JSON_ASSERT(isArray());
+        return *(value_.pa);
+    }
+
+    JSON_INLINE Dict& Node::refDict()
+    {
+        JSON_ASSERT(isDict());
+        return *(value_.pd);
+    }
+
+
+    JSON_INLINE const String& Node::refString() const
+    {
+        JSON_ASSERT(isString());
+        return *(value_.ps);
+    }
+
+    JSON_INLINE const Array& Node::refArray() const
+    {
+        JSON_ASSERT(isArray());
+        return *(value_.pa);
+    }
+
+    JSON_INLINE const Dict& Node::refDict() const
+    {
+        JSON_ASSERT(isDict());
+        return *(value_.pd);
+    }
+
     /////////////////////////////////////////////////////////////
-    /// convert json to value
+    /// 
     /////////////////////////////////////////////////////////////
+    JSON_INLINE size_t Node::size() const
+    {
+        if(isArray())
+        {
+            return value_.pa->size();
+        }
+        else if(isDict())
+        {
+            return value_.pd->size();
+        }
+        else if(isString())
+        {
+            return value_.ps->size();
+        }
+        return 0;
+    }
+
+    JSON_INLINE void Node::reserve(size_t capacity)
+    {
+        if(isArray())
+        {
+            value_.pa->reserve(capacity);
+        }
+        else if(isDict())
+        {
+            value_.pd->reserve(capacity);
+        }
+    }
+
+    JSON_INLINE void Node::clear()
+    {
+        if(isArray())
+        {
+            value_.pa->clear();
+        }
+        else if(isDict())
+        {
+            value_.pd->clear();
+        }
+    }
+
     JSON_INLINE bool Node::operator != (const Node &value) const
     {
         return !(*this == value);
     }
     
-    JSON_INLINE const Node& Node::operator[] (SizeType index) const
-    {
-        return const_cast<Node*>(this)->operator[](index);
-    }
-    
-    JSON_INLINE const Node& Node::operator[] (const char *key) const
-    {
-        return find(key);
-    }
-
     JSON_INLINE Node Node::clone() const
     {
         Node ret;
@@ -395,7 +534,235 @@ namespace mjson
         return  ret;
     }
     
+    JSON_INLINE const Node& Node::operator[] (const char *key) const
+    {
+        if(isDict())
+        {
+            ConstDictIterator it = findMember(key);
+            if(it != value_.pd->end())
+            {
+                return it->value;
+            }
+        }
+        return nullValue();
+    }
+
+    JSON_INLINE const Node& Node::operator[] (const Node &key) const
+    {
+        if(isDict())
+        {
+            ConstDictIterator it = findMember(key);
+            if(it != value_.pd->end())
+            {
+                return it->value;
+            }
+        }
+        return nullValue();
+    }
+
+    /////////////////////////////////////////////////////////////
+    /// array
+    /////////////////////////////////////////////////////////////
+    JSON_INLINE ArrayIterator Node::begin()
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->begin();
+    }
+
+    JSON_INLINE ConstArrayIterator Node::begin() const
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->begin();
+    }
+
+    JSON_INLINE ArrayIterator Node::end()
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->end();
+    }
+
+    JSON_INLINE ConstArrayIterator Node::end() const
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->end();
+    }
+
+    JSON_INLINE void Node::resize(size_t size)
+    {
+        JSON_ASSERT(isArray());
+        value_.pa->resize(size);
+    }
+
+    JSON_INLINE Node& Node::front()
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->front();
+    }
+
+    JSON_INLINE const Node& Node::front() const
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->front();
+    }
+
+    JSON_INLINE Node& Node::back()
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->back();
+    }
+
+    JSON_INLINE const Node& Node::back() const
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->back();
+    }
+
+    JSON_INLINE void Node::pushBack(const Node &node)
+    {
+        JSON_ASSERT(isArray());
+        value_.pa->pushBack(node);
+    }
+
+    JSON_INLINE void Node::popBack()
+    {
+        JSON_ASSERT(isArray());
+        value_.pa->popBack();
+    }
+    
+    JSON_INLINE ArrayIterator Node::find(const Node &node)
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->find(node);
+    }
+
+    JSON_INLINE ConstArrayIterator Node::find(const Node &node) const
+    {
+        JSON_ASSERT(isArray());
+        return value_.pa->find(node);
+    }
+
+    JSON_INLINE void Node::insert(ArrayIterator it, const Node &node)
+    {
+        JSON_ASSERT(isArray());
+        value_.pa->insert(it, node);
+    }
+
+    JSON_INLINE void Node::erase(ArrayIterator it)
+    {
+        JSON_ASSERT(isArray());
+        value_.pa->erase(it);
+    }
+
+    JSON_INLINE void Node::remove(const Node &node)
+    {
+        JSON_ASSERT(isArray());
+        value_.pa->remove(node);
+    }
+
+    JSON_INLINE const Node& Node::operator[] (SizeType index) const
+    {
+        return const_cast<Node*>(this)->operator[](index);
+    }
+
+    /////////////////////////////////////////////////////////////
+    /// dict
+    /////////////////////////////////////////////////////////////
+    JSON_INLINE DictIterator Node::memberBegin()
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->begin();
+    }
+
+    JSON_INLINE ConstDictIterator Node::memberBegin() const
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->begin();
+    }
+
+    JSON_INLINE DictIterator Node::memberEnd()
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->end();
+    }
+
+    JSON_INLINE ConstDictIterator Node::memberEnd() const
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->end();
+    }
+
+    JSON_INLINE DictIterator Node::findMember(const char *key)
+    {
+        JSON_ASSERT(isDict());
+        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        return value_.pd->find(Node(s));
+    }
+
+    JSON_INLINE DictIterator Node::findMember(const Node &key)
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->find(key);
+    }
+
+    JSON_INLINE ConstDictIterator Node::findMember(const char *key) const
+    {
+        JSON_ASSERT(isDict())
+        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        return value_.pd->find(Node(s));
+    }
+
+    JSON_INLINE ConstDictIterator Node::findMember(const Node &key) const
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->find(key);
+    }
+
+    JSON_INLINE bool Node::hasMember(const char *key) const
+    {
+        return findMember(key) != value_.pd->end();
+    }
+
+    JSON_INLINE bool Node::hasMember(const Node &key) const
+    {
+        return findMember(key) != value_.pd->end();
+    }
+
+    JSON_INLINE void Node::setMember(const char *key, const Node &val)
+    {
+        JSON_ASSERT(isDict());
+        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        return value_.pd->insert(Node(s), val);
+    }
+
+    JSON_INLINE void Node::setMember(const Node &key, const Node &val)
+    {
+        JSON_ASSERT(isDict());
+        return value_.pd->insert(key, val);
+    }
+
+    JSON_INLINE void Node::eraseMember(DictIterator it)
+    {
+        JSON_ASSERT(isDict());
+        value_.pd->erase(it);
+    }
+
+    JSON_INLINE void Node::removeMember(const char *key)
+    {
+        JSON_ASSERT(isDict());
+        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        value_.pd->remove(Node(s));
+    }
+
+    JSON_INLINE void Node::removeMember(const Node &key)
+    {
+        JSON_ASSERT(isDict());
+        value_.pd->remove(key);
+    }
+
 #if JSON_SUPPORT_STL_STRING
+    /////////////////////////////////////////////////////////////
+    /// std::string
+    /////////////////////////////////////////////////////////////
     JSON_INLINE Node::Node(const std::string &value, IAllocator *allocator)
     : type_(T_NULL)
     {
@@ -407,22 +774,67 @@ namespace mjson
         setString(value.c_str(), value.size());
         return *this;
     }
-    
-    JSON_INLINE Node& Node::operator[] (const std::string &key)
-    {
-        return (*this)[key.c_str()];
-    }
 
     JSON_INLINE const Node& Node::operator[] (const std::string &key) const
     {
-        return find(key.c_str());
+        return operator[](key.c_str());
     }
     
     JSON_INLINE void Node::setStdString(const std::string &value, IAllocator *allocator)
     {
         return setString(value.c_str(), value.size(), allocator);
     }
-   
-#endif
     
+    JSON_INLINE void Node::asStdString(std::string &out) const
+    {
+        if(isString())
+        {
+            out.assign(rawString()->data(), rawString()->size());
+        }
+    }
+    
+    JSON_INLINE std::string Node::asStdString() const
+    {
+        if(isString())
+        {
+            return std::string(rawString()->data(), rawString()->size());
+        }
+        return "";
+    }
+
+    JSON_INLINE DictIterator Node::findMember(const std::string &key)
+    {
+        JSON_ASSERT(isDict());
+        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
+        return value_.pd->find(Node(s));
+    }
+
+    JSON_INLINE ConstDictIterator Node::findMember(const std::string &key) const
+    {
+        JSON_ASSERT(isDict());
+        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
+        return value_.pd->find(Node(s));
+    }
+
+    JSON_INLINE bool Node::hasMember(const std::string &key) const
+    {
+        return findMember(key) != value_.pd->end();
+    }
+
+    JSON_INLINE void Node::setMember(const std::string &key, const Node &val)
+    {
+        JSON_ASSERT(isDict());
+        // copy string buffer
+        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), true);
+        value_.pd->setMember(Node(s), val);
+    }
+
+    JSON_INLINE void Node::removeMember(const std::string &key)
+    {
+        JSON_ASSERT(isDict());
+        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
+        value_.pd->remove(Node(s));
+    }
+
+#endif
 } // end namespace mjson

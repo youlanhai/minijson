@@ -20,7 +20,7 @@ namespace mjson
         virtual Object* clone() const = 0;
         virtual Object* deepClone() const = 0;
         
-        IAllocator* getAllocator(){ return allocator_; }
+        JSON_INLINE IAllocator* getAllocator(){ return allocator_; }
         
     protected:
         IAllocator*     allocator_;

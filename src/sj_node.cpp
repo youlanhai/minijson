@@ -1,8 +1,4 @@
 ﻿#include "sj_node.hpp"
-#include "sj_string.hpp"
-#include "sj_array.hpp"
-#include "sj_dict.hpp"
-#include "sj_allocator.hpp"
 
 #include <cmath>
 
@@ -12,70 +8,23 @@
 
 namespace mjson
 {
+    Node s_null;
     
-    const char* Node::asCString() const
-    {
-        return isString() ? rawString()->data() : "";
-    }
-
-    const char* Node::rawCString() const
-    {
-        JSON_ASSERT(isString());
-        return rawString()->data();
-    }
-    
-    String& Node::refString()
-    {
-        JSON_ASSERT(isString());
-        return *(value_.ps);
-    }
-
-    Array& Node::refArray()
-    {
-        JSON_ASSERT(isArray());
-        return *(value_.pa);
-    }
-
-    Dict& Node::refDict()
-    {
-        JSON_ASSERT(isDict());
-        return *(value_.pd);
-    }
-
-    const String& Node::refString() const
-    {
-        JSON_ASSERT(isString());
-        return *(value_.ps);
-    }
-
-    const Array& Node::refArray() const
-    {
-        JSON_ASSERT(isArray());
-        return *(value_.pa);
-    }
-
-    const Dict& Node::refDict() const
-    {
-        JSON_ASSERT(isDict());
-        return *(value_.pd);
-    }
-
     void Node::setString(const char *str, size_t size, IAllocator *allocator)
     {
-        if(0 == allocator)
-        {
-            allocator = RawAllocator::defaultAllocator();
-        }
-        allocator->retain();
-        
         if(0 == size)
         {
             size = strlen(str);
         }
         
-        setNull();
-        type_ = T_STRING;
+        if(0 == allocator)
+        {
+            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : RawAllocator::defaultAllocator();
+        }
+        allocator->retain();
         
+        safeRelease();
+        type_ = T_STRING;
         value_.p = allocator->createString(str, size);
         value_.p->retain();
         
@@ -84,15 +33,14 @@ namespace mjson
     
     Array* Node::setArray(IAllocator *allocator)
     {
-        setNull();
-        type_ = T_ARRAY;
-        
         if(0 == allocator)
         {
-            allocator = RawAllocator::defaultAllocator();
+            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : RawAllocator::defaultAllocator();
         }
         allocator->retain();
         
+        safeRelease();
+        type_ = T_ARRAY;
         value_.p = allocator->createArray();
         value_.p->retain();
         
@@ -102,15 +50,14 @@ namespace mjson
     
     Dict* Node::setDict(IAllocator *allocator)
     {
-        setNull();
-        type_ = T_DICT;
-        
         if(0 == allocator)
         {
-            allocator = RawAllocator::defaultAllocator();
+            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : RawAllocator::defaultAllocator();
         }
         allocator->retain();
-        
+
+        safeRelease();
+        type_ = T_DICT;
         value_.p = allocator->createDict();
         value_.p->retain();
         
@@ -172,29 +119,14 @@ namespace mjson
         }
     }
     
-    size_t Node::size() const
+    Node& Node::operator[] (SizeType index)
     {
         if(isArray())
         {
-            return rawArray()->size();
-        }
-        else if(isDict())
-        {
-            return rawDict()->size();
-        }
-        else if(isString())
-        {
-            return rawString()->size();
-        }
-        return 0;
-    }
-    
-    
-    Node& Node::operator[] (SizeType index)
-    {
-        if(isArray() && index < rawArray()->size())
-        {
-            return (*rawArray())[index];
+            if(index < rawArray()->size())
+            {
+                return (*rawArray())[index];
+            }
         }
         else if(isDict())
         {
@@ -205,57 +137,6 @@ namespace mjson
             }
         }
         
-        static Node null;
-        null.setNull();
-        return null;
+        return nullValue();
     }
-    
-    Node& Node::operator[] (const char *key)
-    {
-        if(isDict())
-        {
-            return (*rawDict())[key];
-        }
-        
-        static Node null;
-        null.setNull();
-        return null;
-    }
-    
-    const Node& Node::find(const char *key) const
-    {
-        if(isDict())
-        {
-            Dict::iterator it = rawDict()->find(key);
-            if(it != rawDict()->end())
-            {
-                return it->value;
-            }
-        }
-
-        static Node null;
-        null.setNull();
-        return null;
-    }
-
-#if JSON_SUPPORT_STL_STRING
-    
-    void Node::asStdString(std::string &out) const
-    {
-        if(isString())
-        {
-            out.assign(rawString()->data(), rawString()->size());
-        }
-    }
-    
-    std::string Node::asStdString() const
-    {
-        if(isString())
-        {
-            return std::string(rawString()->data(), rawString()->size());
-        }
-        return "";
-    }
-    
-#endif
 }

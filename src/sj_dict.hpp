@@ -26,31 +26,19 @@ namespace mjson
         const_iterator begin() const;
         const_iterator end() const;
         
-        void remove(const char *key);
+        void remove(const Node &key);
         void erase(iterator it);
-        
-        iterator find(const char *key);
-        const_iterator find(const char *key) const;
-        
+
         iterator find(const Node &key);
         const_iterator find(const Node &key) const;
         
-        bool exist(const char *key) const;
+        bool exist(const Node &key) const;
         
-        Node& at(const char *key);
-        const Node& at(const char *key) const;
-        
-        value_type& at(size_t index);
-        const value_type& at(size_t key) const;
-        
-        Node& operator[] (const char *key);
-        const Node& operator[] (const char *key) const;
+        Node& operator[] (const Node &key);
+        const Node& operator[] (const Node &key) const;
         
         // if the key exist, replace it's value. else insert the key-value pair to end.
-        iterator insert(const char *key, const Node &value);
-        
-        // insert the key-value pair to end directly.
-        void append(const Node &key, const Node &value);
+        iterator insert(const Node &key, const Node &value);
         
         bool empty() const;
         size_t size() const;
@@ -64,6 +52,15 @@ namespace mjson
         virtual Type type() const;
         virtual Object* clone() const;
         virtual Object* deepClone() const;
+        
+    public:
+        // internal method
+
+        value_type& at(size_t index);
+        const value_type& at(size_t key) const;
+        
+        // insert the key-value pair to end directly.
+        void append(const Node &key, const Node &value);
         
     private:
         void _ensure(size_t n);
