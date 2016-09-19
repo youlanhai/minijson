@@ -23,15 +23,16 @@ namespace mjson
         if(capacity > capacity_)
         {
             size_t size = this->size();
+            value_type *old = begin_;
             
-            size_t bytes = capacity * sizeof(value_type);
-            if(capacity_ > 0)
+            begin_ = (value_type*) allocator_->malloc(capacity * sizeof(value_type));
+            if(size != 0)
             {
-                begin_ = (value_type*) allocator_->realloc(begin_, bytes);
+                memcpy(begin_, old, size * sizeof(value_type));
             }
-            else
+            if(old != 0)
             {
-                begin_ = (value_type*) allocator_->malloc(bytes);
+                allocator_->free(old);
             }
             
             end_ = begin_ + size;

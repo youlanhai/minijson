@@ -8,6 +8,13 @@
 
 namespace mjson
 {
+    static IAllocator* createDefaultAllocator()
+    {
+        IAllocator *p = new RawAllocator();
+        p->retain();
+        return p;
+    }
+    
     IAllocator::IAllocator()
     {
         
@@ -16,6 +23,23 @@ namespace mjson
     IAllocator::~IAllocator()
     {
         
+    }
+    
+    /*static*/ IAllocator* IAllocator::s_pDefault = createDefaultAllocator();
+    
+    /*static*/ void IAllocator::setDefaultAllocator(IAllocator *p)
+    {
+        if(p != 0)
+        {
+            p->retain();
+        }
+        
+        if(s_pDefault)
+        {
+            s_pDefault->release();
+        }
+        
+        s_pDefault = p;
     }
     
     
@@ -28,46 +52,33 @@ namespace mjson
         
     }
     
-    /*static*/RawAllocator* RawAllocator::s_pDefault = NULL;
     
     void* RawAllocator::malloc(size_t size)
     {
         return std::malloc(size);
     }
     
-    void* RawAllocator::realloc(void *p, size_t newSize)
-    {
-        return std::realloc(p, newSize);
-    }
-    
-    void  RawAllocator::free(void *p)
+    void RawAllocator::free(void *p)
     {
         return std::free(p);
     }
     
-    String* RawAllocator::createString(const char *str, size_t size)
+    String* RawAllocator::createString(const char *str, size_t size, BufferType type)
     {
         void *p = this->malloc(sizeof(String));
-        return new (p)String(str, size, this);
+        return new (p)String(str, size, type, this);
     }
     
-    Array*  RawAllocator::createArray()
+    Array* RawAllocator::createArray()
     {
         void *p = this->malloc(sizeof(Array));
-        return new (p) Array(this);
+        return new (p)Array(this);
     }
     
-    Dict*   RawAllocator::createDict()
+    Dict* RawAllocator::createDict()
     {
         void *p = this->malloc(sizeof(Dict));
-        return new (p) Dict(this);
-    }
-    
-    
-    String* RawAllocator::createRawString(const char *str, size_t size, bool manged)
-    {
-        void *p = this->malloc(sizeof(String));
-        return new (p) String(str, size, manged, this);
+        return new (p)Dict(this);
     }
     
     void RawAllocator::freeObject(Object *p)

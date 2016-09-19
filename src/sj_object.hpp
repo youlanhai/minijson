@@ -12,7 +12,7 @@ namespace mjson
     {
         JSON_DISABLE_COPY_ASSIGN(Object);
     public:
-        Object(IAllocator *allocator);
+        explicit Object(IAllocator *allocator);
         ~Object();
         
         virtual void    release();

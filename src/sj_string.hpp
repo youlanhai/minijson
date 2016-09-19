@@ -11,9 +11,9 @@ namespace mjson
 {
     class String : public Object
     {
+        JSON_DISABLE_COPY_ASSIGN(String);
     public:
-        String(const char *str, size_t size, IAllocator *allocator);
-        String(const char *str, size_t size, bool managed, IAllocator *allocator);
+        String(const char *str, size_t size, BufferType type, IAllocator *allocator);
         ~String();
         
         int compare(const char *str) const;
@@ -34,7 +34,7 @@ namespace mjson
     private:
         char*           str_;
         size_t          size_;
-        bool            managed_;
+        BufferType      bufferType_;
     };
 }
 

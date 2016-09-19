@@ -20,7 +20,7 @@ namespace mjson
     {
         if(allocator_ == NULL)
         {
-            allocator_ = RawAllocator::defaultAllocator();
+            allocator_ = IAllocator::getDefaultAllocator();
         }
         allocator_->retain();
     }

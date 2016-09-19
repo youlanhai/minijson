@@ -19,13 +19,13 @@ namespace mjson
         
         if(0 == allocator)
         {
-            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : RawAllocator::defaultAllocator();
+            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : IAllocator::getDefaultAllocator();
         }
         allocator->retain();
         
         safeRelease();
         type_ = T_STRING;
-        value_.p = allocator->createString(str, size);
+        value_.p = allocator->createString(str, size, BT_MAKE_COPY);
         value_.p->retain();
         
         allocator->release();
@@ -35,7 +35,7 @@ namespace mjson
     {
         if(0 == allocator)
         {
-            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : RawAllocator::defaultAllocator();
+            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : IAllocator::getDefaultAllocator();
         }
         allocator->retain();
         
@@ -52,7 +52,7 @@ namespace mjson
     {
         if(0 == allocator)
         {
-            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : RawAllocator::defaultAllocator();
+            allocator = isPointer() ? (IAllocator*)value_.p->getAllocator() : IAllocator::getDefaultAllocator();
         }
         allocator->retain();
 

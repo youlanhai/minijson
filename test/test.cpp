@@ -35,11 +35,10 @@ void testString()
 {
     std::cout << "test string..." << std::endl;
     
-    mjson::IAllocator *allocator = mjson::RawAllocator::defaultAllocator();
-    allocator->retain();
+    mjson::IAllocator *allocator = mjson::IAllocator::getDefaultAllocator();
     
     std::string str("Hello World");
-    mjson::String *p = allocator->createString(str.c_str(), str.size());
+    mjson::String *p = allocator->createString(str.c_str(), str.size(), mjson::BT_MAKE_COPY);
     p->retain();
     
     TEST_EQUAL(p->getRefCount() == 1);
@@ -58,15 +57,13 @@ void testString()
     p3->release();
     
     p->release();
-    
-    allocator->release();
 }
 
 void testArray()
 {
     std::cout << "test array..." << std::endl;
     
-    mjson::Array *p = mjson::RawAllocator::defaultAllocator()->createArray();
+    mjson::Array *p = mjson::IAllocator::getDefaultAllocator()->createArray();
     p->retain();
     
     TEST_EQUAL(p->size() == 0);
@@ -119,7 +116,7 @@ void testDict()
 {
     std::cout << "test dict..." << std::endl;
     
-    mjson::Dict *p = mjson::RawAllocator::defaultAllocator()->createDict();
+    mjson::Dict *p = mjson::IAllocator::getDefaultAllocator()->createDict();
     p->retain();
     
     (*p)["name"] = "json";

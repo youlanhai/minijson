@@ -695,7 +695,7 @@ namespace mjson
     JSON_INLINE DictIterator Node::findMember(const char *key)
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        String *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_NOT_CARE);
         return value_.pd->find(Node(s));
     }
 
@@ -708,7 +708,7 @@ namespace mjson
     JSON_INLINE ConstDictIterator Node::findMember(const char *key) const
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        String *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_NOT_CARE);
         return ((const Dict*)value_.pd)->find(Node(s));
     }
 
@@ -731,7 +731,7 @@ namespace mjson
     JSON_INLINE void Node::setMember(const char *key, const Node &val)
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        String *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_MAKE_COPY);
         value_.pd->insert(Node(s), val);
     }
 
@@ -750,7 +750,7 @@ namespace mjson
     JSON_INLINE void Node::removeMember(const char *key)
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key, strlen(key), false);
+        String *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_NOT_CARE);
         value_.pd->remove(Node(s));
     }
 
@@ -806,14 +806,14 @@ namespace mjson
     JSON_INLINE DictIterator Node::findMember(const std::string &key)
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
+        String *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_NOT_CARE);
         return value_.pd->find(Node(s));
     }
 
     JSON_INLINE ConstDictIterator Node::findMember(const std::string &key) const
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
+        String *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_NOT_CARE);
         return ((const Dict*)value_.pd)->find(Node(s));
     }
 
@@ -826,14 +826,14 @@ namespace mjson
     {
         JSON_ASSERT(isDict());
         // copy string buffer
-        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), true);
+        String *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_MAKE_COPY);
         value_.pd->insert(Node(s), val);
     }
 
     JSON_INLINE void Node::removeMember(const std::string &key)
     {
         JSON_ASSERT(isDict());
-        String *s = value_.pd->getAllocator()->createRawString(key.c_str(), key.size(), false);
+        String *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_NOT_CARE);
         value_.pd->remove(Node(s));
     }
 

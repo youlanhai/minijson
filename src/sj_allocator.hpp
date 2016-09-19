@@ -2,7 +2,7 @@
 #define SMARTJSON_ALLOCATOR_HPP
 
 #include "sj_reference.hpp"
-#include <cstdlib>
+#include "sj_types.hpp"
 
 namespace mjson
 {
@@ -18,18 +18,22 @@ namespace mjson
         ~IAllocator();
         
         virtual void*   malloc(size_t size) = 0;
-        virtual void*   realloc(void *p, size_t newSize) = 0;
         virtual void    free(void *p) = 0;
         
-        virtual String* createString(const char *str, size_t size) = 0;
+        virtual String* createString(const char *str, size_t size, BufferType type) = 0;
         virtual Array*  createArray() = 0;
         virtual Dict*   createDict() = 0;
         
-        virtual String* createRawString(const char *str, size_t size, bool managed) = 0;
-        
         virtual void    freeObject(Object *p) = 0;
+        
+        static void setDefaultAllocator(IAllocator *p);
+        static IAllocator* getDefaultAllocator(){ return s_pDefault; }
+        
+    private:
+        static IAllocator *s_pDefault;
     };
     
+    // allocate memory from os directly. thread safe.
     class RawAllocator : public IAllocator
     {
     public:
@@ -37,28 +41,21 @@ namespace mjson
         ~RawAllocator();
         
         virtual void*   malloc(size_t size);
-        virtual void*   realloc(void *p, size_t newSize);
         virtual void    free(void *p);
         
-        virtual String* createString(const char *str, size_t size);
+        virtual String* createString(const char *str, size_t size, BufferType type);
         virtual Array*  createArray();
         virtual Dict*   createDict();
         
-        virtual String* createRawString(const char *str, size_t size, bool managed);
-        
         virtual void    freeObject(Object *p);
-        
-        static RawAllocator* defaultAllocator()
-        {
-            if(s_pDefault == NULL)
-            {
-                s_pDefault = new RawAllocator();
-                s_pDefault->retain();
-            }
-            return s_pDefault;
-        }
-    private:
-        static RawAllocator *s_pDefault;
+    };
+    
+    // allocate memorty by using memory pool. efficent, but not thread safe.
+    class MemoryPoolAllocator : public IAllocator
+    {
+    public:
+        MemoryPoolAllocator();
+        ~MemoryPoolAllocator();
     };
 }
 

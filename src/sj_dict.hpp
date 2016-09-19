@@ -11,13 +11,14 @@ namespace mjson
     
     class Dict : public Object
     {
+        JSON_DISABLE_COPY_ASSIGN(Dict);
     public:
         typedef NodePair                value_type;
         typedef NodePair*               pointer;
         typedef Iterator<Dict, NodePair>          iterator;
         typedef Iterator<const Dict, const NodePair>    const_iterator;
         
-        Dict(IAllocator *allocator);
+        explicit Dict(IAllocator *allocator);
         ~Dict();
         
         iterator begin();

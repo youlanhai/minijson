@@ -17,7 +17,7 @@ namespace mjson
         typedef Iterator<Array, Node>         iterator;
         typedef Iterator<const Array, const Node>   const_iterator;
         
-        Array(IAllocator *allocator);
+        explicit Array(IAllocator *allocator);
         ~Array();
         
         void reserve(size_t capacity);

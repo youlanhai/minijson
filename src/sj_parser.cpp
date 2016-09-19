@@ -90,7 +90,7 @@ namespace mjson
     {
         if(allocator_ == 0)
         {
-            allocator_ = RawAllocator::defaultAllocator();
+            allocator_ = IAllocator::getDefaultAllocator();
         }
         allocator_->retain();
     }
@@ -433,7 +433,7 @@ namespace mjson
             }
         }
         *p = '\0';
-        node = allocator_->createRawString(buffer, p - buffer, true);
+        node = allocator_->createString(buffer, p - buffer, BT_MANAGE);
         return RC_OK;
     }
     

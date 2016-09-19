@@ -36,6 +36,13 @@ namespace mjson
         T_DICT,
     };
 
+    enum BufferType
+    {
+        BT_NOT_CARE, // Object use the buffer freely, caller free buffer
+        BT_MAKE_COPY, // Object should make a copy of the buffer
+        BT_MANAGE, // Object should free this buffer
+    };
+    
 } // end namespace mjson
 
 #endif /* SMARTJSON_TYPES_HPP */
