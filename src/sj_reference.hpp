@@ -23,6 +23,9 @@ namespace mjson
     protected:
         long        counter_;
     };
+    
+    size_t maxSize(size_t a, size_t b);
+    size_t growCapacity(size_t oldSize, size_t newSize);
 }
 
 

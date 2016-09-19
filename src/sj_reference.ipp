@@ -15,6 +15,7 @@ namespace mjson
     
     JSON_INLINE void Reference::release()
     {
+        assert(counter_ > 0);
         if(--counter_ <= 0)
         {
             delete this;
@@ -24,5 +25,15 @@ namespace mjson
     JSON_INLINE long Reference::getRefCount() const
     {
         return counter_;
+    }
+    
+    JSON_INLINE size_t maxSize(size_t a, size_t b)
+    {
+        return a > b ? a : b;
+    }
+    
+    JSON_INLINE size_t growCapacity(size_t oldSize, size_t newSize)
+    {
+        return maxSize(maxSize(oldSize << 1, 4), newSize);
     }
 }

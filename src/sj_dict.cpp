@@ -8,15 +8,7 @@
 
 namespace mjson
 {
-    size_t maxSize(size_t a, size_t b)
-    {
-        return a > b ? a : b;
-    }
     
-    size_t growCapacity(size_t oldSize, size_t newSize)
-    {
-        return maxSize(maxSize(oldSize << 1, 4), newSize);
-    }
     
     
     Dict::~Dict()

@@ -7,8 +7,6 @@
 
 namespace mjson
 {
-    extern size_t growCapacity(size_t oldSize, size_t newSize);
- 
     Array::~Array()
     {
         clear();
