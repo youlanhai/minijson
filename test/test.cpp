@@ -10,6 +10,7 @@
 
 #include "smartjson.hpp"
 #include "sj_binary_parser.hpp"
+#include "sj_allocator_imp.hpp"
 
 #include <string>
 #include <cassert>
@@ -211,21 +212,25 @@ void testNode()
     TEST_EQUAL(n6.asString()->getRefCount() == 2);
     TEST_EQUAL(n6.asString() == n5.asString());
     
+    // test array
     mjson::Node n7;
     n7.setArray();
     TEST_EQUAL(n7.isArray());
-    n7.asArray()->push(n0);
-    n7.asArray()->push(n1);
-    n7.asArray()->push(n2);
-    n7.asArray()->push(n3);
-    n7.asArray()->push(n4);
-    n7.asArray()->push(n5);
-    n7.asArray()->push(n6);
+    n7.reserve(7);
+    TEST_EQUAL(n7.capacity() == 7);
+    TEST_EQUAL(n7.refArray().capacity() == 7);
+    n7.pushBack(n0);
+    n7.pushBack(n1);
+    n7.pushBack(n2);
+    n7.pushBack(n3);
+    n7.pushBack(n4);
+    n7.pushBack(n5);
+    n7.pushBack(n6);
     TEST_EQUAL(n7.asArray()->size() == n7.size());
     TEST_EQUAL(n7.size() == 7);
     TEST_EQUAL(n7[0u] == n0);
-    for(mjson::Array::iterator it = n7.asArray()->begin();
-        it != n7.asArray()->end(); ++it)
+    for(mjson::ArrayIterator it = n7.begin();
+        it != n7.end(); ++it)
     {
         TEST_EQUAL(*it != n7);
     }
@@ -234,6 +239,7 @@ void testNode()
         TEST_EQUAL(n7[i] == n7.asArray()->at(i));
     }
     
+    // test dict
     mjson::Node n8;
     n8.setDict();
     TEST_EQUAL(n8.isDict());
@@ -247,6 +253,11 @@ void testNode()
     n8.setMember("7", n7);
     TEST_EQUAL(n8.size() == 8);
     TEST_EQUAL(n8.size() == n8.rawDict()->size());
+    for(mjson::DictIterator it = n8.memberBegin();
+        it != n8.memberEnd(); ++it)
+    {
+        TEST_EQUAL(it->value == n8[it->key]);
+    }
 }
 
 void testParser()
@@ -268,7 +279,7 @@ void testParser()
     "\"pos\"    : {\"x\" : 100.55, \"y\" : 200.22}\n"
     "}";
     
-    mjson::Parser parser;
+    mjson::Parser parser(new mjson::MemoryPoolAllocator());
     int ret = parser.parse(json, strlen(json));
     std::cout << "parse result:" << ret << std::endl;
     TEST_EQUAL(ret == mjson::RC_OK);

@@ -478,6 +478,19 @@ namespace mjson
         return 0;
     }
 
+    JSON_INLINE size_t Node::capacity() const
+    {
+        if(isArray())
+        {
+            return value_.pa->capacity();
+        }
+        else if(isDict())
+        {
+            return value_.pd->capacity();
+        }
+        return 0;
+    }
+    
     JSON_INLINE void Node::reserve(size_t capacity)
     {
         if(isArray())

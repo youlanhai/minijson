@@ -41,17 +41,20 @@ if(ret != mjson::RC_OK)
 }
 mjson::Node root = parser.getRoot();
 ```
+
 ## write to stream
 ```c++
 mjson::Writer writer;
 writer.write(root, std::cout);
 ```
+
 ## boolean
 ```c++
 mjson::Node node = true;
 bool b = node.asBool(); // b is true.
 ```
 **notice:** only 'true' is true, anything else is false. 
+
 ## number
 ```c++
 mjson::Node node = 123456.789;
@@ -59,6 +62,7 @@ int a = node.asInt(); // a is 123456
 double b = node.asFloat(); // b is 123456.789
 ```
 convert between integer and float is safe.
+
 ## string
 ```c++
 mjson::Node node = "hello！smart json.";
@@ -67,56 +71,62 @@ std::string s2 = node.asStdString();
 std::string s3;
 node.asStdString(s3);
 ```
+
 ## dict
 ```c++
 // visit dict.
 if(root.isDict())
 {
-    mjson::Dict &dict = root.refDict();
     // visit each element
-    for(mjson::Dict::iterator it = dict.begin();
-        it != dict.end(); ++it)
+    for(mjson::DictIerator it = root.memberBegin();
+        it != root.memberEnd(); ++it)
     {
         std::cout << it->key.asCString()
             << it->value.asCString() << std::endl;
     }
 }
+
 // create a dict.
 mjson::Node node;
 node.setDict();
-node["name"] = "LanhaiYou";
-node["age"] = 25;
+node.setMember("name", "LanhaiYou");
+node.setMember("age", 25);
+
 // assign a dict node to other node, will not cause memory allocation.
 // both two node reference to the same dict.
 mjson::Node node2 = node;
-assert(node.rawDict() == node2.rawDict()); // assert will not happen.
+assert(node.rawDict() == node2.rawDict()); // assert never happens.
 ```
+
 ## array
 ```c++
 // visit array.
 if(root.isArray())
 {
-    mjson::Array &array = root.refArray();
     // visit each element
-    for(mjson::Array::iterator it = array.begin();
-        it != array.end(); ++it)
+    for(mjson::ArrayIterator it = root.begin();
+        it != root.end(); ++it)
     {
         std::cout << it->asCString() << std::endl;
     }
     // or
-    for(size_t i = 0; i < array.size(); ++i)
+    for(size_t i = 0; i < root.size(); ++i)
     {
-        std::cout << array[i].asInt() << std::endl;
+        std::cout << root[i].asInt() << std::endl;
     }
 }
+
 // create array.
 mjson::Node node;
-mjson::Aray *p = node.setArray();
-p->resize(4);
-p->append(1);
-p->append(true);
-p->append("hello");
+node.setArray();
+node.reserve(4);
+node.pushBack(1);
+node.pushBack(true);
+node.pushBack("hello");
 node[0u] = 2; // use '0u' instead of '0'.
-node[3] = false;
+node[1] = false;
+
+mjson::Node node2 = node;
+assert(node2.rawArray() == node.rawArray()); // assert never happens
 ```
 
