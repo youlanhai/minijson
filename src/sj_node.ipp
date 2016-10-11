@@ -181,7 +181,7 @@ namespace mjson
     {
         safeRelease();
         type_ = T_FLOAT;
-        value_.b = v;
+        value_.f = v;
     }
     
 
