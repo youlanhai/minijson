@@ -32,7 +32,7 @@ namespace mjson
         }
         else
         {
-            assert(0);
+            JSON_ASSERT(0 && "shouldn't reach here.");
         }
     }
 

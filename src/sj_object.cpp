@@ -16,7 +16,7 @@ namespace mjson
     
     void Object::release()
     {
-        assert(counter_ > 0);
+        JSON_ASSERT(counter_ > 0);
         if(--counter_ <= 0)
         {
             allocator_->freeObject(this);

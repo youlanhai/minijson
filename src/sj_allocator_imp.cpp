@@ -149,7 +149,7 @@ namespace mjson
                 slot.freeList = mp;
                 --slot.allocCount;
                 
-                assert(slot.allocCount >= 0);
+                JSON_ASSERT(slot.allocCount >= 0);
                 return;
             }
         }

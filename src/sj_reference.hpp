@@ -2,6 +2,7 @@
 #define SMARTJSON_REFERENCE_HPP
 
 #include "sj_config.hpp"
+#include <cstdlib>
 
 #define JSON_DISABLE_COPY_ASSIGN(CLASS) \
     CLASS(const CLASS&); \
