@@ -15,6 +15,7 @@ namespace mjson
     class Dict;
     class Array;
     class IAllocator;
+    class ValueSetter;
     
     class Node;
     struct NodePair;
@@ -40,6 +41,7 @@ namespace mjson
         Node(Object *p);
         Node(const char *str, size_t size = 0, IAllocator *allocator = 0);
         Node(const Node &other);
+        Node(const ValueSetter &setter);
         ~Node();
 
         void        safeRelease();
@@ -112,6 +114,7 @@ namespace mjson
         const Node& operator = (const char *value);
         const Node& operator = (const Object *value);
         const Node& operator = (const Node &value);
+        const Node& operator = (const ValueSetter &setter);
         
         bool operator == (const Node &value) const;
         bool operator != (const Node &value) const;
@@ -186,6 +189,9 @@ namespace mjson
         // when the key was not found, null value will be returned.
         const Node& operator[] (const char *key) const;
         const Node& operator[] (const Node &key) const;
+
+        ValueSetter operator[] (const char *key);
+        ValueSetter operator[] (const Node &key);
 
     public:
         // std::string

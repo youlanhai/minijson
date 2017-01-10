@@ -60,6 +60,11 @@ namespace mjson
             return old;
         }
         
+        operator bool() const
+        {
+            return container_ && index_ < container_->size();
+        }
+
         bool operator == (const this_type &other) const
         {
             return container_ == other.container_ && index_ == other.index_;
@@ -90,12 +95,12 @@ namespace mjson
             return index_ >= other.index_;
         }
         
-        this_type operator + (size_type n) const
+        this_type operator + (int n) const
         {
             return this_type(container_, index_ + n);
         }
         
-        this_type operator - (size_type n) const
+        this_type operator - (int n) const
         {
             return this_type(container_, index_ - n);
         }

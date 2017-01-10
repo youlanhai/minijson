@@ -3,6 +3,7 @@
 #include "sj_dict.hpp"
 #include "sj_string.hpp"
 #include "sj_allocator.hpp"
+#include "sj_value_setter.hpp"
 
 namespace mjson
 {
@@ -94,6 +95,12 @@ namespace mjson
         {
             value_.p->retain();
         }
+    }
+
+    JSON_INLINE Node::Node(const ValueSetter &setter)
+    : type_(T_NULL)
+    {
+        *this = setter.get();
     }
     
     /////////////////////////////////////////////////////////////
@@ -284,6 +291,11 @@ namespace mjson
         }
     }
     
+    JSON_INLINE const Node& Node::operator = (const ValueSetter &setter)
+    {
+        return *this = setter.get();
+    }
+
     /////////////////////////////////////////////////////////////
     /// convert json to value safely
     /////////////////////////////////////////////////////////////
@@ -572,6 +584,16 @@ namespace mjson
             }
         }
         return nullValue();
+    }
+
+    JSON_INLINE ValueSetter Node::operator[] (const char *key)
+    {
+        return ValueSetter(Node(key));
+    }
+
+    JSON_INLINE ValueSetter Node::operator[] (const Node &key)
+    {
+        return ValueSetter(key);
     }
 
     /////////////////////////////////////////////////////////////

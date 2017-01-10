@@ -285,16 +285,17 @@ void testParser()
     TEST_EQUAL(ret == mjson::RC_OK);
     
     mjson::Node root = parser.getRoot();
-    TEST_EQUAL(root["name"] == "json");
-    TEST_EQUAL(root["age"] == 20);
-    TEST_EQUAL(root["weight"] == 60.5);
-    TEST_EQUAL(root["i1"] == 1234567890);
-    TEST_EQUAL(root["i2"] == -123456789);
-    TEST_EQUAL(root["i3"] == 0);
-    TEST_EQUAL(root["f1"] == 3.14e2);
-    TEST_EQUAL(almoseEqual(root["f2"].asFloat(), 3.14e-2));
-    TEST_EQUAL(almoseEqual(root["f3"].asFloat(), -0.314e10));
-    TEST_EQUAL(almoseEqual(root["f4"].asFloat(), -0.314e-10));
+    const mjson::Node &croot = root;
+    TEST_EQUAL(croot["name"] == "json");
+    TEST_EQUAL(croot["age"] == 20);
+    TEST_EQUAL(croot["weight"] == 60.5);
+    TEST_EQUAL(croot["i1"] == 1234567890);
+    TEST_EQUAL(croot["i2"] == -123456789);
+    TEST_EQUAL(croot["i3"] == 0);
+    TEST_EQUAL(croot["f1"] == 3.14e2);
+    TEST_EQUAL(almoseEqual(croot["f2"].asFloat(), 3.14e-2));
+    TEST_EQUAL(almoseEqual(croot["f3"].asFloat(), -0.314e10));
+    TEST_EQUAL(almoseEqual(croot["f4"].asFloat(), -0.314e-10));
     
     mjson::Node array = root["array"];
     TEST_EQUAL(array.isArray());
