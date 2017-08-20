@@ -35,77 +35,86 @@ namespace mjson
         return ::free(p);
     }
     
-    
+
     MemoryPoolAllocator::MemoryPoolAllocator(size_t pageSize)
-    : pool_(0)
-    , size_(0)
-    , capacity_(0)
+    : slot_(0)
     , pageSize_(pageSize)
     {
         minAllocSize_ = maxSize(sizeof(String), maxSize(sizeof(Array), sizeof(Dict)));
+
+        const size_t align = sizeof(void*);
+        minAllocSize_ = ((minAllocSize_ + align - 1) / align) * align;
     }
     
     MemoryPoolAllocator::~MemoryPoolAllocator()
     {
-        if(pool_ != NULL)
+        while(slot_ != NULL)
         {
-            clear();
-            ::free(pool_);
+            MemSlot *p = slot_;
+            slot_ = slot_->next;
+
+            ::free(p->addr);
+            ::free(p);
         }
     }
     
-    MemoryPoolAllocator::MemSlot* MemoryPoolAllocator::grow()
+    MemoryPoolAllocator::MemSlot* MemoryPoolAllocator::newSlot()
     {
-        size_t newSize = size_ + 1;
-        if(newSize > capacity_)
-        {
-            capacity_ = growCapacity(capacity_, newSize);
-            MemSlot *old = pool_;
-            
-            pool_ = (MemSlot*)::malloc(capacity_ * sizeof(MemSlot));
-            if(size_ != 0)
-            {
-                memcpy(pool_, old, size_ * sizeof(MemSlot));
-            }
-            
-            if(old != NULL)
-            {
-                ::free(old);
-            }
-        }
-        
-        MemSlot *slot = pool_ + size_;
-        size_ = newSize;
-        
+        MemSlot *slot = (MemSlot*)::malloc(sizeof(MemSlot));
         slot->addr = (char*)::malloc(pageSize_);
-        slot->allocCount = 0;
         slot->freeList = NULL;
-        
-        for(char *p = slot->addr; p < slot->addr + pageSize_; p += minAllocSize_)
+        slot->allocCount = 0;
+
+        slot->next = slot_;
+        slot_ = slot;
+
+        int n = pageSize_ / minAllocSize_;
+        for(int i = 0; i < n; ++i)
         {
-            MemNode *mp = (MemNode*)p;
-            if(slot->freeList != NULL)
-            {
-                mp->next = slot->freeList;
-                slot->freeList = mp;
-            }
-            else
-            {
-                mp->next = NULL;
-                slot->freeList= mp;
-            }
+            MemNode *mp = (MemNode*)(slot->addr + i * minAllocSize_);
+            mp->next = slot->freeList;
+            slot->freeList = mp;
         }
         return slot;
     }
-    
-    void MemoryPoolAllocator::clear()
+
+    void MemoryPoolAllocator::tryFreeSlot(MemSlot * s)
     {
-        for(size_t i = 0; i < size_; ++i)
+        const int pageCount = pageSize_ / minAllocSize_;
+        int freeNodeCount = 0;
+
         {
-            MemSlot &slot = pool_[i];
-            ::free(slot.addr);
+            MemSlot *p = slot_;
+            while (p)
+            {
+                freeNodeCount += pageCount - p->allocCount;
+                p = p->next;
+            }
         }
-        size_ = 0;
+
+        if (freeNodeCount < pageCount + pageCount / 2)
+        {
+            return;
+        }
+
+        // remove s from list
+        if (s == slot_)
+        {
+            slot_ = slot_->next;
+        }
+        else
+        {
+            MemSlot *prev = slot_;
+            while (prev && s != prev->next)
+            {
+                prev = prev->next;
+            }
+            JSON_ASSERT(prev);
+            prev->next = s->next;
+        }
+
+        ::free(s->addr);
+        ::free(s);
     }
     
     void* MemoryPoolAllocator::malloc(size_t size)
@@ -115,43 +124,45 @@ namespace mjson
             return ::malloc(size);
         }
         
-        MemSlot *slot = NULL;
-        for(size_t i = 0; i < size_; ++i)
+        MemSlot *s = slot_;
+        while (s != NULL && NULL == s->freeList)
         {
-            if(pool_[i].freeList != NULL)
-            {
-                slot = pool_ + i;
-                break;
-            }
+            s = s->next;
+        }
+        if (NULL == s)
+        {
+            s = newSlot();
         }
         
-        if(NULL == slot)
-        {
-            slot = grow();
-        }
-        
-        MemNode *p = slot->freeList;
-        slot->freeList = p->next;
-        slot->allocCount++;
+        MemNode *p = s->freeList;
+        s->freeList = p->next;
+        ++s->allocCount;
+
         p->next = NULL;
         return p;
     }
     
     void MemoryPoolAllocator::free(void *p)
     {
-        for(size_t i = 0; i < size_; ++i)
+        MemSlot *s = slot_;
+        while(s)
         {
-            MemSlot &slot = pool_[i];
-            if(p >= slot.addr && p < slot.addr + pageSize_)
+            if(p >= s->addr && p < s->addr + pageSize_)
             {
                 MemNode *mp = (MemNode*)p;
-                mp->next = slot.freeList;
-                slot.freeList = mp;
-                --slot.allocCount;
+                mp->next = s->freeList;
+                s->freeList = mp;
+                --s->allocCount;
                 
-                JSON_ASSERT(slot.allocCount >= 0);
+                JSON_ASSERT(s->allocCount >= 0);
+                
+                if (s->allocCount == 0)
+                {
+                    tryFreeSlot(s);
+                }
                 return;
             }
+            s = s->next;
         }
         
         // not allocated by this allocator

@@ -41,19 +41,18 @@ namespace mjson
         
         struct MemSlot
         {
-            char*   addr;
-            MemNode* freeList;
-            int     allocCount;
+            char*       addr;
+            MemNode*    freeList;
+            MemSlot*    next;
+            int         allocCount;
         };
         
-        MemSlot* grow();
-        void clear();
+        MemSlot* newSlot();
+        void tryFreeSlot(MemSlot *s);
         
     private:
-        MemSlot*    pool_;
-        size_t      size_;
-        size_t      capacity_;
-        
+        MemSlot*    slot_;
+
         size_t      pageSize_;
         
         // This allocator only allocate memory whitch size <= minAllocSize_.

@@ -588,12 +588,12 @@ namespace mjson
 
     JSON_INLINE ValueSetter Node::operator[] (const char *key)
     {
-        return ValueSetter(Node(key));
+        return ValueSetter(*this, Node(key));
     }
 
     JSON_INLINE ValueSetter Node::operator[] (const Node &key)
     {
-        return ValueSetter(key);
+        return ValueSetter(*this, key);
     }
 
     /////////////////////////////////////////////////////////////

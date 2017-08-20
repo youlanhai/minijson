@@ -9,8 +9,9 @@ namespace mjson
         Node    node_;
 
     public:
-        explicit ValueSetter(const Node &key)
-        : key_(key)
+        ValueSetter(Node &node, const Node &key)
+        : node_(node)
+        , key_(key)
         {}
 
         template<typename T>
@@ -35,7 +36,19 @@ namespace mjson
         {
             return node_[key_];
         }
+
+        friend bool operator == (const Node &value, const ValueSetter &val);
     };
+
+    inline bool operator == (const Node &value, const ValueSetter &val)
+    {
+        return value == val.get();
+    }
+
+    inline bool operator != (const Node &value, const ValueSetter &val)
+    {
+        return value != val.get();
+    }
 }
 
 #endif //SMARTJSON_VALUE_SETTER_HPP
