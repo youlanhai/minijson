@@ -42,6 +42,7 @@ namespace mjson
         Node(const char *str, size_t size = 0, IAllocator *allocator = 0);
         Node(const Node &other);
         Node(const ValueSetter &setter);
+        explicit Node(Type type, IAllocator *allocator = 0);
         ~Node();
 
         void        safeRelease();
@@ -126,6 +127,8 @@ namespace mjson
 
         Node clone() const;
         Node deepClone() const;
+
+        IAllocator* getAllocator() const;
         
     public:
         // array

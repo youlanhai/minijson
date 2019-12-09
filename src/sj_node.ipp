@@ -102,6 +102,32 @@ namespace mjson
     {
         *this = setter.get();
     }
+
+	JSON_INLINE Node::Node(Type type, IAllocator *allocator)
+	: type_(T_NULL)
+	{
+		switch(type)
+		{
+		case T_BOOL:
+			setBool(false);
+			break;
+		case T_INT:
+			setInt(0);
+			break;
+		case T_FLOAT:
+			setFloat(0);
+			break;
+		case T_STRING:
+			setString("", 0, allocator);
+			break;
+		case T_ARRAY:
+			setArray(allocator);
+			break;
+		case T_DICT:
+			setDict(allocator);
+			break;
+		}
+	}
     
     /////////////////////////////////////////////////////////////
     /// types
@@ -469,6 +495,15 @@ namespace mjson
         JSON_ASSERT(isDict());
         return *(value_.pd);
     }
+
+	JSON_INLINE IAllocator* Node::getAllocator() const
+	{
+		if(isPointer())
+		{
+			return const_cast<IAllocator*>(value_.p->getAllocator());
+		}
+		return 0;
+	}
 
     /////////////////////////////////////////////////////////////
     /// 
