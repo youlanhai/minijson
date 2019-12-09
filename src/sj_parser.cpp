@@ -135,7 +135,7 @@ namespace mjson
         if(ret != RC_OK)
         {
             errorCode_ = ret;
-            errorOffset_ = reader.current() - str;
+            errorOffset_ = (int)(reader.current() - str);
 
 #if 0
             int line = 1;

@@ -68,8 +68,8 @@ namespace mjson
         slot->next = slot_;
         slot_ = slot;
 
-        int n = pageSize_ / minAllocSize_;
-        for(int i = 0; i < n; ++i)
+        size_t n = pageSize_ / minAllocSize_;
+        for(size_t i = 0; i < n; ++i)
         {
             MemNode *mp = (MemNode*)(slot->addr + i * minAllocSize_);
             mp->next = slot->freeList;
@@ -80,7 +80,7 @@ namespace mjson
 
     void MemoryPoolAllocator::tryFreeSlot(MemSlot * s)
     {
-        const int pageCount = pageSize_ / minAllocSize_;
+        const int pageCount = (int)(pageSize_ / minAllocSize_);
         int freeNodeCount = 0;
 
         {

@@ -18,6 +18,7 @@ namespace mjson
         ValueSetter& operator = (const T &value)
         {
             node_.setMember(key_, value);
+            return *this;
         }
         
         template<typename T>
