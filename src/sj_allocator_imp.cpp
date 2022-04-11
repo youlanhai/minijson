@@ -1,46 +1,15 @@
 #include "sj_allocator_imp.hpp"
 
-#include "sj_string.hpp"
-#include "sj_array.hpp"
-#include "sj_dict.hpp"
-
-#include <string.h>
+#include <cstring>
+#include <algorithm>
 
 namespace mjson
 {
-    IAllocator* createDefaultAllocator()
-    {
-        IAllocator *p = new RawAllocator();
-        p->retain();
-        return p;
-    }
-
-    RawAllocator::RawAllocator()
-    {
-        
-    }
-
-    RawAllocator::~RawAllocator()
-    {
-        
-    }
-    
-    void* RawAllocator::malloc(size_t size)
-    {
-        return ::malloc(size);
-    }
-    
-    void RawAllocator::free(void *p)
-    {
-        return ::free(p);
-    }
-    
-
     MemoryPoolAllocator::MemoryPoolAllocator(size_t pageSize)
     : slot_(0)
     , pageSize_(pageSize)
     {
-        minAllocSize_ = maxSize(sizeof(String), maxSize(sizeof(Array), sizeof(Dict)));
+        minAllocSize_ = std::max(sizeof(String), std::max(sizeof(Array), sizeof(Dict)));
 
         const size_t align = sizeof(void*);
         minAllocSize_ = ((minAllocSize_ + align - 1) / align) * align;
@@ -56,6 +25,58 @@ namespace mjson
             ::free(p->addr);
             ::free(p);
         }
+    }
+
+    static char s_emptyStrBuffer[1] = { 0 };
+
+    String* MemoryPoolAllocator::createString(const char *str, size_t size, BufferType type)
+    {
+        if (nullptr == str || 0 == size)
+        {
+            str = s_emptyStrBuffer;
+            size = 0;
+            type = BT_NOT_CARE;
+        }
+
+        if (type == BT_MAKE_COPY)
+        {
+            char *buffer = (char*)this->malloc(sizeof(String) + size + 1);
+            char *s = buffer + sizeof(String);
+            memcpy(s, str, size);
+            s[size] = 0;
+            return new(buffer)String(s, size, this);
+        }
+        else
+        {
+            void *p = this->malloc(sizeof(String));
+            return new (p)String(str, size, this);
+        }
+    }
+    
+    ArrayValue* MemoryPoolAllocator::createArray(size_t capacity)
+    {
+        void *p = this->malloc(sizeof(ArrayValue));
+        ArrayValue *ret = new (p)ArrayValue(this);
+        ret->imp.reserve(capacity);
+        return ret;
+    }
+    
+    DictValue* MemoryPoolAllocator::createDict(size_t capacity)
+    {
+        void *p = this->malloc(sizeof(DictValue));
+        DictValue * ret = new (p)DictValue(this);
+        ret->imp.reserve(capacity);
+        return ret;
+    }
+    
+    void MemoryPoolAllocator::freeObject(Object *p)
+    {
+        this->retain();
+        
+        p->~Object();
+        this->free(p);
+        
+        this->release();
     }
     
     MemoryPoolAllocator::MemSlot* MemoryPoolAllocator::newSlot()

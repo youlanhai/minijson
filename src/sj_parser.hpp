@@ -40,6 +40,7 @@ namespace mjson
         IAllocator*     allocator_;
         int 			errorCode_;
         int 			errorOffset_;
+        std::vector<char> stringBuffer_;
     };
 }
 

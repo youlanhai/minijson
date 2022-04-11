@@ -1,6 +1,5 @@
 ﻿#include "sj_writer.hpp"
 #include "sj_node.hpp"
-#include "sj_dict.hpp"
 
 namespace mjson
 {
@@ -126,8 +125,8 @@ namespace mjson
         }
         
         out << "[" << eol_;
-        SizeType n = (SizeType)node.size();
-        for(SizeType i = 0; i < n; ++i)
+        size_t n = node.size();
+        for(size_t i = 0; i < n; ++i)
         {
             out << Tab(depth + 1, tab_);
             writeNode(node[i], out, depth + 1);
@@ -149,15 +148,19 @@ namespace mjson
         
         out << "{" << eol_;
         const Dict *dict = node.asDict();
+        size_t n = dict->size();
         for(Dict::const_iterator it = dict->begin(); it != dict->end(); ++it)
         {
             out << Tab(depth + 1, tab_);
-            writeNode(it->key, out, depth + 1);
+            writeNode(it->first, out, depth + 1);
             out << ": ";
-            writeNode(it->value, out, depth + 1);
+            writeNode(it->second, out, depth + 1);
             
-            if(it + 1 != dict->end())
+            --n;
+            if (n != 0)
+            {
                 out << ',';
+            }
             
             out << eol_;
         }

@@ -52,99 +52,6 @@ void testString()
     p->release();
 }
 
-void testArray()
-{
-    std::cout << "test array..." << std::endl;
-    
-    mjson::Array *p = mjson::IAllocator::getDefaultAllocator()->createArray();
-    p->retain();
-    
-    TEST_EQUAL(p->size() == 0);
-    TEST_EQUAL(p->capacity() == 0);
-    TEST_EQUAL(p->begin() == p->end());
-    
-    p->push(true);
-    p->push(1234567890);
-    p->push(3.14);
-    p->push("Hello World");
-    TEST_EQUAL(p->size() == 4);
-    TEST_EQUAL((*p)[0] == true);
-    TEST_EQUAL((*p)[1] == 1234567890);
-    TEST_EQUAL((*p)[2] == 3.14);
-    TEST_EQUAL(strcmp((*p)[3].asCString(), "Hello World") == 0);
-    
-    TEST_EQUAL(p->capacity() == 4);
-    p->push(mjson::Node());
-    TEST_EQUAL(p->capacity() == 8);
-    
-    (*p)[3] = 1234;
-    (*p)[4] = 1314;
-    TEST_EQUAL((*p)[3] == 1234);
-    TEST_EQUAL((*p)[4] == 1314);
-    
-    // test clone
-    mjson::Array *copy = (mjson::Array*)p->clone();
-    copy->retain();
-    
-    TEST_EQUAL(copy->size() == p->size());
-    TEST_EQUAL(copy->capacity() == p->size());
-    for(int i = 0; i < p->size(); ++i)
-    {
-        TEST_EQUAL((*copy)[i] == (*p)[i]);
-    }
-    
-    // test iterator
-    for(mjson::Array::iterator it = p->begin(), it2 = copy->end();
-        it != p->end() && it2 != copy->end();
-        ++it, ++copy)
-    {
-        TEST_EQUAL(*it == *it2);
-    }
-    
-    copy->release();
-    p->release();
-}
-
-void testDict()
-{
-    std::cout << "test dict..." << std::endl;
-    
-    mjson::Dict *p = mjson::IAllocator::getDefaultAllocator()->createDict();
-    p->retain();
-    
-    (*p)["name"] = "json";
-    (*p)["age"] = 20;
-    (*p)["weight"] = 60.5;
-    TEST_EQUAL(p->size() == 3);
-    TEST_EQUAL(p->capacity() == 4);
-    
-    TEST_EQUAL((*p)["name"] == "json");
-    TEST_EQUAL((*p)["age"] == 20);
-    TEST_EQUAL((*p)["weight"] == 60.5);
-    
-    (*p)["name"] = "smart json";
-    TEST_EQUAL((*p)["name"] == "smart json");
-    
-    mjson::Dict::iterator it = p->find("address");
-    TEST_EQUAL(it == p->end());
-    
-    it = p->find("name");
-    TEST_EQUAL(it != p->end());
-    
-    // test clone
-    mjson::Dict *copy = dynamic_cast<mjson::Dict*>(p->deepClone());
-    TEST_EQUAL(copy->size() == p->size());
-    for(mjson::Dict::iterator it = p->begin(), it2 = copy->begin();
-        it != p->end() && it2 != copy->end();
-        ++it, ++it2)
-    {
-        TEST_EQUAL(it->key == it2->key);
-        TEST_EQUAL(it->value == it2->value);
-    }
-    
-    
-    p->release();
-}
 
 void testNode()
 {
@@ -226,7 +133,7 @@ void testNode()
     {
         TEST_EQUAL(*it != n7);
     }
-    for(mjson::SizeType i = 0; i < n7.size(); ++i)
+    for(size_t i = 0; i < n7.size(); ++i)
     {
         TEST_EQUAL(n7[i] == n7.asArray()->at(i));
     }
@@ -248,7 +155,7 @@ void testNode()
     for(mjson::DictIterator it = n8.memberBegin();
         it != n8.memberEnd(); ++it)
     {
-        TEST_EQUAL(it->value == n8[it->key]);
+        TEST_EQUAL(it->second == n8[it->first]);
     }
 }
 
@@ -353,10 +260,8 @@ void testBinaryParser()
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
-    
+
     testString();
-    testArray();
-    testDict();
     testNode();
     testParser();
     testBinaryParser();

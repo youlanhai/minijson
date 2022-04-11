@@ -1,10 +1,4 @@
 ﻿#include "sj_parser.hpp"
-#include "sj_error_codes.hpp"
-
-#include "sj_string.hpp"
-#include "sj_array.hpp"
-#include "sj_dict.hpp"
-#include "sj_allocator.hpp"
 
 #include <cmath>
 #include <iostream>
@@ -119,15 +113,13 @@ namespace mjson
             return false;
         }
         
-        char *buffer = (char*)allocator_->malloc(length);
-        fread(buffer, 1, length, fp);
+        std::vector<char> buffer(length);
+        fread(buffer.data(), 1, length, fp);
         
         fclose(fp);
         fp = NULL;
 
-        bool ret = parseFromData(buffer, length);
-        allocator_->free(buffer);
-        return ret;
+        return parseFromData(buffer.data(), length);
     }
     
     bool Parser::parseFromData(const char *str, size_t length)
@@ -269,7 +261,7 @@ namespace mjson
                 break;
             }
         
-            node.rawDict()->append(key, value);
+            node.setMember(key, value);
             
             ch = skipWhiteSpace(reader);
             if(ch == '}')
@@ -306,7 +298,7 @@ namespace mjson
                 break;
             }
         
-            node.rawArray()->push(child);
+            node.pushBack(child);
             
             char ch = skipWhiteSpace(reader);
             if(ch == ']')
@@ -444,7 +436,8 @@ namespace mjson
         const char *end = reader.current() - 1; // *end = '"'
     
         int ret = RC_OK;
-        char* buffer = (char*)allocator_->malloc(end - begin + 1);
+        stringBuffer_.resize(end - begin + 1);
+        char *buffer = stringBuffer_.data();
         char *p = buffer;
         for(; begin < end && ret == RC_OK; ++p, ++begin)
         {
@@ -459,7 +452,7 @@ namespace mjson
             }
         }
         *p = '\0';
-        node = allocator_->createString(buffer, p - buffer, BT_MANAGE);
+        node = allocator_->createString(buffer, p - buffer, BT_MAKE_COPY);
         return RC_OK;
     }
     

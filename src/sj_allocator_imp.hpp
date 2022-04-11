@@ -1,24 +1,10 @@
 #ifndef SMARTJSON_ALLOCATOR_IMP_HPP
 #define SMARTJSON_ALLOCATOR_IMP_HPP
 
-#include "sj_allocator.hpp"
+#include "sj_node.hpp"
 
 namespace mjson
 {
-    /**
-     *  Allocate memory from os directly. thread safe.
-     *  This is the default allocator.
-     */
-    class RawAllocator : public IAllocator
-    {
-    public:
-        RawAllocator();
-        ~RawAllocator();
-        
-        virtual void*   malloc(size_t size);
-        virtual void    free(void *p);
-    };
-    
     /**
      *  Allocate small memorty by using memory pool.
      *  May be efficent, but not thread safe.
@@ -30,8 +16,14 @@ namespace mjson
         explicit MemoryPoolAllocator(size_t pageSize = 100 * 1024);
         ~MemoryPoolAllocator();
         
-        virtual void*   malloc(size_t size);
-        virtual void    free(void *p);
+        void*   malloc(size_t size);
+        void    free(void *p);
+
+        String* createString(const char *str, size_t size, BufferType type) override;
+        ArrayValue* createArray(size_t capacity) override;
+        DictValue* createDict(size_t capacity) override;
+        
+        void freeObject(Object *p) override;
         
     private:
         struct MemNode

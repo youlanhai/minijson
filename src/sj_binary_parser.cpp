@@ -1,22 +1,29 @@
 #include "sj_binary_parser.hpp"
-#include "sj_binary_reader.hpp"
-#include "sj_binary_types.hpp"
-#include "sj_error_codes.hpp"
-
-#include "sj_allocator.hpp"
-#include "sj_array.hpp"
-#include "sj_dict.hpp"
 
 const char MAGIC[5] = "\0\0ab";
 const uint32_t VERSION = 0x0001;
 
 namespace mjson
 {
+    const char* BinaryReader::readBytes(size_t length)
+    {
+        if(p_ + length <= end_)
+        {
+            const char *ret = p_;
+            p_ += length;
+            return ret;
+        }
+        else
+        {
+            p_ = end_;
+            return 0;
+        }
+    }
+
     BinaryParser::BinaryParser(IAllocator *allocator)
     : allocator_(allocator)
     , errorCode_(RC_OK)
     , errorOffset_(0)
-    , stringTable_(NULL)
     {
         if(allocator_ == NULL)
         {
@@ -42,15 +49,13 @@ namespace mjson
         long length = ftell(fp);
         fseek(fp, 0, SEEK_SET);
         
-        char *buffer = (char*)allocator_->malloc(length);
-        fread(buffer, 1, length, fp);
+        std::vector<char> buffer(length);
+        fread(buffer.data(), 1, length, fp);
         
         fclose(fp);
         fp = NULL;
 
-        bool ret = parseFromData(buffer, length);
-        allocator_->free(buffer);
-        return ret;
+        return parseFromData(buffer.data(), length);
     }
 
     bool BinaryParser::parseFromData(const char *str, size_t length)
@@ -60,8 +65,7 @@ namespace mjson
         errorCode_ = RC_OK;
         errorOffset_ = 0;
 
-        stringTable_ = allocator_->createArray();
-        stringTable_->retain();
+        stringTable_.clear();
 
         BinaryReader reader(str, length);
         
@@ -91,8 +95,7 @@ namespace mjson
             ret = true;
         }while(0);
         
-        stringTable_->release();
-        stringTable_ = NULL;
+        Array().swap(stringTable_);
         return ret;
     }
 
@@ -190,15 +193,15 @@ namespace mjson
         Node node;
         parseValue(node, reader);
         
-        int size = node.asInt();
-        stringTable_->reserve(size);
+        size_t size = node.as<size_t>();
+        stringTable_.reserve(size);
         
-        for(int i = 0; i < size; ++i)
+        for(size_t i = 0; i < size; ++i)
         {
             size_t length = reader.readNumber<uint16_t>();
             if(length == 0)
             {
-                stringTable_->push(Node("", 0, allocator_));
+                stringTable_.push_back(Node("", 0, allocator_));
             }
             else
             {
@@ -208,7 +211,7 @@ namespace mjson
                     errorCode_ = RC_INVALID_STRING;
                     return false;
                 }
-                stringTable_->push(Node(str, length, allocator_));
+                stringTable_.push_back(Node(str, length, allocator_));
             }
         }
         return true;
@@ -216,12 +219,12 @@ namespace mjson
     
     bool BinaryParser::parseString(Node &node, size_t size, BinaryReader &reader)
     {
-        if(size > stringTable_->size())
+        if(size > stringTable_.size())
         {
             errorCode_ = RC_INVALID_STRING;
             return false;
         }
-        node = stringTable_->at(size);
+        node = stringTable_[size];
         return true;
     }
     
@@ -252,7 +255,7 @@ namespace mjson
             {
                 return false;
             }
-            dict->append(key, val);
+            (*dict)[key] = val;
         }
         return true;
     }
