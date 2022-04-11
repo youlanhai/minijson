@@ -28,10 +28,10 @@ void testString()
 {
     std::cout << "test string..." << std::endl;
     
-    mjson::IAllocator *allocator = mjson::IAllocator::getDefaultAllocator();
+    smartjson::IAllocator *allocator = smartjson::IAllocator::getDefaultAllocator();
     
     std::string str("Hello World");
-    mjson::String *p = allocator->createString(str.c_str(), str.size(), mjson::BT_MAKE_COPY);
+    smartjson::StringValue *p = allocator->createString(str.c_str(), str.size(), smartjson::BT_MAKE_COPY);
     p->retain();
     
     TEST_EQUAL(p->getRefCount() == 1);
@@ -39,12 +39,12 @@ void testString()
     TEST_EQUAL(str == p->data());
     TEST_EQUAL(p->compare(str.c_str()) == 0);
     
-    mjson::String *p2 = (mjson::String*)p->clone();
+    smartjson::StringValue *p2 = (smartjson::StringValue*)p->clone();
     p2->retain();
     TEST_EQUAL(p->compare(p2) == 0);
     p2->release();
     
-    mjson::String *p3 = (mjson::String*)p->deepClone();
+    smartjson::StringValue *p3 = (smartjson::StringValue*)p->deepClone();
     p3->retain();
     TEST_EQUAL(p->compare(p3) == 0);
     p3->release();
@@ -57,25 +57,25 @@ void testNode()
 {
     std::cout << "test node..." << std::endl;
     
-    mjson::Node n0;
+    smartjson::Node n0;
     TEST_EQUAL(n0.isNull());
-    TEST_EQUAL(n0 == mjson::Node());
+    TEST_EQUAL(n0 == smartjson::Node());
     
-    mjson::Node n1(true);
+    smartjson::Node n1(true);
     TEST_EQUAL(n1.isBool());
     TEST_EQUAL(n1.asBool() == true);
     
-    mjson::Node n2(1234567890);
+    smartjson::Node n2(1234567890);
     TEST_EQUAL(n2.isInt());
     TEST_EQUAL(n2.isNumber());
     TEST_EQUAL(n2.asInteger() == 1234567890);
     
-    mjson::Node n3(1234.5f);
+    smartjson::Node n3(1234.5f);
     TEST_EQUAL(n3.isFloat());
     TEST_EQUAL(n3.isNumber());
     TEST_EQUAL(n3.asFloat() == 1234.5);
     
-    mjson::Node n4(1234.5);
+    smartjson::Node n4(1234.5);
     TEST_EQUAL(n4.isFloat());
     TEST_EQUAL(n4.isNumber());
     TEST_EQUAL(n4.asFloat() == 1234.5);
@@ -84,7 +84,7 @@ void testNode()
     TEST_EQUAL(n4 != n1);
     TEST_EQUAL(n4 != n0);
     
-    mjson::Node n5("Hello World");
+    smartjson::Node n5("Hello World");
     TEST_EQUAL(n5.isString());
     TEST_EQUAL(n5.isPointer());
     TEST_EQUAL(n5.asString() != 0);
@@ -100,7 +100,7 @@ void testNode()
     n5 = n5;
     TEST_EQUAL(n5.asString()->getRefCount() == 1);
     
-    mjson::Node n6(n5);
+    smartjson::Node n6(n5);
     TEST_EQUAL(n6.isString());
     TEST_EQUAL(n6 == n5);
     TEST_EQUAL(n6.asString() == n5.asString());
@@ -112,7 +112,7 @@ void testNode()
     TEST_EQUAL(n6.asString() == n5.asString());
     
     // test array
-    mjson::Node n7;
+    smartjson::Node n7;
     n7.setArray();
     TEST_EQUAL(n7.isArray());
     n7.reserve(7);
@@ -128,7 +128,7 @@ void testNode()
     TEST_EQUAL(n7.asArray()->size() == n7.size());
     TEST_EQUAL(n7.size() == 7);
     TEST_EQUAL(n7[0u] == n0);
-    for(mjson::ArrayIterator it = n7.begin();
+    for(smartjson::ArrayIterator it = n7.begin();
         it != n7.end(); ++it)
     {
         TEST_EQUAL(*it != n7);
@@ -139,7 +139,7 @@ void testNode()
     }
     
     // test dict
-    mjson::Node n8;
+    smartjson::Node n8;
     n8.setDict();
     TEST_EQUAL(n8.isDict());
     n8.setMember("0", n0);
@@ -152,7 +152,7 @@ void testNode()
     n8.setMember("7", n7);
     TEST_EQUAL(n8.size() == 8);
     TEST_EQUAL(n8.size() == n8.rawDict()->size());
-    for(mjson::DictIterator it = n8.memberBegin();
+    for(smartjson::DictIterator it = n8.memberBegin();
         it != n8.memberEnd(); ++it)
     {
         TEST_EQUAL(it->second == n8[it->first]);
@@ -178,13 +178,13 @@ void testParser()
     "\"pos\"    : {\"x\" : 100.55, \"y\" : 200.22}\n"
     "}";
     
-    mjson::Parser parser(new mjson::MemoryPoolAllocator());
+    smartjson::Parser parser(new smartjson::MemoryPoolAllocator());
     bool ret = parser.parseFromData(json, strlen(json));
     std::cout << "parse result:" << parser.getErrorCode() << std::endl;
     TEST_EQUAL(ret == true);
     
-    mjson::Node root = parser.getRoot();
-    const mjson::Node &croot = root;
+    smartjson::Node root = parser.getRoot();
+    const smartjson::Node &croot = root;
     TEST_EQUAL(croot["name"] == "json");
     TEST_EQUAL(croot["age"] == 20);
     TEST_EQUAL(croot["weight"] == 60.5);
@@ -196,7 +196,7 @@ void testParser()
     TEST_EQUAL(almoseEqual(croot["f3"].asFloat(), -0.314e10));
     TEST_EQUAL(almoseEqual(croot["f4"].asFloat(), -0.314e-10));
     
-    mjson::Node array = root["array"];
+    smartjson::Node array = root["array"];
     TEST_EQUAL(array.isArray());
     TEST_EQUAL(array[0u] == 0);
     TEST_EQUAL(array[1] == true);
@@ -207,13 +207,13 @@ void testParser()
     TEST_EQUAL(array[6] == 3.14);
     TEST_EQUAL(array[7] == "hello\n world!");
     
-    mjson::Node pos = root["pos"];
+    smartjson::Node pos = root["pos"];
     TEST_EQUAL(pos.isDict());
     TEST_EQUAL(pos["x"] == 100.55);
     TEST_EQUAL(pos["y"] == 200.22);
     
     std::cout << "print json:" << std::endl;
-    mjson::Writer writer;
+    smartjson::Writer writer;
     writer.write(root, std::cout);
 }
 
@@ -238,13 +238,13 @@ void testBinaryParser()
     fclose(fp);
     fp = NULL;
     
-    mjson::BinaryParser parser;
+    smartjson::BinaryParser parser;
     if(parser.parseFromData(buffer, length))
     {
         std::ofstream of("test_sheet.json");
         if(!of.bad())
         {
-            mjson::Writer writer;
+            smartjson::Writer writer;
             writer.write(parser.getRoot(), of);
             of.close();
         }

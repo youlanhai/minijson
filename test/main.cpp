@@ -32,15 +32,15 @@ int main(int argc, char** argv)
         outputFile = inputFile + ".out";
     }
     
-    mjson::Parser parser;
-    if(mjson::RC_OK != parser.parseFromFile(inputFile.c_str()))
+    smartjson::Parser parser;
+    if(smartjson::RC_OK != parser.parseFromFile(inputFile.c_str()))
     {
         std::cout << "Parse json Failed" << std::endl;
         return 0;
     }
     
     std::ofstream of(outputFile.c_str());
-    mjson::Writer writer;
+    smartjson::Writer writer;
     writer.write(parser.getRoot(), of);
     of.close();
     return 0;
