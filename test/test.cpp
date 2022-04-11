@@ -159,6 +159,17 @@ void testNode()
     }
 }
 
+struct Vector2
+{
+    float x, y;
+};
+
+void fromNode(Vector2 &v, const smartjson::Node &node)
+{
+    v.x = node.getMember<float>("x");
+    v.y = node.getMember<float>("y");
+}
+
 void testParser()
 {
     std::cout << "test parser..." << std::endl;
@@ -211,6 +222,14 @@ void testParser()
     TEST_EQUAL(pos.isDict());
     TEST_EQUAL(pos["x"] == 100.55);
     TEST_EQUAL(pos["y"] == 200.22);
+
+    Vector2 v2 = pos.as<Vector2>();
+    TEST_EQUAL(almoseEqual(v2.x, 100.55));
+    TEST_EQUAL(almoseEqual(v2.y, 200.22));
+
+    Vector2 v2x = root.getMember<Vector2>("pos");
+    TEST_EQUAL(almoseEqual(v2x.x, 100.55));
+    TEST_EQUAL(almoseEqual(v2x.y, 200.22));
     
     std::cout << "print json:" << std::endl;
     smartjson::Writer writer;

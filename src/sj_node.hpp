@@ -404,6 +404,9 @@ public: // dict
     const Node& operator[] (const std::string &key) const;
     const Node& operator[] (const Node &key) const;
 
+    template <typename T>
+    T getMember(const char *key, T defaultValue = T()) const;
+
 public:
      static Node s_null;
 
@@ -524,6 +527,7 @@ inline void toNode(Node &node, double value)    { node.setFloat(static_cast<Floa
 inline void toNode(Node &node, const char *value){ node.setString(value); }
 inline void toNode(Node &node, const IObjectValue *value){ node.setObject(value); }
 inline void toNode(Node &node, const std::string &value){ node.setString(value.c_str(), value.size()); }
+inline void toNode(Node &node, const Node &value) { node = value; }
 
 // parse value from node
 
@@ -538,6 +542,7 @@ inline void fromNode(int64_t &value, const Node &node)  { value = static_cast<in
 inline void fromNode(uint64_t &value, const Node &node) { value = static_cast<uint64_t>(node.asUInteger()); }
 inline void fromNode(float &value, const Node &node)    { value = static_cast<float>(node.asFloat()); }
 inline void fromNode(double &value, const Node &node)   { value = static_cast<double>(node.asFloat()); }
+inline void fromNode(Node &value, const Node &node) { value = node; }
 
 inline void fromNode(std::string &value, const Node &node)
 {
@@ -927,52 +932,6 @@ inline bool Node::operator != (const Node &value) const
     return !(*this == value);
 }
 
-inline const Node& Node::operator[] (const char *key) const
-{
-    if (isDict())
-    {
-        ConstDictIterator it = findMember(key);
-        if (it != memberEnd())
-        {
-            return it->second;
-        }
-    }
-    else if (isArray() && 0 == key) // node[0]会进入了当前函数
-    {
-        if (!refArray().empty())
-        {
-            return refArray()[0];
-        }
-    }
-    return nullValue();
-}
-
-inline const Node& Node::operator[] (const std::string &key) const
-{
-    if (isDict())
-    {
-        ConstDictIterator it = findMember(key);
-        if (it != memberEnd())
-        {
-            return it->second;
-        }
-    }
-    return nullValue();
-}
-
-inline const Node& Node::operator[] (const Node &key) const
-{
-    if (isDict())
-    {
-        ConstDictIterator it = findMember(key);
-        if (it != memberEnd())
-        {
-            return it->second;
-        }
-    }
-    return nullValue();
-}
-
 /////////////////////////////////////////////////////////////
 /// array
 /////////////////////////////////////////////////////////////
@@ -1210,6 +1169,65 @@ inline void Node::removeMember(const Node &key)
 {
     SJ_ASSERT(isDict());
     value_.pd->remove(key);
+}
+
+template <typename T>
+T Node::getMember(const char *key, T defaultValue) const
+{
+    ConstDictIterator it = findMember(key);
+    if (it != memberEnd())
+    {
+        T ret;
+        fromNode(ret, it->second);
+        return ret;
+    }
+    return defaultValue;
+}
+
+inline const Node& Node::operator[] (const char *key) const
+{
+    if (isDict())
+    {
+        ConstDictIterator it = findMember(key);
+        if (it != memberEnd())
+        {
+            return it->second;
+        }
+    }
+    else if (isArray() && 0 == key) // node[0]会进入了当前函数
+    {
+        if (!refArray().empty())
+        {
+            return refArray()[0];
+        }
+    }
+    return nullValue();
+}
+
+inline const Node& Node::operator[] (const std::string &key) const
+{
+    if (isDict())
+    {
+        ConstDictIterator it = findMember(key);
+        if (it != memberEnd())
+        {
+            return it->second;
+        }
+    }
+    return nullValue();
+}
+
+inline const Node& Node::operator[] (const Node &key) const
+{
+    if (isDict())
+    {
+        ConstDictIterator it = findMember(key);
+        if (it != memberEnd())
+        {
+            return it->second;
+        }
+    }
+    return nullValue();
 }
 
 NS_SMARTJSON_END
