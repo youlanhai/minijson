@@ -66,7 +66,6 @@ enum BufferType
 {
     BT_NOT_CARE, // IObjectValue use the buffer freely, caller free buffer
     BT_MAKE_COPY, // IObjectValue should make a copy of the buffer
-    BT_MANAGE, // IObjectValue should free this buffer
 };
 
 enum ResultCode
@@ -233,7 +232,6 @@ private:
     const char*     str_;
     size_t          size_;
     mutable size_t  hash_;
-    BufferType      bufferType_;
 };
 
 class Node
@@ -410,6 +408,10 @@ public:
      static Node s_null;
 
 private:
+
+    Node createTempKey(const char *str) const;
+    Node createTempKey(const std::string &str) const;
+
     struct Value
     {
         union
@@ -587,6 +589,12 @@ inline Node::Node(const char *str, size_t size, IAllocator *allocator)
     : type_(T_NULL)
 {
     setString(str, size, allocator);
+}
+
+inline Node::Node(const std::string &str, IAllocator *allocator)
+    : type_(T_NULL)
+{
+    setString(str.c_str(), str.size(), allocator);
 }
 
 template <typename T>
@@ -886,11 +894,6 @@ inline void Node::clear()
     }
 }
 
-inline bool Node::operator != (const Node &value) const
-{
-    return !(*this == value);
-}
-
 inline Node Node::clone() const
 {
     Node ret;
@@ -919,7 +922,32 @@ inline Node Node::deepClone() const
     return  ret;
 }
 
+inline bool Node::operator != (const Node &value) const
+{
+    return !(*this == value);
+}
+
 inline const Node& Node::operator[] (const char *key) const
+{
+    if (isDict())
+    {
+        ConstDictIterator it = findMember(key);
+        if (it != memberEnd())
+        {
+            return it->second;
+        }
+    }
+    else if (isArray() && 0 == key) // node[0]会进入了当前函数
+    {
+        if (!refArray().empty())
+        {
+            return refArray()[0];
+        }
+    }
+    return nullValue();
+}
+
+inline const Node& Node::operator[] (const std::string &key) const
 {
     if (isDict())
     {
@@ -1076,11 +1104,28 @@ inline ConstDictIterator Node::memberEnd() const
     return refDict().end();
 }
 
+inline Node Node::createTempKey(const char *str) const
+{
+    StringValue *s = value_.pd->getAllocator()->createString(str, strlen(str), BT_NOT_CARE);
+    return Node(s);
+}
+
+inline Node Node::createTempKey(const std::string &str) const
+{
+    StringValue *s = value_.pd->getAllocator()->createString(str.c_str(), str.size(), BT_NOT_CARE);
+    return Node(s);
+}
+
 inline DictIterator Node::findMember(const char *key)
 {
     SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_NOT_CARE);
-    return refDict().find(Node(s));
+    return refDict().find(createTempKey(key));
+}
+
+inline DictIterator Node::findMember(const std::string &key)
+{
+    SJ_ASSERT(isDict());
+    return refDict().find(createTempKey(key));
 }
 
 inline DictIterator Node::findMember(const Node &key)
@@ -1092,8 +1137,13 @@ inline DictIterator Node::findMember(const Node &key)
 inline ConstDictIterator Node::findMember(const char *key) const
 {
     SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_NOT_CARE);
-    return refDict().find(Node(s));
+    return refDict().find(createTempKey(key));
+}
+
+inline ConstDictIterator Node::findMember(const std::string &key) const
+{
+    SJ_ASSERT(isDict());
+    return refDict().find(createTempKey(key));
 }
 
 inline ConstDictIterator Node::findMember(const Node &key) const
@@ -1107,6 +1157,11 @@ inline bool Node::hasMember(const char *key) const
     return findMember(key) != refDict().end();
 }
 
+inline bool Node::hasMember(const std::string &key) const
+{
+    return findMember(key) != refDict().end();
+}
+
 inline bool Node::hasMember(const Node &key) const
 {
     return findMember(key) != refDict().end();
@@ -1116,6 +1171,14 @@ inline void Node::setMember(const char *key, const Node &val)
 {
     SJ_ASSERT(isDict());
     StringValue *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_MAKE_COPY);
+    refDict()[Node(s)] = val;
+}
+
+inline void Node::setMember(const std::string &key, const Node &val)
+{
+    SJ_ASSERT(isDict());
+    // copy string buffer
+    StringValue *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_MAKE_COPY);
     refDict()[Node(s)] = val;
 }
 
@@ -1134,8 +1197,13 @@ inline void Node::eraseMember(DictIterator it)
 inline void Node::removeMember(const char *key)
 {
     SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_NOT_CARE);
-    value_.pd->remove(Node(s));
+    value_.pd->remove(createTempKey(key));
+}
+
+inline void Node::removeMember(const std::string &key)
+{
+    SJ_ASSERT(isDict());
+    value_.pd->remove(createTempKey(key));
 }
 
 inline void Node::removeMember(const Node &key)
@@ -1144,53 +1212,6 @@ inline void Node::removeMember(const Node &key)
     value_.pd->remove(key);
 }
 
-/////////////////////////////////////////////////////////////
-/// std::string
-/////////////////////////////////////////////////////////////
-inline Node::Node(const std::string &value, IAllocator *allocator)
-    : type_(T_NULL)
-{
-    setString(value.c_str(), value.size(), allocator);
-}
-
-inline const Node& Node::operator[] (const std::string &key) const
-{
-    return operator[](key.c_str());
-}
-
-inline DictIterator Node::findMember(const std::string &key)
-{
-    SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_NOT_CARE);
-    return refDict().find(Node(s));
-}
-
-inline ConstDictIterator Node::findMember(const std::string &key) const
-{
-    SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_NOT_CARE);
-    return refDict().find(Node(s));
-}
-
-inline bool Node::hasMember(const std::string &key) const
-{
-    return findMember(key) != refDict().end();
-}
-
-inline void Node::setMember(const std::string &key, const Node &val)
-{
-    SJ_ASSERT(isDict());
-    // copy string buffer
-    StringValue *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_MAKE_COPY);
-    refDict()[Node(s)] = val;
-}
-
-inline void Node::removeMember(const std::string &key)
-{
-    SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_NOT_CARE);
-    value_.pd->remove(Node(s));
-}
 NS_SMARTJSON_END
 
 namespace std

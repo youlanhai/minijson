@@ -226,7 +226,6 @@ StringValue::StringValue(const char *str, size_t size, IAllocator *allocator)
     , str_(str)
     , size_(size)
     , hash_((size_t)-1)
-    , bufferType_(BT_NOT_CARE)
 {
 }
 
