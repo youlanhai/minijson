@@ -157,6 +157,12 @@ void testNode()
     {
         TEST_EQUAL(it->second == n8[it->first]);
     }
+
+    n8.setMember("a/b", 123);
+    TEST_EQUAL(n8.hasMember("a/b"));
+    TEST_EQUAL(n8.getMember<int>("a/b") == 123);
+    TEST_EQUAL(n8.removeMember("a/b"));
+    TEST_EQUAL(!n8.hasMember("a/b"));
 }
 
 struct Vector2

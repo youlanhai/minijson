@@ -197,21 +197,9 @@ public:
     ValueType getType() const { return T_STRING; }
 
     int compare(const char *str, size_t length) const;
-
-    int compare(const char *str) const
-    {
-        return compare(str, strlen(str));
-    }
-
-    int compare(const StringValue *p) const
-    {
-        return compare(p->str_, p->size_);
-    }
-
-    int compare(const std::string &str) const
-    {
-        return compare(str.c_str(), str.size());
-    }
+    int compare(const char *str) const { return compare(str, strlen(str)); }
+    int compare(const StringValue *p) const { return compare(p->str_, p->size_); }
+    int compare(const std::string &str) const { return compare(str.c_str(), str.size()); }
     
     //string is constant, deosn't need clone.
     IObjectValue* clone() const { return const_cast<StringValue*>(this); }
@@ -227,6 +215,7 @@ public:
     }
 
     size_t computeHash() const;
+    void to(std::string &output) { output.assign(str_, size_); }
     
 private:
     const char*     str_;
@@ -253,17 +242,15 @@ public:
 
     explicit Node(ValueType type, IAllocator *allocator = 0);
 
-    void safeRelease();
-
     ValueType getType() const { return type_; }
 
-    bool isNull() const { return type_ == T_NULL; }
-    bool isBool() const { return type_ == T_BOOL; }
-    bool isInt() const { return type_ == T_INT; }
-    bool isFloat() const { return type_ == T_FLOAT; }
+    bool isNull()   const { return type_ == T_NULL; }
+    bool isBool()   const { return type_ == T_BOOL; }
+    bool isInt()    const { return type_ == T_INT; }
+    bool isFloat()  const { return type_ == T_FLOAT; }
     bool isString() const { return type_ == T_STRING; }
-    bool isArray() const { return type_ == T_ARRAY; }
-    bool isDict() const { return type_ == T_DICT; }
+    bool isArray()  const { return type_ == T_ARRAY; }
+    bool isDict()   const { return type_ == T_DICT; }
     bool isNumber() const { return type_ == T_INT || type_ == T_FLOAT; }
     bool isPointer() const { return type_ > T_POINTER; }
 
@@ -289,15 +276,15 @@ public:
     Array*      rawArray() const;
     Dict*       rawDict() const;
 
-    StringValue*     rawString();
+    StringValue* rawString();
     Array*      rawArray();
     Dict*       rawDict();
 
-    const StringValue&   refString() const;
-    const Array&    refArray() const;
-    const Dict&     refDict() const;
+    const StringValue& refString() const;
+    const Array& refArray() const;
+    const Dict&  refDict() const;
 
-    StringValue&     refString();
+    StringValue& refString();
     Array&      refArray();
     Dict&       refDict();
 
@@ -320,7 +307,7 @@ public:
     const Node& operator = (Node &&value);
 
     bool operator == (const Node &value) const;
-    bool operator != (const Node &value) const;
+    bool operator != (const Node &value) const { return !(*this == value); }
     bool operator < (const Node &value) const;
 
     Node clone() const;
@@ -368,7 +355,7 @@ public: // array
      *  key is in dict, otherwise null value will be returned.
      */
     Node& operator[] (size_t index);
-    const Node& operator[] (size_t index) const;
+    const Node& operator[] (size_t index) const { return const_cast<Node*>(this)->operator[](index); }
 
 public: // dict
     DictIterator memberBegin();
@@ -385,19 +372,31 @@ public: // dict
     ConstDictIterator findMember(const std::string &key) const;
     ConstDictIterator findMember(const Node &key) const;
 
-    bool hasMember(const char *key) const;
-    bool hasMember(const std::string &key) const;
-    bool hasMember(const Node &key) const;
-
-    void setMember(const char *key, const Node &val);
-    void setMember(const std::string &key, const Node &val);
-    void setMember(const Node &key, const Node &val);
-
     void eraseMember(DictIterator it);
 
-    void removeMember(const char *key);
-    void removeMember(const std::string &key);
-    void removeMember(const Node &key);
+    // 以下对dict操作的接口，key都支持路径形式，方便递归操作
+
+    /** 支持路径形式的key，递归查找子结点
+     *  @param keyPath   key以'/'分割。例如: 'a/b/c'
+     *  @param keyLength key字符串的长度
+     *  @return 如果未找到子节点，或者路径上的节点不是字典类型，则返回空节点的引用；否则，正常返回子节点的引用。
+     */
+    const Node& findMemberByPath(const char *keyPath, size_t keyLength) const;
+    bool hasMemberByPath(const char *keyPath, size_t keyLength) const;
+    bool setMemberByPath(const char *keyPath, size_t keyLength, const Node &val);
+    bool removeMemberByPath(const char *keyPath, size_t keyLength);
+
+    bool hasMember(const char *key) const { return hasMemberByPath(key, strlen(key)); }
+    bool hasMember(const std::string &key) const { return hasMemberByPath(key.c_str(), key.size()); }
+    bool hasMember(const Node &key) const;
+
+    void setMember(const char *key, const Node &val) { setMemberByPath(key, strlen(key), val); }
+    void setMember(const std::string &key, const Node &val) { setMemberByPath(key.c_str(), key.size(), val); }
+    void setMember(const Node &key, const Node &val);
+
+    bool removeMember(const char *key) { return removeMemberByPath(key, strlen(key)); }
+    bool removeMember(const std::string &key) { return removeMemberByPath(key.c_str(), key.size()); }
+    bool removeMember(const Node &key);
 
     // when the key was not found, null value will be returned.
     const Node& operator[] (const char *key) const;
@@ -411,6 +410,8 @@ public:
      static Node s_null;
 
 private:
+
+    void safeRelease();
 
     Node createTempKey(const char *str) const;
     Node createTempKey(const std::string &str) const;
@@ -475,13 +476,15 @@ public:
         : IObjectValue(allocator)
     {}
 
-    void remove(const Node &value)
+    bool remove(const Node &value)
     {
         auto it = imp.find(value);
         if (it != imp.end())
         {
             imp.erase(it);
+            return true;
         }
+        return false;
     }
 
     ValueType getType() const override { return T_DICT; }
@@ -548,8 +551,7 @@ inline void fromNode(std::string &value, const Node &node)
 {
     if (node.isString())
     {
-        StringValue *p = node.rawString();
-        value.assign(p->data(), p->size());
+        node.rawString()->to(value);
     }
     else
     {
@@ -574,20 +576,6 @@ inline Node::Node(Node &&other)
     , type_(other.type_)
 {
     other.type_ = T_NULL;
-}
-
-inline Node::Node(IObjectValue *p)
-{
-    if (p != nullptr)
-    {
-        p->retain();
-        type_ = p->getType();
-    }
-    else
-    {
-        type_ = T_NULL;
-    }
-    value_.p = p;
 }
 
 inline Node::Node(const char *str, size_t size, IAllocator *allocator)
@@ -656,31 +644,6 @@ inline void Node::setFloat(Float v)
     value_.f = v;
 }
 
-
-inline const Node& Node::operator = (const Node &other)
-{
-    if (other.isPointer())
-    {
-        return *this = other.value_.p;
-    }
-    else
-    {
-        safeRelease();
-        type_ = other.type_;
-        value_ = other.value_;
-        return *this;
-    }
-}
-
-inline const Node& Node::operator = (Node &&other)
-{
-    safeRelease();
-    type_ = other.type_;
-    value_ = other.value_;
-    other.type_ = T_NULL;
-    return *this;
-}
-
 template <typename T>
 const Node& Node::operator = (const T& value)
 {
@@ -702,6 +665,20 @@ inline T Node::as() const
 inline bool Node::asBool() const
 {
     return isBool() ? value_.b : false;
+}
+
+inline Integer Node::asInteger() const
+{
+    if (isInt()) return value_.i;
+    if (isFloat()) return static_cast<Integer>(value_.f);
+    return 0;
+}
+
+inline UInteger Node::asUInteger() const
+{
+    if (isInt()) return value_.u;
+    if (isFloat()) return static_cast<UInteger>(static_cast<Integer>(value_.f));
+    return 0;
 }
 
 inline Float Node::asFloat() const
@@ -756,7 +733,6 @@ inline Float Node::rawFloat() const
 
 inline const char* Node::rawCString() const
 {
-    SJ_ASSERT(isString());
     return rawString()->data();
 }
 
@@ -847,157 +823,60 @@ inline IAllocator* Node::getAllocator() const
 }
 
 /////////////////////////////////////////////////////////////
-/// 
-/////////////////////////////////////////////////////////////
-inline size_t Node::size() const
-{
-    if (isArray())
-    {
-        return refArray().size();
-    }
-    else if (isDict())
-    {
-        return refDict().size();
-    }
-    else if (isString())
-    {
-        return value_.ps->size();
-    }
-    return 0;
-}
-
-inline size_t Node::capacity() const
-{
-    if (isArray())
-    {
-        return refArray().capacity();
-    }
-    return 0;
-}
-
-inline void Node::reserve(size_t capacity)
-{
-    if (isArray())
-    {
-        refArray().reserve(capacity);
-    }
-    else if (isDict())
-    {
-        refDict().reserve(capacity);
-    }
-}
-
-inline void Node::clear()
-{
-    if (isArray())
-    {
-        refArray().clear();
-    }
-    else if (isDict())
-    {
-        refDict().clear();
-    }
-}
-
-inline Node Node::clone() const
-{
-    Node ret;
-
-    ret.type_ = type_;
-    ret.value_ = value_;
-    if (isPointer())
-    {
-        ret.value_.p = value_.p->clone();
-        ret.value_.p->retain();
-    }
-    return ret;
-}
-
-inline Node Node::deepClone() const
-{
-    Node ret;
-
-    ret.type_ = type_;
-    ret.value_ = value_;
-    if (isPointer())
-    {
-        ret.value_.p = value_.p->deepClone();
-        ret.value_.p->retain();
-    }
-    return  ret;
-}
-
-inline bool Node::operator != (const Node &value) const
-{
-    return !(*this == value);
-}
-
-/////////////////////////////////////////////////////////////
 /// array
 /////////////////////////////////////////////////////////////
 inline ArrayIterator Node::begin()
 {
-    SJ_ASSERT(isArray());
     return refArray().begin();
 }
 
 inline ConstArrayIterator Node::begin() const
 {
-    SJ_ASSERT(isArray());
     return refArray().begin();
 }
 
 inline ArrayIterator Node::end()
 {
-    SJ_ASSERT(isArray());
     return refArray().end();
 }
 
 inline ConstArrayIterator Node::end() const
 {
-    SJ_ASSERT(isArray());
     return refArray().end();
 }
 
 inline void Node::resize(size_t size)
 {
-    SJ_ASSERT(isArray());
     refArray().resize(size);
 }
 
 inline Node& Node::front()
 {
-    SJ_ASSERT(isArray());
     return refArray().front();
 }
 
 inline const Node& Node::front() const
 {
-    SJ_ASSERT(isArray());
     return refArray().front();
 }
 
 inline Node& Node::back()
 {
-    SJ_ASSERT(isArray());
     return refArray().back();
 }
 
 inline const Node& Node::back() const
 {
-    SJ_ASSERT(isArray());
     return refArray().back();
 }
 
 inline void Node::pushBack(const Node &node)
 {
-    SJ_ASSERT(isArray());
     refArray().push_back(node);
 }
 
 inline void Node::popBack()
 {
-    SJ_ASSERT(isArray());
     refArray().pop_back();
 }
 
@@ -1015,13 +894,11 @@ inline ConstArrayIterator Node::find(const Node &node) const
 
 inline void Node::insert(ArrayIterator it, const Node &node)
 {
-    SJ_ASSERT(isArray());
     refArray().insert(it, node);
 }
 
 inline void Node::erase(ArrayIterator it)
 {
-    SJ_ASSERT(isArray());
     refArray().erase(it);
 }
 
@@ -1031,203 +908,83 @@ inline void Node::remove(const Node &node)
     value_.pa->remove(node);
 }
 
-inline const Node& Node::operator[] (size_t index) const
-{
-    return const_cast<Node*>(this)->operator[](index);
-}
-
 /////////////////////////////////////////////////////////////
 /// dict
 /////////////////////////////////////////////////////////////
 inline DictIterator Node::memberBegin()
 {
-    SJ_ASSERT(isDict());
     return refDict().begin();
 }
 
 inline ConstDictIterator Node::memberBegin() const
 {
-    SJ_ASSERT(isDict());
     return refDict().begin();
 }
 
 inline DictIterator Node::memberEnd()
 {
-    SJ_ASSERT(isDict());
     return refDict().end();
 }
 
 inline ConstDictIterator Node::memberEnd() const
 {
-    SJ_ASSERT(isDict());
     return refDict().end();
 }
 
 inline Node Node::createTempKey(const char *str) const
 {
-    StringValue *s = value_.pd->getAllocator()->createString(str, strlen(str), BT_NOT_CARE);
-    return Node(s);
+    return Node(value_.pd->getAllocator()->createString(str, strlen(str), BT_NOT_CARE));
 }
 
 inline Node Node::createTempKey(const std::string &str) const
 {
-    StringValue *s = value_.pd->getAllocator()->createString(str.c_str(), str.size(), BT_NOT_CARE);
-    return Node(s);
+    return Node(value_.pd->getAllocator()->createString(str.c_str(), str.size(), BT_NOT_CARE));
 }
 
 inline DictIterator Node::findMember(const char *key)
 {
-    SJ_ASSERT(isDict());
     return refDict().find(createTempKey(key));
 }
 
 inline DictIterator Node::findMember(const std::string &key)
 {
-    SJ_ASSERT(isDict());
     return refDict().find(createTempKey(key));
 }
 
 inline DictIterator Node::findMember(const Node &key)
 {
-    SJ_ASSERT(isDict());
     return refDict().find(key);
 }
 
 inline ConstDictIterator Node::findMember(const char *key) const
 {
-    SJ_ASSERT(isDict());
     return refDict().find(createTempKey(key));
 }
 
 inline ConstDictIterator Node::findMember(const std::string &key) const
 {
-    SJ_ASSERT(isDict());
     return refDict().find(createTempKey(key));
 }
 
 inline ConstDictIterator Node::findMember(const Node &key) const
 {
-    SJ_ASSERT(isDict());
     return refDict().find(key);
-}
-
-inline bool Node::hasMember(const char *key) const
-{
-    return findMember(key) != refDict().end();
-}
-
-inline bool Node::hasMember(const std::string &key) const
-{
-    return findMember(key) != refDict().end();
-}
-
-inline bool Node::hasMember(const Node &key) const
-{
-    return findMember(key) != refDict().end();
-}
-
-inline void Node::setMember(const char *key, const Node &val)
-{
-    SJ_ASSERT(isDict());
-    StringValue *s = value_.pd->getAllocator()->createString(key, strlen(key), BT_MAKE_COPY);
-    refDict()[Node(s)] = val;
-}
-
-inline void Node::setMember(const std::string &key, const Node &val)
-{
-    SJ_ASSERT(isDict());
-    // copy string buffer
-    StringValue *s = value_.pd->getAllocator()->createString(key.c_str(), key.size(), BT_MAKE_COPY);
-    refDict()[Node(s)] = val;
-}
-
-inline void Node::setMember(const Node &key, const Node &val)
-{
-    SJ_ASSERT(isDict());
-    refDict()[key] = val;
 }
 
 inline void Node::eraseMember(DictIterator it)
 {
-    SJ_ASSERT(isDict());
     refDict().erase(it);
-}
-
-inline void Node::removeMember(const char *key)
-{
-    SJ_ASSERT(isDict());
-    value_.pd->remove(createTempKey(key));
-}
-
-inline void Node::removeMember(const std::string &key)
-{
-    SJ_ASSERT(isDict());
-    value_.pd->remove(createTempKey(key));
-}
-
-inline void Node::removeMember(const Node &key)
-{
-    SJ_ASSERT(isDict());
-    value_.pd->remove(key);
 }
 
 template <typename T>
 T Node::getMember(const char *key, T defaultValue) const
 {
-    ConstDictIterator it = findMember(key);
-    if (it != memberEnd())
+    const Node &node = findMemberByPath(key, strlen(key));
+    if (!node.isNull())
     {
-        T ret;
-        fromNode(ret, it->second);
-        return ret;
+        return node.as<T>();
     }
     return defaultValue;
-}
-
-inline const Node& Node::operator[] (const char *key) const
-{
-    if (isDict())
-    {
-        ConstDictIterator it = findMember(key);
-        if (it != memberEnd())
-        {
-            return it->second;
-        }
-    }
-    else if (isArray() && 0 == key) // node[0]会进入了当前函数
-    {
-        if (!refArray().empty())
-        {
-            return refArray()[0];
-        }
-    }
-    return nullValue();
-}
-
-inline const Node& Node::operator[] (const std::string &key) const
-{
-    if (isDict())
-    {
-        ConstDictIterator it = findMember(key);
-        if (it != memberEnd())
-        {
-            return it->second;
-        }
-    }
-    return nullValue();
-}
-
-inline const Node& Node::operator[] (const Node &key) const
-{
-    if (isDict())
-    {
-        ConstDictIterator it = findMember(key);
-        if (it != memberEnd())
-        {
-            return it->second;
-        }
-    }
-    return nullValue();
 }
 
 NS_SMARTJSON_END
