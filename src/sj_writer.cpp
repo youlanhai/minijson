@@ -93,7 +93,7 @@ void Writer::writeString(const Node &node, std::ostream &out)
             out << "\\r";
             break;
         case '\\':
-            out << "\\";
+            out << "\\\\";
             break;
         case '\b':
             out << "\\b";
@@ -102,7 +102,7 @@ void Writer::writeString(const Node &node, std::ostream &out)
             out << "\\f";
             break;
         case '\"':
-            out << "\"";
+            out << "\\\"";
             break;
         case '\0':
             out << "\\0";
