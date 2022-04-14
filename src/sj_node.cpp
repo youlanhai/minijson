@@ -412,7 +412,7 @@ Array* Node::setArray(IAllocator *allocator)
     value_.p->retain();
     
     allocator->release();
-    return (Array*)value_.p;
+    return rawArray();
 }
 
 Dict* Node::setDict(IAllocator *allocator)
@@ -429,7 +429,7 @@ Dict* Node::setDict(IAllocator *allocator)
     value_.p->retain();
     
     allocator->release();
-    return (Dict*)value_.p;
+    return rawDict();
 }
 
 size_t Node::size() const
