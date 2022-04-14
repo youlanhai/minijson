@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 
 #include "smartjson.hpp"
 #include "sj_binary_parser.hpp"
@@ -179,21 +179,29 @@ void fromNode(Vector2 &v, const smartjson::Node &node)
 void testParser()
 {
     std::cout << "test parser..." << std::endl;
-    
-    const char *json = "{\n"
-    "\"name\"   : \"json\",\n"
-    "\"age\"    : 20,\n"
-    "\"weight\" : 60.5,\n"
-    "\"i1\"     : 1234567890,\n"
-    "\"i2\"     : -123456789,\n"
-    "\"i3\"     : 0,\n"
-    "\"f1\"     : 3.14e2,\n"
-    "\"f2\"     : 3.14e-2,\n"
-    "\"f3\"     : -0.3140e10,\n"
-    "\"f4\"     : -0.314e-10,\n"
-    "\"array\"  : [0, true, false, null, 123, -456, 3.14, \"hello\\n world!\"],\n"
-    "\"pos\"    : {\"x\" : 100.55, \"y\" : 200.22}\n"
-    "}";
+
+    const char *json = R"(
+{
+"name"   : "json",
+"age"    : 20,
+"weight" : 60.5,
+"i1"     : 1234567890,
+"i2"     : -123456789,
+"i3"     : 0,
+"i4"     : 0x7ff,
+"i5"     : 0o77,
+"i6"     : 0b011,
+"f1"     : 3.14e2,
+"f2"     : 3.14e-2,
+"f3"     : -0.3140e10,
+"f4"     : -0.314e-10,
+"s1"     : "\xe4\xbd\xa0\xe5\xa5\xbd",
+"s2"     : "\u4f60\u597d",
+"s3"     : "ab\t\r\n\"\\cd",
+"array"  : [0, true, false, null, 123, -456, 3.14, "hello\n world!"],
+"pos"    : {"x" : 100.55, "y" : 200.22}
+}
+)";
     
     smartjson::Parser parser(new smartjson::MemoryPoolAllocator());
     bool ret = parser.parseFromData(json, strlen(json));
@@ -208,10 +216,16 @@ void testParser()
     TEST_EQUAL(croot["i1"] == 1234567890);
     TEST_EQUAL(croot["i2"] == -123456789);
     TEST_EQUAL(croot["i3"] == 0);
+    TEST_EQUAL(croot["i4"] == 0x7ff);
+    TEST_EQUAL(croot["i5"] == 077);
+    TEST_EQUAL(croot["i6"] == 3);
     TEST_EQUAL(croot["f1"] == 3.14e2);
     TEST_EQUAL(almoseEqual(croot["f2"].asFloat(), 3.14e-2));
     TEST_EQUAL(almoseEqual(croot["f3"].asFloat(), -0.314e10));
     TEST_EQUAL(almoseEqual(croot["f4"].asFloat(), -0.314e-10));
+    TEST_EQUAL(croot["s1"] == "\xe4\xbd\xa0\xe5\xa5\xbd");
+    TEST_EQUAL(croot["s2"] == "\xe4\xbd\xa0\xe5\xa5\xbd");
+    TEST_EQUAL(croot["s3"] == "ab\t\r\n\"\\cd");
     
     smartjson::Node array = root["array"];
     TEST_EQUAL(array.isArray());
@@ -285,7 +299,7 @@ void testBinaryParser()
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
-
+    
     testString();
     testNode();
     testParser();

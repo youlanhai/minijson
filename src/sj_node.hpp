@@ -47,8 +47,11 @@ enum ResultCode
     RC_END_OF_FILE,
     RC_OPEN_FILE_ERROR,
     RC_FILE_EMPTY,
+    /** 不是有效的json文件格式 */
     RC_INVALID_JSON,
+    /** 无效的字典格式 */
     RC_INVALID_DICT,
+    /** 无效的字典key */
     RC_INVALID_KEY,
     RC_INVALID_ARRAY,
     RC_INVALID_STRING,
@@ -57,6 +60,12 @@ enum ResultCode
     RC_INVALID_TRUE,
     RC_INVALID_FALSE,
     RC_INVALID_TYPE,
+    /** 注释格式错误 */
+    RC_INVALID_COMMENT,
+    /** 无效的字符格式。\x格式需要2个16进制字符，如: \xab */
+    RC_INVALID_CHAR,
+    /** 无效的Unicode字符格式。\u格式需要4个16进制字符，如: \uabcd */
+    RC_INVALID_UNICODE,
 };
 
 // predefine

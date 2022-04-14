@@ -2,87 +2,15 @@
 
 #include <cmath>
 #include <iostream>
+#include <sstream>
+#include <fstream>
 
 NS_SMARTJSON_BEGIN
 
-class Reader
-{
-public:
-    Reader(const char *begin, const char *end)
-    : p_(begin)
-    , begin_(begin)
-    , end_(end)
-    {}
-    
-    char read()
-    {
-        if(p_ < end_)
-        {
-            return *p_++;
-        }
-        return 0;
-    }
-    
-    void unget()
-    {
-        p_ -= 1;
-    }
-    
-    bool empty() const
-    {
-        return p_ >= end_;
-    }
-    
-    const char* begin() const { return begin_; }
-    const char* current() const { return p_; }
-    
-private:
-    const char*     p_;
-    const char*     begin_;
-    const char*     end_;
-};
-
-
-bool isWhiteSpace(char ch)
-{
-    return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
-}
-
-char skipWhiteSpace(Reader &reader)
-{
-    char ch;
-    do
-    {
-        ch = reader.read();
-    }while(isWhiteSpace(ch));
-    return ch;
-}
-
-char translateChar(char ch)
-{
-    switch (ch)
-    {
-        case 'b': return '\b';
-        case 'f': return '\f';
-        case 'n': return '\n';
-        case 't': return '\t';
-        case 'r': return '\r';
-        case '"': return '"';
-        case '\\': return '\\';
-        case '/': return '/';
-            
-        case 'u':// doesn't support.
-        default: return ch;
-    }
-}
-
-
 Parser::Parser(IAllocator *allocator)
-: allocator_(allocator)
-, errorCode_(RC_OK)
-, errorOffset_(0)
+    : allocator_(allocator)
 {
-    if(allocator_ == 0)
+    if (nullptr == allocator_)
     {
         allocator_ = IAllocator::getDefaultAllocator();
     }
@@ -96,305 +24,448 @@ Parser::~Parser()
 
 bool Parser::parseFromFile(const char *fileName)
 {
-    FILE *fp = fopen(fileName, "r");
-    if(fp == NULL)
+    std::ifstream stream(fileName);
+    if (!stream.is_open())
     {
-        errorCode_ = RC_OPEN_FILE_ERROR;
-        return false;
+        return onError(RC_OPEN_FILE_ERROR);
     }
 
-    fseek(fp, 0, SEEK_END);
-    long length = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-
-    if(length == 0)
-    {
-        errorCode_ = RC_FILE_EMPTY;
-        return false;
-    }
-    
-    std::vector<char> buffer(length);
-    fread(buffer.data(), 1, length, fp);
-    
-    fclose(fp);
-    fp = NULL;
-
-    return parseFromData(buffer.data(), length);
+    return parseFromStream(stream);
 }
 
 bool Parser::parseFromData(const char *str, size_t length)
 {
+    std::istringstream ss(std::string(str, length));
+    return parseFromStream(ss);
+}
+
+bool Parser::parseFromStream(std::istream & stream)
+{
+    stream_ = &stream;
     root_.setNull();
+    line_ = 1;
+    column_ = 1;
+    nextToken_ = 0;
     errorCode_ = RC_OK;
-    errorOffset_ = 0;
-    
-    Reader reader(str, str + length);
-    do
+
+    int firstChar = nextToken();
+    if (firstChar == '{')
     {
-        char firstChar = skipWhiteSpace(reader);
-        if(firstChar != '{' && firstChar != '[')
-        {
-            errorCode_ = RC_INVALID_JSON;
-            break;
-        }
-        
-        reader.unget();
-        errorCode_ = parseValue(root_, reader);
-        if(errorCode_ != RC_OK)
-        {
-            break;
-        }
-        
-        char endChar = skipWhiteSpace(reader);
-        if(endChar != 0)
-        {
-            errorCode_ = RC_INVALID_JSON;
-        }
-    }while(0);
-    
-    if(errorCode_ != RC_OK)
+        parseDict(root_);
+    }
+    else if (firstChar == '[')
     {
-        errorOffset_ = (int)(reader.current() - str);
+        parseArray(root_);
+    }
+    else
+    {
+        onError(RC_INVALID_JSON);
+    }
+
+    if (errorCode_ == RC_OK)
+    {
+        // 检查末尾是否有多余的符号
+        if (aheadToken() != 0)
+        {
+            onError(RC_INVALID_JSON);
+        }
+    }
+
+    if (errorCode_ != RC_OK)
+    {
 #ifdef DEBUG
-        int line = 1;
-        int col = 1;
-        for(const char *p = str; p != reader.current(); ++p)
-        {
-            if(*p == '\n')
-            {
-                ++line;
-                col = 1;
-            }
-            else
-            {
-                ++col;
-            }
-        }
         std::cerr << "parse error: " << errorCode_
-            << " line: " << line
-            << " col: " << col
+            << " line: " << line_
+            << " col: " << column_
             << std::endl;
 #endif
     }
+
+    stream_ = nullptr;
     return errorCode_ == RC_OK;
 }
 
-int Parser::parseValue(Node &node, Reader &reader)
+char Parser::getChar()
 {
-    int ret = RC_OK;
-    char ch = skipWhiteSpace(reader);
+    char ch = stream_->get();
     switch (ch)
     {
-        case '\0':
-            ret = RC_END_OF_FILE;
-            break;
-            
-        case '{':
-            ret = parseDict(node, reader);
-            break;
-            
-        case '[':
-            ret = parseArray(node, reader);
-            break;
-            
-        case '\"':
-            ret = parseString(node, reader);
-            break;
-            
-        case 'n':
-            ret = parseNull(node, reader);
-            break;
-            
-        case 't':
-            ret = parseTrue(node, reader);
-            break;
-            
-        case 'f':
-            ret = parseFalse(node, reader);
-            break;
-            
-        default:
-            reader.unget();
-            ret = parseNumber(node, reader);
-            break;
+    case '\n':
+        ++line_;
+        column_ = 1;
+        return ch;
+    case EOF:
+    case '\0':
+        return 0;
+    default:
+        ++column_;
+        return ch;
     }
-    return ret;
 }
 
-int Parser::parseDict(Node &node, Reader &reader)
+void Parser::ungetChar(char ch)
+{
+    stream_->unget();
+    --column_;
+    if (ch == '\n')
+    {
+        --line_;
+    }
+}
+
+char Parser::translateChar(char ch)
+{
+    switch (ch)
+    {
+    case 'b': return '\b';
+    case 'f': return '\f';
+    case 'n': return '\n';
+    case 't': return '\t';
+    case 'r': return '\r';
+    case '"': return '"';
+    case '\\': return '\\';
+    case '/': return '/';
+    default:
+        return ch;
+    }
+}
+
+int Parser::parseToken()
+{
+    char ch;
+    do
+    {
+        ch = getChar();
+    } while (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n');
+    return ch;
+}
+
+int Parser::nextToken()
+{
+    if (nextToken_ != 0)
+    {
+        int ret = nextToken_;
+        nextToken_ = 0;
+        return ret;
+    }
+    else
+    {
+        return parseToken();
+    }
+}
+
+int Parser::aheadToken()
+{
+    if (nextToken_ == 0)
+    {
+        nextToken_ = parseToken();
+    }
+    return nextToken_;
+}
+
+bool Parser::onError(int code)
+{
+    errorCode_ = code;
+    return false;
+}
+
+bool Parser::parseValue(Node &node)
+{
+    while (errorCode_ == RC_OK)
+    {
+        int ch = nextToken();
+        switch (ch)
+        {
+            case '\0':
+                return onError(RC_END_OF_FILE);
+                
+            case '{':
+                return parseDict(node);
+                
+            case '[':
+                return parseArray(node);
+                
+            case '"':
+                return parseString(node);
+
+            case 'n':
+                return parseNull(node);
+                
+            case 't':
+                return parseTrue(node);
+                
+            case 'f':
+                return parseFalse(node);
+                
+            case '/':
+                parseComment();
+                break;
+                
+            default:
+                return parseNumber(node, ch);
+        }
+    }
+    return false;
+}
+
+bool Parser::parseDict(Node &node)
 {
     node.setDict(allocator_);
     
-    char ch = skipWhiteSpace(reader);
-    if(ch == '}')
+    char ch = aheadToken();
+    if (ch == '}')
     {
-        return RC_OK;
+        nextToken();
+        return true;
     }
-    reader.unget();
-    
-    int ret;
-    do
+    if (ch == 0)
+    {
+        return onError(RC_INVALID_DICT);
+    }
+
+    while (true)
     {
         Node key, value;
-        ret = parseValue(key, reader);
-        if(ret != RC_OK)
+        if (!parseValue(key))
         {
-            break;
+            return false;
         }
     
         if(!key.isString() && !key.isInt())
         {
-            ret = RC_INVALID_KEY;
-            break;
+            return onError(RC_INVALID_KEY);
         }
         
-        char ch = skipWhiteSpace(reader);
+        int ch = nextToken();
         if(ch != ':')
         {
-            ret = RC_INVALID_DICT;
-            break;
+            return onError(RC_INVALID_DICT);
         }
         
-        ret = parseValue(value, reader);
-        if(ret != RC_OK)
+        if(!parseValue(value))
         {
-            break;
+            return false;
         }
     
         node.setMember(key, value);
         
-        ch = skipWhiteSpace(reader);
-        if(ch == '}')
+        ch = nextToken();
+        if (ch == '}')
         {
-            break;
+            return true;
         }
-        else if(ch != ',')
+        else if (ch != ',')
         {
-            ret = RC_INVALID_DICT;
+            return onError(RC_INVALID_DICT);
         }
-    }while(ret == RC_OK);
-    
-    return ret;
+    }
+    return false;
 }
 
-int Parser::parseArray(Node &node, Reader &reader)
+bool Parser::parseArray(Node &node)
 {
     node.setArray(allocator_);
     
-    char ch = skipWhiteSpace(reader);
+    char ch = aheadToken();
     if(ch == ']')
     {
-        return RC_OK;
+        nextToken();
+        return true;
     }
-    reader.unget();
-    
-    int ret;
-    do
+
+    while (true)
     {
         Node child;
-        ret = parseValue(child, reader);
-        if(ret != RC_OK)
+        if (!parseValue(child))
         {
-            break;
+            return false;
         }
     
         node.pushBack(child);
         
-        char ch = skipWhiteSpace(reader);
+        char ch = nextToken();
         if(ch == ']')
         {
-            break;
+            return true;
         }
         else if(ch != ',')
         {
-            ret = RC_INVALID_ARRAY;
+            return onError(RC_INVALID_ARRAY);
         }
-    }while(ret == RC_OK);
-    
-    return ret;
+    }
+    return false;
 }
 
-int Parser::parseNumber(Node &node, Reader &reader)
+static int toHex(char ch)
+{
+    if (ch >= '0' && ch <= '9')
+    {
+        return ch - '0';
+    }
+    if (ch >= 'a' && ch <= 'f')
+    {
+        return ch - 'a' + 10;
+    }
+    if (ch >= 'A' && ch <= 'F')
+    {
+        return ch - 'A' + 10;
+    }
+    return -1;
+}
+
+static int toOct(char ch)
+{
+    if (ch >= '0' && ch <= '7')
+    {
+        return ch - '0';
+    }
+    return -1;
+}
+
+bool Parser::parseNumber(Node &node, char ch)
 {
     Integer value = 0;
     double real = 0;
     int exponent = 0;
     int sign = 1;
-    bool useFloat = false;
-    
-    char ch = reader.read();
-    if(ch == '-')
+    bool isFloat = false;
+
+    if (ch == '-')
     {
         sign = -1;
-        ch = reader.read();
+        ch = getChar();
+    }
+    else if (ch == '+')
+    {
+        ch = getChar();
     }
     
-    if(ch < '0' || ch > '9')
-        return RC_INVALID_NUMBER;
-    
-    if(ch != '0')
+    if (ch < '0' || ch > '9')
     {
-        while(ch >= '0' && ch <= '9')
+        return onError(RC_INVALID_NUMBER);
+    }
+    
+    if (ch == '0')
+    {
+        ch = getChar();
+        switch (ch)
         {
-            value = value * 10 + ch - '0';
-            ch = reader.read();
+        case 'x':
+        case 'X':
+            while (true)
+            {
+                ch = getChar();
+                int v = toHex(ch);
+                if (v < 0)
+                {
+                    break;
+                }
+                value = (value << 4) | v;
+            }
+            break;
+        case 'o':
+        case 'O':
+            while (true)
+            {
+                ch = getChar();
+                int v = toOct(ch);
+                if (v < 0)
+                {
+                    break;
+                }
+                value = (value << 3) | v;
+            }
+            break;
+        case 'b':
+        case 'B':
+            while (true)
+            {
+                ch = getChar();
+                if (ch == '1')
+                {
+                    value = (value << 1) | 1;
+                }
+                else if (ch == '0')
+                {
+                    value = (value << 1);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            break;
+        case '.':
+            isFloat = true;
+            break;
+        default:
+            break;
         }
     }
     else
     {
-        ch = reader.read();
-    }
-    
-    if(ch == '.')
-    {
-        useFloat = true;
-        double pos = 0.1;
-        
-        ch = reader.read();
         while(ch >= '0' && ch <= '9')
         {
-            real += pos * (ch - '0');
-            pos *= 0.1;
-            ch = reader.read();
+            value = value * 10 + (ch - '0');
+            ch = getChar();
+        }
+
+        isFloat = ch == '.';
+    }
+    
+    if (isFloat)
+    {
+        Integer num = 0;
+        Integer den = 1;
+
+        ch = getChar();
+        while (ch >= '0' && ch <= '9')
+        {
+            num = num * 10 + (ch - '0');
+            den *= 10;
+            ch = getChar();
         }
         
         int expSign = 1;
         if(ch == 'e' || ch == 'E')
         {
-            ch = reader.read();
+            ch = getChar();
             if(ch == '-')
             {
                 expSign = -1;
-                ch = reader.read();
+                ch = getChar();
             }
             else if(ch == '+')
             {
-                expSign = 1;
-                ch = reader.read();
+                ch = getChar();
+            }
+            else if (ch < '0' || ch > '9')
+            {
+                return onError(RC_INVALID_NUMBER);
             }
             
-            while(ch >= '0' && ch <= '9')
+            while (ch >= '0' && ch <= '9')
             {
-                exponent = exponent * 10 + ch - '0';
-                ch = reader.read();
+                exponent = exponent * 10 + (ch - '0');
+                ch = getChar();
             }
         }
-        exponent *= expSign;
-    }
-    
-    if(!isWhiteSpace(ch) && ch != ',' && ch != ']' && ch != '}')
-    {
-        return RC_INVALID_NUMBER;
-    }
-    reader.unget();
-    
-    if(useFloat)
-    {
-        real = (double)value + real;
-        if(exponent != 0)
+
+        real = value + (double)num / den;
+        if (exponent != 0)
         {
-            real *= pow(10.0, exponent);
+            real *= pow(10.0, exponent * expSign);
         }
+    }
+    
+    if (ch != ',' && ch != ']' && ch != '}')
+    {
+        return onError(RC_INVALID_NUMBER);
+    }
+    ungetChar(ch);
+    
+    if(isFloat)
+    {
         real *= sign;
         node = real;
     }
@@ -403,95 +474,219 @@ int Parser::parseNumber(Node &node, Reader &reader)
         value *= sign;
         node = value;
     }
-    return RC_OK;
+    return true;
 }
 
-int Parser::parseString(Node &node, Reader &reader)
+bool Parser::parseString(Node &node)
 {
-    const char *begin = reader.current();
-
-    char ch;
-    while(1)
+    stringBuffer_.clear();
+    while (1)
     {
-        ch = reader.read();
-        if(ch == '\\')
+        char ch = getChar();
+        if (ch == 0 || ch == '\n')
         {
-            ch = reader.read();
-            if(ch != 0)
-            {
-                continue;
-            }
+            return onError(RC_INVALID_STRING);
         }
-
-        if(ch == 0 || ch == '\"' || ch == '\n')
+        else if (ch == '"')
         {
             break;
         }
-    }
-    
-    if(ch != '\"')
-    {
-        return RC_INVALID_STRING;
-    }
-    const char *end = reader.current() - 1; // *end = '"'
-
-    int ret = RC_OK;
-    stringBuffer_.resize(end - begin + 1);
-    char *buffer = stringBuffer_.data();
-    char *p = buffer;
-    for(; begin < end && ret == RC_OK; ++p, ++begin)
-    {
-        if(*begin == '\\')
+        else if (ch == '\\')
         {
-            ++begin;
-            *p = translateChar(*begin);
+            ch = getChar();
+            if (ch == 'x')
+            {
+                int codepoint = 0;
+                for (size_t i = 0; i < 2; ++i)
+                {
+                    int v = toHex(getChar());
+                    if (v < 0)
+                    {
+                        return onError(RC_INVALID_CHAR);
+                    }
+                    codepoint = (codepoint << 4) | v;
+                }
+                stringBuffer_.push_back((char)codepoint);
+            }
+            else if (ch == 'u')
+            {
+                parseUnicodeChar();
+            }
+            else
+            {
+                ch = translateChar(ch);
+                stringBuffer_.push_back(ch);
+            }
         }
         else
         {
-            *p = *begin;
+            stringBuffer_.push_back(ch);
         }
     }
-    *p = '\0';
-    node = allocator_->createString(buffer, p - buffer, BT_MAKE_COPY);
-    return RC_OK;
+
+    node = allocator_->createString(stringBuffer_.data(), stringBuffer_.size(), BT_MAKE_COPY);
+    return true;
 }
 
-int Parser::parseTrue(Node &node, Reader &reader)
+bool Parser::parseTrue(Node &node)
 {
-    if(reader.read() == 'r' &&
-       reader.read() == 'u' &&
-       reader.read() == 'e')
+    if (getChar() == 'r' &&
+        getChar() == 'u' &&
+        getChar() == 'e')
     {
         node = true;
-        return RC_OK;
+        return true;
     }
-    return RC_INVALID_TRUE;
+    return onError(RC_INVALID_TRUE);
 }
 
-int Parser::parseFalse(Node &node, Reader &reader)
+bool Parser::parseFalse(Node &node)
 {
-    if(reader.read() == 'a' &&
-       reader.read() == 'l' &&
-       reader.read() == 's' &&
-       reader.read() == 'e')
+    if (getChar() == 'a' &&
+        getChar() == 'l' &&
+        getChar() == 's' &&
+        getChar() == 'e')
     {
         node = false;
-        return RC_OK;
+        return true;
     }
-    return RC_INVALID_FALSE;
+    return onError(RC_INVALID_FALSE);
 }
 
-int Parser::parseNull(Node &node, Reader &reader)
+bool Parser::parseNull(Node &node)
 {
-    if(reader.read() == 'u' &&
-       reader.read() == 'l' &&
-       reader.read() == 'l')
+    if (getChar() == 'u' &&
+        getChar() == 'l' &&
+        getChar() == 'l')
     {
         node.setNull();
-        return RC_OK;
+        return true;
     }
-    return RC_INVALID_NULL;
+    return onError(RC_INVALID_NULL);
 }
 
+bool Parser::parseComment()
+{
+    int nextCh = aheadToken();
+    if (nextCh == '/')
+    {
+        if (!parseLineComment())
+        {
+            return false;
+        }
+    }
+    else if (nextCh == '*')
+    {
+        if (!parseLongComment())
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return onError(RC_INVALID_COMMENT);
+    }
+    return true;
+}
+
+bool Parser::parseLineComment()
+{
+    char ch;
+    do
+    {
+        ch = getChar();
+    } while (ch != 0 && ch != '\n');
+    return true;
+}
+
+bool Parser::parseLongComment()
+{
+    while (true)
+    {
+        char ch = getChar();
+        if (ch == 0)
+        {
+            return onError(RC_INVALID_COMMENT);
+        }
+
+        if (ch == '*')
+        {
+            ch = getChar();
+            if (ch == '/')
+            {
+                return true;
+            }
+        }
+    }
+    return true;
+}
+
+static inline void unicodeCharToUTF8(std::vector<char> &buffer, unsigned int cp)
+{
+    // based on description from http://en.wikipedia.org/wiki/UTF-8
+    if (cp <= 0x7f)
+    {
+        buffer.push_back(static_cast<char>(cp));
+    }
+    else if (cp <= 0x7FF)
+    {
+        buffer.push_back(static_cast<char>(0xC0 | (0x1f & (cp >> 6))));
+        buffer.push_back(static_cast<char>(0x80 | (0x3f & cp)));
+    }
+    else if (cp <= 0xFFFF)
+    {
+        buffer.push_back(static_cast<char>(0xE0 | (0xf & (cp >> 12))));
+        buffer.push_back(static_cast<char>(0x80 | (0x3f & (cp >> 6))));
+        buffer.push_back(static_cast<char>(0x80 | (0x3f & cp)));
+    }
+    else if (cp <= 0x10FFFF)
+    {
+        buffer.push_back(static_cast<char>(0xF0 | (0x7 & (cp >> 18))));
+        buffer.push_back(static_cast<char>(0x80 | (0x3f & (cp >> 12))));
+        buffer.push_back(static_cast<char>(0x80 | (0x3f & (cp >> 6))));
+        buffer.push_back(static_cast<char>(0x80 | (0x3f & cp)));
+    }
+}
+
+bool Parser::parseUnicodeChar()
+{
+    unsigned int code = 0;
+    for (size_t index = 0; index < 4; ++index)
+    {
+        int v = toHex(getChar());
+        if (v < 0)
+        {
+            return onError(RC_INVALID_UNICODE);
+        }
+        code = (code << 4) | (unsigned int)v;
+    }
+    unsigned int unicode = code;
+
+    if (code >= 0xD800 && code <= 0xDBFF)
+    {
+        if (getChar() == '\\' && getChar() == 'u')
+        {
+            unsigned int code = 0;
+            for (size_t index = 0; index < 4; ++index)
+            {
+                int v = toHex(getChar());
+                if (v < 0)
+                {
+                    return onError(RC_INVALID_UNICODE);
+                }
+                code = (code << 4) | (unsigned int)v;
+            }
+
+            unicode = 0x10000 + ((unicode & 0x3FF) << 10) + (code & 0x3FF);
+        }
+        else
+        {
+            return onError(RC_INVALID_UNICODE);
+        }
+    }
+
+    unicodeCharToUTF8(stringBuffer_, unicode);
+    return true;
+}
 
 NS_SMARTJSON_END
