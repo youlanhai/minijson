@@ -1,6 +1,7 @@
 ﻿#include "sj_node.hpp"
 
 #include <cmath>
+#include <algorithm>
 
 NS_SMARTJSON_BEGIN
 
@@ -896,6 +897,49 @@ const Node& Node::operator[] (const Node &key) const
         }
     }
     return nullValue();
+}
+
+void Node::getKeys(std::vector<Node>& output, bool sort) const
+{
+    const Dict &dict = refDict();
+    output.clear();
+    output.reserve(dict.size());
+    for (auto &pair : dict)
+    {
+        output.push_back(pair.first);
+    }
+
+    if (sort)
+    {
+        std::sort(output.begin(), output.end());
+    }
+}
+
+void Node::getValues(std::vector<Node>& output) const
+{
+    const Dict &dict = refDict();
+    output.clear();
+    output.reserve(dict.size());
+    for (auto &pair : dict)
+    {
+        output.push_back(pair.second);
+    }
+}
+
+void Node::getMembers(std::vector<NodePair>& output, bool sort) const
+{
+    const Dict &dict = refDict();
+    output.clear();
+    output.reserve(dict.size());
+    for (auto &pair : dict)
+    {
+        output.push_back(pair);
+    }
+
+    if (sort)
+    {
+        std::sort(output.begin(), output.end(), compareMember);
+    }
 }
 
 NS_SMARTJSON_END

@@ -102,6 +102,8 @@ typedef Array::const_iterator ConstArrayIterator;
 typedef Dict::iterator DictIterator;
 typedef Dict::const_iterator ConstDictIterator;
 
+typedef std::pair<Node, Node> NodePair;
+
 /** 引用计数基类 */
 class IRefCout
 {
@@ -388,8 +390,14 @@ public: // dict
     template <typename T>
     T getMember(const char *key, T defaultValue = T()) const;
 
+    void getKeys(std::vector<Node> &output, bool sort = false) const;
+    void getValues(std::vector<Node> &output) const;
+    void getMembers(std::vector<NodePair> &output, bool sort = false) const;
+
 public:
-     static Node s_null;
+    static inline bool compareMember(const NodePair &a, const NodePair &b) { return a.first < b.first; }
+
+    static Node s_null;
 
 private:
 

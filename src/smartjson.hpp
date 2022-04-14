@@ -3,6 +3,5 @@
 
 #include "sj_node.hpp"
 #include "sj_parser.hpp"
-#include "sj_writer.hpp"
 
 #endif /* SMART_JSON_HPP */

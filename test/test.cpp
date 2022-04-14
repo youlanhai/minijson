@@ -253,6 +253,7 @@ void testParser()
     
     std::cout << "print json:" << std::endl;
     smartjson::Writer writer;
+    writer.sortKey_ = true;
     writer.write(root, std::cout);
 }
 
