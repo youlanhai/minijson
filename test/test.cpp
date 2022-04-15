@@ -69,6 +69,7 @@ void testNode()
     TEST_EQUAL(n2.isInt());
     TEST_EQUAL(n2.isNumber());
     TEST_EQUAL(n2.asInteger() == 1234567890);
+    std::cout << "n2 = " << n2 << std::endl;
     
     smartjson::Node n3(1234.5f);
     TEST_EQUAL(n3.isFloat());
@@ -125,9 +126,11 @@ void testNode()
     n7.pushBack(n4);
     n7.pushBack(n5);
     n7.pushBack(n6);
+    n7[0] = n0;
+    n7[1] = n1;
     TEST_EQUAL(n7.asArray()->size() == n7.size());
     TEST_EQUAL(n7.size() == 7);
-    TEST_EQUAL(n7[0u] == n0);
+    TEST_EQUAL(n7[0] == n0);
     for(smartjson::ArrayIterator it = n7.begin();
         it != n7.end(); ++it)
     {

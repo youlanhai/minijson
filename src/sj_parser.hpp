@@ -150,4 +150,6 @@ public:
 typedef Parser JsonParser;
 typedef Writer JsonWriter;
 
+std::ostream& operator << (std::ostream & stream, const Node &v);
+
 NS_SMARTJSON_END

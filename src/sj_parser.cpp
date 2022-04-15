@@ -972,4 +972,38 @@ void Writer::writeDict(const Node &node, std::ostream &out, int depth)
     out << Tab(depth, tab_) << "}";
 }
 
+std::ostream& operator << (std::ostream & stream, const Node &v)
+{
+    switch (v.getType())
+    {
+    case T_NULL:
+        stream << "null";
+        break;
+    case T_BOOL:
+        stream << (v.rawBool() ? "true" : "false");
+        break;
+    case T_INT:
+        stream << v.rawInteger();
+        break;
+    case T_FLOAT:
+        stream << v.rawFloat();
+        break;
+    case T_STRING:
+    {
+        StringValue *s = v.rawString();
+        stream.write(s->data(), s->size());
+        break;
+    }
+    case T_ARRAY:
+        stream << "array[" << v.size() << "]";
+        break;
+    case T_DICT:
+        stream << "dict[" << v.size() << "]";
+        break;
+    default:
+        break;
+    }
+    return stream;
+}
+
 NS_SMARTJSON_END
