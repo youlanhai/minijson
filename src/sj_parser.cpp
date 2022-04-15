@@ -7,7 +7,7 @@
 
 NS_SMARTJSON_BEGIN
 
-Parser::Parser(IAllocator *allocator)
+IParser::IParser(IAllocator *allocator)
     : allocator_(allocator)
 {
     if (nullptr == allocator_)
@@ -17,36 +17,118 @@ Parser::Parser(IAllocator *allocator)
     allocator_->retain();
 }
 
-Parser::~Parser()
+IParser::~IParser()
 {
     allocator_->release();
 }
 
-bool Parser::parseFromFile(const char *fileName)
+bool IParser::parseFromFile(const char *fileName)
 {
-    std::ifstream stream(fileName);
+    int mode = isBinaryFile_ ? std::ifstream::binary : 0;
+
+    std::ifstream stream(fileName, mode);
     if (!stream.is_open())
     {
         return onError(RC_OPEN_FILE_ERROR);
     }
-
-    return parseFromStream(stream);
+    return parse(stream);
 }
 
-bool Parser::parseFromData(const char *str, size_t length)
+bool IParser::parseFromFile(const std::string & fileName)
+{
+    return parseFromFile(fileName.c_str());
+}
+
+bool IParser::parseFromData(const char *str, size_t length)
 {
     std::istringstream ss(std::string(str, length));
-    return parseFromStream(ss);
+    return parse(ss);
 }
 
-bool Parser::parseFromStream(std::istream & stream)
+bool IParser::parseFromString(const std::string &str)
+{
+    std::istringstream ss(str);
+    return parse(ss);
+}
+
+bool IParser::parse(std::istream & stream)
 {
     stream_ = &stream;
     root_.setNull();
+    errorCode_ = RC_OK;
+
+    bool ret = doParse();
+
+    stream_ = nullptr;
+    return ret && errorCode_ == RC_OK;
+}
+
+bool IParser::onError(int code)
+{
+    errorCode_ = code;
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////
+// IWriter
+//////////////////////////////////////////////////////////////////////
+
+bool IWriter::writeToFile(const Node &node, const char * fileName)
+{
+    int mode = isBinaryFile_ ? std::ofstream::binary : 0;
+
+    std::ofstream stream(fileName, mode);
+    if (!stream.is_open())
+    {
+        return onError(RC_OPEN_FILE_ERROR);
+    }
+    return write(node, stream);
+}
+
+bool IWriter::writeToFile(const Node &node, const std::string & fileName)
+{
+    return writeToFile(node, fileName.c_str());
+}
+
+bool IWriter::write(const Node & node, std::ostream & out)
+{
+    stream_ = &out;
+    errorCode_ = RC_OK;
+
+    onWrite(node);
+
+    stream_ = nullptr;
+    return errorCode_ == RC_OK;
+}
+
+std::string IWriter::toString(const Node & node)
+{
+    std::ostringstream ss;
+    write(node, ss);
+    return errorCode_ == RC_OK ? ss.str() : "";
+}
+
+bool IWriter::onError(int code)
+{
+    errorCode_ = code;
+    return false;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// Json Parser
+//////////////////////////////////////////////////////////////////////
+
+Parser::Parser(IAllocator *allocator)
+    : IParser(allocator)
+{
+}
+
+bool Parser::doParse()
+{
     line_ = 1;
     column_ = 1;
     nextToken_ = 0;
-    errorCode_ = RC_OK;
 
     int firstChar = nextToken();
     if (firstChar == '{')
@@ -81,7 +163,6 @@ bool Parser::parseFromStream(std::istream & stream)
 #endif
     }
 
-    stream_ = nullptr;
     return errorCode_ == RC_OK;
 }
 
@@ -161,12 +242,6 @@ int Parser::aheadToken()
         nextToken_ = parseToken();
     }
     return nextToken_;
-}
-
-bool Parser::onError(int code)
-{
-    errorCode_ = code;
-    return false;
 }
 
 bool Parser::parseValue(Node &node)
@@ -690,7 +765,7 @@ bool Parser::parseUnicodeChar()
 }
 
 //////////////////////////////////////////////////////////////////////
-// Writer
+// Json Writer
 //////////////////////////////////////////////////////////////////////
 
 struct Tab
@@ -714,14 +789,15 @@ struct Tab
 };
 
 Writer::Writer(const char *tab, const char *eol)
-    : tab_(tab)
-    , eol_(eol)
-{}
-
-void Writer::write(const Node &node, std::ostream &out)
 {
-    writeNode(node, out, 0);
-    out << eol_;
+    tab_ = tab;
+    eol_ = eol;
+}
+
+void Writer::onWrite(const Node &node)
+{
+    writeNode(node, *stream_, 0);
+    *stream_ << eol_;
 }
 
 void Writer::writeNode(const Node &node, std::ostream &out, int depth)

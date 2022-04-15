@@ -176,11 +176,7 @@ void fromNode(Vector2 &v, const smartjson::Node &node)
     v.y = node.getMember<float>("y");
 }
 
-void testParser()
-{
-    std::cout << "test parser..." << std::endl;
-
-    const char *json = R"(
+const char *json = R"(
 {
 "name"   : "json",
 "age"    : 20,
@@ -202,7 +198,11 @@ void testParser()
 "pos"    : {"x" : 100.55, "y" : 200.22}
 }
 )";
-    
+
+void testParser()
+{
+    std::cout << "test parser..." << std::endl;
+
     smartjson::Parser parser(new smartjson::MemoryPoolAllocator());
     bool ret = parser.parseFromData(json, strlen(json));
     std::cout << "parse result:" << parser.getErrorCode() << std::endl;
@@ -260,41 +260,37 @@ void testParser()
 void testBinaryParser()
 {
     std::cout << "test binary parser ..." << std::endl;
-    
+
+    smartjson::JsonParser jParser;
+    bool ret = jParser.parseFromData(json, strlen(json));
+    TEST_EQUAL(ret);
+
+    smartjson::Writer jWriter;
+
+    smartjson::BinaryWriter bWriter;
+    std::string data = bWriter.toString(jParser.getRoot());
+    TEST_EQUAL(!data.empty());
+
+    smartjson::BinaryParser bParser;
+    ret = bParser.parseFromString(data);
+    TEST_EQUAL(ret);
+
+    std::cout << "parse from binary data: " << std::endl;
+    jWriter.write(bParser.getRoot(), std::cout);
+
     const char *fileName = "test_sheet.ab";
-    FILE *fp = fopen(fileName, "rb");
-    if(fp == NULL)
+    if(bParser.parseFromFile(fileName))
     {
-        std::cout << "Failed open file " << fileName << std::endl;
-        return;
-    }
-    fseek(fp, 0, SEEK_END);
-    long length = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    
-    char *buffer = new char[length];
-    fread(buffer, 1, length, fp);
-    
-    fclose(fp);
-    fp = NULL;
-    
-    smartjson::BinaryParser parser;
-    if(parser.parseFromData(buffer, length))
-    {
-        std::ofstream of("test_sheet.json");
-        if(!of.bad())
+        const char *outputFile = "test_sheet.json";
+        if (!jWriter.writeToFile(bParser.getRoot(), outputFile))
         {
-            smartjson::Writer writer;
-            writer.write(parser.getRoot(), of);
-            of.close();
+            std::cerr << "Failed write to file:" << outputFile << std::endl;
         }
     }
     else
     {
-        std::cerr << "Failed parse file " << fileName << ", code:" << parser.getErrorCode() << std::endl;
+        std::cerr << "Failed parse file " << fileName << ", code:" << bParser.getErrorCode() << std::endl;
     }
-    
-    delete [] buffer;
 }
 
 int main(int argc, const char * argv[]) {

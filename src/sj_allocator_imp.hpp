@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "sj_node.hpp"
 
 NS_SMARTJSON_BEGIN

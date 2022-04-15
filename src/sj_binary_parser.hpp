@@ -1,6 +1,5 @@
-#pragma once
-#include "sj_node.hpp"
-#include <iostream>
+﻿#pragma once
+#include "sj_parser.hpp"
 
 NS_SMARTJSON_BEGIN
 
@@ -39,22 +38,17 @@ enum BinaryValueType
     TP_MAX       = 24,
 };
 
-class BinaryParser
+class BinaryParser : public IParser
 {
     SJ_DISABLE_COPY_ASSIGN(BinaryParser);
 public:
     explicit BinaryParser(IAllocator *allocator = nullptr);
-    ~BinaryParser();
     
-    bool parseFromFile(const char *fileName);
-    bool parseFromData(const char *str, size_t length);
-    bool parseFromStream(std::istream &stream);
-    
-    Node getRoot() const{ return root_; }
-    int getErrorCode() const { return errorCode_; }
     size_t getErrorOffset() const { return errorOffset_; }
 
 private:
+    bool doParse() override;
+
     bool parseValue(Node &node);
     bool parseStringTable();
     
@@ -70,24 +64,20 @@ private:
         return ret;
     }
 
-    Node            root_;
-    IAllocator*     allocator_;
-    int             errorCode_;
     size_t          errorOffset_;
     Array           stringTable_;
-    std::istream*   stream_;
     size_t          version_;
 };
 
 
-class BinaryWriter
+class BinaryWriter : public IWriter
 {
 public:
     BinaryWriter();
 
-    void write(const Node &node, std::ostream &stream);
-
 private:
+    void onWrite(const Node &node) override;
+
     void writeValue(const Node& node);
 
     void writeInteger(Integer value);
@@ -108,8 +98,7 @@ private:
     }
 
 private:
-    std::ostream*   stream_;
-    class StringPool* stringPool_;
+    class StringPool* stringPool_ = nullptr;
 };
 
 NS_SMARTJSON_END

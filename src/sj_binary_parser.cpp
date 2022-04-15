@@ -1,4 +1,4 @@
-#include "sj_binary_parser.hpp"
+Ôªø#include "sj_binary_parser.hpp"
 #include <algorithm>
 #include <unordered_set>
 #include <fstream>
@@ -46,46 +46,13 @@ namespace std
 NS_SMARTJSON_BEGIN
 
 BinaryParser::BinaryParser(IAllocator *allocator)
-: allocator_(allocator)
-, errorCode_(RC_OK)
-, errorOffset_(0)
+    : IParser(allocator)
 {
-    if(allocator_ == NULL)
-    {
-        allocator_ = IAllocator::getDefaultAllocator();
-    }
-    allocator_->retain();
+    isBinaryFile_ = true;
 }
 
-BinaryParser::~BinaryParser()
+bool BinaryParser::doParse()
 {
-    allocator_->release();
-}
-
-bool BinaryParser::parseFromFile(const char *fileName)
-{
-    std::ifstream stream(fileName, std::ifstream::binary);
-    if (!stream.is_open())
-    {
-        errorCode_ = RC_OPEN_FILE_ERROR;
-        return false;
-    }
-
-    return parseFromStream(stream);
-}
-
-bool BinaryParser::parseFromData(const char *str, size_t length)
-{
-    std::istringstream ss(std::string(str, length));
-    return parseFromStream(ss);
-}
-
-bool BinaryParser::parseFromStream(std::istream & stream)
-{
-    stream_ = &stream;
-    root_.setNull();
-
-    errorCode_ = RC_OK;
     errorOffset_ = 0;
 
     stringTable_.clear();
@@ -214,8 +181,7 @@ bool BinaryParser::parseValue(Node &node)
             break; 
             
         default:
-            errorCode_ = RC_INVALID_TYPE;
-            ret = false;
+            return onError(RC_INVALID_TYPE);
     };
     return ret;
 }
@@ -257,8 +223,7 @@ bool BinaryParser::parseStringTable()
             stream_->read(buffer.data(), length);
             if(!stream_->good())
             {
-                errorCode_ = RC_INVALID_STRING;
-                return false;
+                return onError(RC_INVALID_STRING);
             }
             stringTable_.push_back(Node(buffer.data(), length, allocator_));
         }
@@ -270,8 +235,7 @@ bool BinaryParser::parseString(Node &node, size_t size)
 {
     if(size > stringTable_.size())
     {
-        errorCode_ = RC_INVALID_STRING;
-        return false;
+        return onError(RC_INVALID_STRING);
     }
     node = stringTable_[size];
     return true;
@@ -328,6 +292,7 @@ public:
         {
             return it->index_;
         }
+        assert(false && "shouldn't reach here!");
         return 0;
     }
 
@@ -542,7 +507,6 @@ void BinaryWriter::writeValue(const Node &node)
         case T_STRING:
         {
             size_t strIndex = stringPool_->getStringIndex(node.rawString());
-            assert(strIndex != 0);
             writeLength(TP_STR0, strIndex);
             break;
         }
@@ -589,31 +553,29 @@ void BinaryWriter::writeStringPool()
 }
 
 BinaryWriter::BinaryWriter()
-    : stream_(nullptr)
-    , stringPool_(nullptr)
-{}
-
-void BinaryWriter::write(const Node &node, std::ostream &stream)
 {
-    stream_ = &stream;
+    isBinaryFile_ = true;
+}
 
+void BinaryWriter::onWrite(const Node &node)
+{
     StringPool stringPool;
     stringPool_ = &stringPool;
 
     stringPool.collectStrings(node);
 
     std::vector<const StringProxy*> strings;
-    stringPool_->getAndSortStrings(strings);
+    stringPool.getAndSortStrings(strings);
 
     writeNumber(MAGIC);
     writeNumber(VERSION);
 
-    // ‘ˆº”“ª∏ˆ‘§¡Ù¥Û–°£¨∑Ω±„«∞œÚºÊ»›
-    uint32_t reserveSize = 0;
-    writeNumber(reserveSize);
-    for (uint32_t i = 0; i < reserveSize; ++i)
+    // Â¢ûÂä†‰∏Ä‰∏™È¢ÑÁïôÂ§ßÂ∞èÔºåÊñπ‰æøÂâçÂêëÂÖºÂÆπ
+    size_t reserveSize = 0;
+    writeNumber((uint16_t)reserveSize);
+    for (size_t i = 0; i < reserveSize; ++i)
     {
-        stream.write("\0", 1);
+        stream_->write("\0", 1);
     }
 
     writeNumber((uint32_t)strings.size());
@@ -629,7 +591,6 @@ void BinaryWriter::write(const Node &node, std::ostream &stream)
     writeValue(node);
 
     stringPool_ = nullptr;
-    stream_ = nullptr;
 }
 
 NS_SMARTJSON_END

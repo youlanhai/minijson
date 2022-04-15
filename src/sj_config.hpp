@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef SJ_USE_LARGE_NUMBER
 #define SJ_USE_LARGE_NUMBER 1

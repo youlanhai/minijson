@@ -7,16 +7,18 @@
 //
 
 #include <iostream>
-#include <fstream>
-#include <string>
 
 #include "smartjson.hpp"
+
+const char *help = R"(conver json to binary data.
+usage: smartjson input [output]
+)";
 
 int main(int argc, char** argv)
 {
     if(argc < 2)
     {
-        std::cout << "usage: smartjson input [output]" << std::endl;
+        std::cout << help << std::endl;
         return 0;
     }
     
@@ -33,15 +35,19 @@ int main(int argc, char** argv)
     }
     
     smartjson::Parser parser;
-    if(smartjson::RC_OK != parser.parseFromFile(inputFile.c_str()))
+    if (!parser.parseFromFile(inputFile))
     {
-        std::cout << "Parse json Failed" << std::endl;
-        return 0;
+        std::cout << "Parse json Failed: code :" << parser.getErrorCode() << std::endl
+            << "line: " << parser.getLine() << std::endl
+            << "column: " << parser.getColumn() << std::endl;
+        return -1;
     }
     
-    std::ofstream of(outputFile.c_str());
-    smartjson::Writer writer;
-    writer.write(parser.getRoot(), of);
-    of.close();
+    smartjson::BinaryWriter writer;
+    if (!writer.writeToFile(parser.getRoot(), outputFile))
+    {
+        std::cout << "Write binary data file Failed: " << parser.getErrorCode() << std::endl;
+        return -1;
+    }
     return 0;
 }
