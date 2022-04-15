@@ -1,5 +1,6 @@
 #pragma once
 #include "sj_node.hpp"
+#include <iostream>
 
 NS_SMARTJSON_BEGIN
 
@@ -38,64 +39,77 @@ enum BinaryValueType
     TP_MAX       = 24,
 };
 
-class BinaryReader
-{
-public:
-    BinaryReader(const char *data, size_t length)
-        : data_(data)
-        , p_(data)
-        , end_(data + length)
-    {}
-    
-    template<typename T>
-    T readNumber()
-    {
-        T v = T(0);
-        if(p_ + sizeof(T) <= end_)
-        {
-            memcpy(&v, p_, sizeof(T));
-        }
-        p_ += sizeof(T);
-        return v;
-    }
-    
-    const char* readBytes(size_t length);
-    
-    bool empty() const { return p_ >= end_; }
-    
-    const char* data() const{ return data_; }
-    
-private:
-    const char*     data_;
-    const char*     p_;
-    const char*     end_;
-};
-
 class BinaryParser
 {
+    SJ_DISABLE_COPY_ASSIGN(BinaryParser);
 public:
-    explicit BinaryParser(IAllocator *allocator = 0);
+    explicit BinaryParser(IAllocator *allocator = nullptr);
     ~BinaryParser();
     
     bool parseFromFile(const char *fileName);
     bool parseFromData(const char *str, size_t length);
+    bool parseFromStream(std::istream &stream);
     
     Node getRoot() const{ return root_; }
     int getErrorCode() const { return errorCode_; }
-    int getErrorOffset() const { return errorOffset_; }
+    size_t getErrorOffset() const { return errorOffset_; }
 
 private:
-    bool parseValue(Node &node, BinaryReader &reader);
-    bool parseStringTable(BinaryReader &reader);
+    bool parseValue(Node &node);
+    bool parseStringTable();
     
-    bool parseString(Node &node, size_t size, BinaryReader &reader);
-    bool parseArray(Node &node, size_t size, BinaryReader &reader);
-    bool parseDict(Node &node, size_t size, BinaryReader &reader);
-    
+    bool parseString(Node &node, size_t size);
+    bool parseArray(Node &node, size_t size);
+    bool parseDict(Node &node, size_t size);
+
+    template <typename T>
+    inline T readNumber()
+    {
+        T ret;
+        stream_->read(reinterpret_cast<char*>(&ret), sizeof(ret));
+        return ret;
+    }
+
     Node            root_;
     IAllocator*     allocator_;
     int             errorCode_;
-    int             errorOffset_;
+    size_t          errorOffset_;
     Array           stringTable_;
+    std::istream*   stream_;
+    size_t          version_;
 };
+
+
+class BinaryWriter
+{
+public:
+    BinaryWriter();
+
+    void write(const Node &node, std::ostream &stream);
+
+private:
+    void writeValue(const Node& node);
+
+    void writeInteger(Integer value);
+    void writeInt32(int32_t value);
+    void writeInt64(int64_t value);
+    void writeLength(BinaryValueType type, size_t length);
+    void writeStringPool();
+
+    inline void writeType(BinaryValueType type)
+    {
+        writeNumber((int8_t)type);
+    }
+
+    template <typename T>
+    inline void writeNumber(T value)
+    {
+        stream_->write(reinterpret_cast<char*>(&value), sizeof(value));
+    }
+
+private:
+    std::ostream*   stream_;
+    class StringPool* stringPool_;
+};
+
 NS_SMARTJSON_END

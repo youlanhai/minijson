@@ -10,6 +10,7 @@ NS_SMARTJSON_BEGIN
  */
 class Parser
 {
+    SJ_DISABLE_COPY_ASSIGN(Parser);
 public:
     explicit Parser(IAllocator *allocator = nullptr);
     ~Parser();
