@@ -9,6 +9,8 @@ set(SOURCE_FILES test.cpp)
 add_executable(${TARGET} ${SOURCE_FILES})
 target_link_libraries(${TARGET} smartjson)
 
+set(CMAKE_DEFAULT_STARTUP_PROJECT ${TARGET_NAME})
+
 ##################################################
 set(TARGET smain)
 set(SOURCE_FILES main.cpp)
