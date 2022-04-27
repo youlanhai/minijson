@@ -163,7 +163,7 @@ void testNode()
 
     n8.setMember("a/b", 123);
     TEST_EQUAL(n8.hasMember("a/b"));
-    TEST_EQUAL(n8.getMember<int>("a/b") == 123);
+    TEST_EQUAL(n8.get<int>("a/b") == 123);
     TEST_EQUAL(n8.removeMember("a/b"));
     TEST_EQUAL(!n8.hasMember("a/b"));
 }
@@ -175,8 +175,8 @@ struct Vector2
 
 void fromNode(Vector2 &v, const smartjson::Node &node)
 {
-    v.x = node.getMember<float>("x");
-    v.y = node.getMember<float>("y");
+    v.x = node.get<float>("x");
+    v.y = node.get<float>("y");
 }
 
 const char *json = R"(
@@ -250,7 +250,7 @@ void testParser()
     TEST_EQUAL(almoseEqual(v2.x, 100.55));
     TEST_EQUAL(almoseEqual(v2.y, 200.22));
 
-    Vector2 v2x = root.getMember<Vector2>("pos");
+    Vector2 v2x = root.get<Vector2>("pos");
     TEST_EQUAL(almoseEqual(v2x.x, 100.55));
     TEST_EQUAL(almoseEqual(v2x.y, 200.22));
     

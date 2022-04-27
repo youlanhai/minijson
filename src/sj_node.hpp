@@ -341,6 +341,9 @@ public: // array
     Node& operator[] (size_t index);
     const Node& operator[] (size_t index) const { return const_cast<Node*>(this)->operator[](index); }
 
+    template <typename T>
+    T get(size_t key, T defaultValue = T()) const;
+
 public: // dict
     DictIterator memberBegin();
     ConstDictIterator memberBegin() const;
@@ -388,7 +391,7 @@ public: // dict
     const Node& operator[] (const Node &key) const;
 
     template <typename T>
-    T getMember(const char *key, T defaultValue = T()) const;
+    T get(const char *key, T defaultValue = T()) const;
 
     void getKeys(std::vector<Node> &output, bool sort = false) const;
     void getValues(std::vector<Node> &output) const;
@@ -967,9 +970,20 @@ inline void Node::eraseMember(DictIterator it)
 }
 
 template <typename T>
-T Node::getMember(const char *key, T defaultValue) const
+inline T Node::get(const char *key, T defaultValue) const
 {
-    const Node &node = findMemberByPath(key, strlen(key));
+    const Node &node = (*this)[key];
+    if (!node.isNull())
+    {
+        return node.as<T>();
+    }
+    return defaultValue;
+}
+
+template <typename T>
+inline T Node::get(size_t key, T defaultValue) const
+{
+    const Node &node = (*this)[key];
     if (!node.isNull())
     {
         return node.as<T>();
