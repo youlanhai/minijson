@@ -181,8 +181,10 @@ void fromNode(Vector2 &v, const smartjson::Node &node)
 
 const char *json = R"(
 {
-"name"   : "json",
-"age"    : 20,
+"name"   : "json", // this is line comment
+"age"    : /* age is 
+              block comment
+            */ 20,
 "weight" : 60.5,
 "i1"     : 1234567890,
 "i2"     : -123456789,

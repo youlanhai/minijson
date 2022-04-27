@@ -664,7 +664,9 @@ Node& Node::operator[] (size_t index)
         }
     }
     
-    return nullValue();
+    static Node _null;
+    _null.setNull();
+    return _null;
 }
 
 const Node& Node::findMemberByPath(const char *keyPath, size_t keyLength) const

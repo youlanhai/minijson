@@ -642,7 +642,7 @@ bool Parser::parseNull(Node &node)
 
 bool Parser::parseComment()
 {
-    int nextCh = aheadToken();
+    int nextCh = getChar();
     if (nextCh == '/')
     {
         if (!parseLineComment())
