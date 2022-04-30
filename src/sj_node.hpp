@@ -509,17 +509,12 @@ inline void toNode(Node &node, uint16_t value)  { node.setUInteger(value); }
 inline void toNode(Node &node, int32_t value)   { node.setInteger(value); }
 inline void toNode(Node &node, uint32_t value)  { node.setUInteger(value); }
 inline void toNode(Node &node, float value)     { node.setFloat(value); }
-
-#if SJ_USE_LARGE_NUMBER
-inline void toNode(Node &node, int64_t value)   { node.setInteger(value); }
-inline void toNode(Node &node, uint64_t value)  { node.setUInteger(value); }
-inline void toNode(Node &node, double value)    { node.setFloat(value); }
-#else
 inline void toNode(Node &node, int64_t value)   { node.setInteger(static_cast<Integer>(value)); }
 inline void toNode(Node &node, uint64_t value)  { node.setUInteger(static_cast<UInteger>(value)); }
 inline void toNode(Node &node, double value)    { node.setFloat(static_cast<Float>(value)); }
+#ifdef __APPLE__
+inline void toNode(Node &node, size_t value)  { node.setUInteger(static_cast<UInteger>(value)); }
 #endif
-
 inline void toNode(Node &node, const char *value){ node.setString(value); }
 inline void toNode(Node &node, const IObjectValue *value){ node.setObject(value); }
 inline void toNode(Node &node, const std::string &value){ node.setString(value.c_str(), value.size()); }
@@ -536,10 +531,13 @@ inline void fromNode(int32_t &value, const Node &node)  { value = static_cast<in
 inline void fromNode(uint32_t &value, const Node &node) { value = static_cast<uint32_t>(node.asUInteger()); }
 inline void fromNode(int64_t &value, const Node &node)  { value = static_cast<int64_t>(node.asInteger()); }
 inline void fromNode(uint64_t &value, const Node &node) { value = static_cast<uint64_t>(node.asUInteger()); }
+#ifdef __APPLE__
+inline void fromNode(size_t &value, const Node &node) { value = static_cast<size_t>(node.asUInteger()); }
+#endif
 inline void fromNode(float &value, const Node &node)    { value = static_cast<float>(node.asFloat()); }
 inline void fromNode(double &value, const Node &node)   { value = static_cast<double>(node.asFloat()); }
 inline void fromNode(Node &value, const Node &node) { value = node; }
-
+inline void fromNode(const char*& value, const Node &node) { value = node.asCString(); }
 inline void fromNode(std::string &value, const Node &node)
 {
     if (node.isString())

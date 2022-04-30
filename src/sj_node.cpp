@@ -319,6 +319,8 @@ Node::Node(ValueType type, IAllocator *allocator)
     case T_DICT:
         setDict(allocator);
         break;
+    default:
+        break;
     }
 }
 
